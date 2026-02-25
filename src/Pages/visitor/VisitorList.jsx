@@ -192,7 +192,6 @@ export default function VisitorList() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-slate-500 font-medium">
               <tr>
-                <th className="p-4">Visitor Type</th>
                 <th className="p-4">Name</th>
                 <th className="p-4">Contact</th>
                 <th className="p-4">Visa & Country</th>
@@ -208,7 +207,6 @@ export default function VisitorList() {
               ) : (
                 visitors.map((v) => (
                   <tr key={v._id} className="hover:bg-slate-50 transition-all">
-                    <td className="p-4"><span className="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700">{v.visitorType}</span></td>
                     <td className="p-4 font-semibold text-slate-800">{v.name}</td>
                     <td className="p-4 text-slate-600">{v.mobile}</td>
                     <td className="p-4">

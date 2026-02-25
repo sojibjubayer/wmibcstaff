@@ -34,7 +34,7 @@ const ClientInfo = () => {
           "https://wmibcstaff-server.vercel.app/api/clients",
           {
             params: { consultant: storedUser.name },
-          }
+          },
         );
 
         setClients(response.data.reverse());
@@ -49,10 +49,13 @@ const ClientInfo = () => {
     getClients();
   }, []);
 
-  // ✅ UPDATED FILTER LOGIC: Search by Mobile OR Passport OR New Passport
+  // ✅ UPDATED FILTER LOGIC: Search by Name OR Mobile OR Passport OR New Passport
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {
       const query = searchQuery.toLowerCase();
+
+      // Check Name
+      const matchName = client.clientName?.toLowerCase().includes(query);
 
       // Check Mobile
       const matchMobile = client.contactNo
@@ -72,7 +75,9 @@ const ClientInfo = () => {
         .toLowerCase()
         .includes(query);
 
-      const matchSearch = matchMobile || matchPassport || matchNewPassport;
+      // Combine all conditions (Added matchName here)
+      const matchSearch =
+        matchName || matchMobile || matchPassport || matchNewPassport;
 
       const matchVisa = visaFilter ? client.visaType === visaFilter : true;
 
@@ -104,6 +109,13 @@ const ClientInfo = () => {
     );
   }
 
+  // RESET FILTER
+  const resetFilters = () => {
+    setSearchQuery("");
+    setVisaFilter("");
+    setCountryFilter("");
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-semibold mb-6">
@@ -112,10 +124,10 @@ const ClientInfo = () => {
 
       {/* 🔍 Search + Filter Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-4">
-        {/* Updated Search Box */}
+        {/* Search by Name, Mobile, Passport */}
         <input
           type="text"
-          placeholder="Search Mobile or Passport..."
+          placeholder="Search Name, Mobile or Passport..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border border-emerald-400 px-4 py-2 rounded-md w-full md:w-1/4 focus:ring-2 focus:ring-emerald-300 outline-none"
@@ -149,6 +161,13 @@ const ClientInfo = () => {
           <option value="North Macedonia">North Macedonia</option>
           <option value="Cyprus">Cyprus</option>
         </select>
+        {/* ✅ RESET BUTTON */}
+        <button
+          onClick={resetFilters}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-6 py-2 rounded-md font-bold transition text-sm w-full md:w-auto"
+        >
+          RESET
+        </button>
       </div>
 
       {/* Table */}

@@ -10,7 +10,6 @@ import autoTable from "jspdf-autotable";
 import logoImg from "../../assets/company-logo.jpg"; 
 import headerArabicImg from "../../assets/headr.jpg"; 
 
-
 export default function ClientDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,50 +22,127 @@ export default function ClientDetails() {
       .catch(() => toast.error("Failed to load client"));
   }, [id]);
 
-  // --- MODERN PDF REPORT LOGIC ---
+
+// --- MODERN PDF REPORT LOGIC ---
   const downloadPDF = () => {
     if (!client) return;
     const doc = new jsPDF("p", "pt", "a4");
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // --- 1. HEADER SECTION ---
+    if (logoImg) {
+      doc.addImage(logoImg, "JPEG", 40, 40, 60, 60);
+    }
+
     doc.setFontSize(22);
     doc.setTextColor(16, 185, 129); 
     doc.setFont("helvetica", "bold");
-    doc.text("CLIENT RECORD", 40, 60);
+    doc.text("OFFICIAL CLIENT RECORD", 110, 70);
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100);
-    doc.text(`Consultant: ${client.consultant || "N/A"}`, 40, 80);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 95);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Consultant: ${client.consultant || "N/A"}`, 110, 85);
+    doc.text(`Report Generated: ${new Date().toLocaleString()}`, 110, 97);
+    doc.line(40, 115, pageWidth - 40, 115);
 
-    const infoData = [
-      ["Client Name", client.clientName || "—"],
-      ["Contact Number", client.contactNo || "—"],
-      ["Passport", client.passport || "—"],
+    // --- 2. SECTION: IDENTITY & JOURNEY ---
+    // Identity Table with Conditional "New Passport"
+    const identityBody = [
+      ["Full Name", client.clientName || "—"],
+      ["Passport No", client.passport || "—"],
+      client.newPassport ? ["New Passport", client.newPassport] : null, // Conditional row
+      ["QID Number", client.QID || "—"],
       ["Nationality", client.nationality || "—"],
-      ["Current Country", client.currentCountry || "—"],
-      ["Destination", client.destinationCountry || "—"],
-      ["Visa Type", client.visaType || "—"],
-      ["Submission Date", client.fileSubmissionDate ? new Date(client.fileSubmissionDate).toLocaleDateString() : "—"],
-    ];
+      ["Contact No", client.contactNo || "—"],
+    ].filter(row => row !== null); // Remove the null row if field is empty
 
     autoTable(doc, {
-      startY: 120,
-      head: [["Field", "Details"]],
-      body: infoData,
+      startY: 130,
+      head: [[{ content: 'PRIMARY IDENTITY', colSpan: 2, styles: { halign: 'center', fillColor: [51, 65, 85] } }]],
+      body: identityBody,
       theme: "grid",
-      headStyles: { fillColor: [16, 185, 129] },
+      styles: { fontSize: 9 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 100 } },
+      margin: { right: 300 },
     });
 
-    if (client.amountReceived?.length > 0) {
-      autoTable(doc, {
-        startY: doc.lastAutoTable.finalY + 20,
-        head: [["Payment", "Method", "Date", "Amount"]],
-        body: client.amountReceived.map(p => [p.paymentType, p.paymentMethod, p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : "—", `${p.amount} QAR`]),
-        theme: "striped",
-      });
-    }
+    // Application Table with Conditional "Changed Destination"
+    const journeyBody = [
+      ["Current Country", client.currentCountry || "—"],
+      ["Destination", client.destinationCountry || "—"],
+      client.changedDestination ? ["Changed Destination", client.changedDestination] : null, // Conditional row
+      ["Visa Type", client.visaType || "—"],
+      ["Trade / Job", client.trade || "—"],
+      ["Submission Date", client.fileSubmissionDate ? new Date(client.fileSubmissionDate).toLocaleDateString() : "—"],
+      ["App. Status", client.applicationStatus || "Pending"],
+    ].filter(row => row !== null); // Remove the null row if field is empty
 
-    doc.save(`${client.clientName}_Full_Record.pdf`);
+    autoTable(doc, {
+      startY: 130,
+      head: [[{ content: 'APPLICATION DETAILS', colSpan: 2, styles: { halign: 'center', fillColor: [16, 185, 129] } }]],
+      body: journeyBody,
+      theme: "grid",
+      styles: { fontSize: 9 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 100 } },
+      margin: { left: 305 },
+    });
+
+    // --- 3. SECTION: STATUS & TERMS ---
+    autoTable(doc, {
+      startY: Math.max(doc.lastAutoTable.finalY + 20, 300), // Safety check for table height
+      head: [["Agreement Status", "Handover Status", "Refund Policy"]],
+      body: [[client.agreementPaper || "—", client.handover || "—", client.refundTerms || "—"]],
+      theme: "striped",
+      headStyles: { fillColor: [100, 116, 139] },
+      styles: { fontSize: 9, halign: 'center' },
+    });
+
+    // --- 4. SECTION: FINANCIAL HISTORY ---
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.setFont("helvetica", "bold");
+    doc.text("FINANCIAL SUMMARY", 40, doc.lastAutoTable.finalY + 30);
+
+    const paymentRows = client.amountReceived?.map(p => [
+      p.paymentType || "Payment",
+      p.paymentMethod || "Cash",
+      p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : "—",
+      `${p.amount} QAR`
+    ]) || [["No payments recorded", "", "", ""]];
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 40,
+      head: [["Type", "Method", "Date", "Amount"]],
+      body: [
+        ...paymentRows,
+        [{ content: `Total Service Charge: ${client.totalServiceCharge || 0} QAR`, colSpan: 2, styles: { fontStyle: 'bold' } },
+         { content: `Pending Balance:`, colSpan: 1, styles: { fontStyle: 'bold', halign: 'right' } },
+         { content: `${client.paymentDue || 0} QAR`, styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }]
+      ],
+      theme: "grid",
+      styles: { fontSize: 9 },
+    });
+
+    // --- 5. REMARKS ---
+    const finalY = doc.lastAutoTable.finalY + 30;
+    doc.setFontSize(10);
+    doc.text("OFFICE REMARKS:", 40, finalY);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    const splitRemarks = doc.splitTextToSize(client.remarks || "No official remarks recorded.", pageWidth - 80);
+    doc.text(splitRemarks, 40, finalY + 15);
+
+    // --- 6. FOOTER ---
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text("This is a computer-generated document. Signature is only required for verification.", pageWidth / 2, 810, { align: "center" });
+
+    doc.save(`${client.clientName}_Detailed_Report.pdf`);
   };
+
+
 
   // --- 3-COPY RECEIPT LOGIC ---
 const generateReceipt = () => {
@@ -242,9 +318,9 @@ const generateReceipt = () => {
         <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
           
           {/* HEADER */}
-          <div className="bg-emerald-600 p-8 text-white">
+          <div className="bg-emerald-200 p-8 text-gray-700">
             <h1 className="text-2xl font-black uppercase tracking-tight">{client.clientName}</h1>
-            <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">Consultant: {client.consultant}</p>
+            <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest">Consultant: {client.consultant}</p>
           </div>
 
           <div className="p-6 md:p-10">
@@ -291,7 +367,7 @@ const generateReceipt = () => {
                 </div>
                 
                 <div className="pt-4 mt-2 border-t border-slate-200">
-                  <InfoBox label="Outstanding Due" value={`${client.paymentDue || 0} QAR`} />
+                  <InfoBox label="Pending Balance" value={`${client.paymentDue || 0} QAR`} />
                 </div>
               </div>
             </div>

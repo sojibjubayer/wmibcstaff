@@ -74,13 +74,13 @@ export default function EditClient() {
       <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-xl border border-amber-100 overflow-hidden">
         
         {/* Header Section */}
-        <div className="bg-amber-500 p-8 text-white flex justify-between items-center">
+        <div className="bg-amber-200 p-8 text-white flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-black uppercase tracking-tight">Edit Client</h1>
-            <p className="text-white/80 text-xs font-bold uppercase tracking-widest">{formData.clientName}</p>
+            <h1 className="text-2xl font-bold text-gray-700 uppercase tracking-tight">Edit Client</h1>
+            <p className="text-gray-800 text-xs font-bold uppercase tracking-widest">{formData.clientName}</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => navigate(-1)} className="bg-white/20 p-2 px-6 rounded-xl text-xs font-black uppercase hover:bg-white/30 transition-all">Cancel</button>
+            <button onClick={() => navigate(-1)} className="bg-red-300 p-2 px-6 rounded-xl text-xs font-black uppercase hover:bg-red-400 transition-all">Cancel</button>
             <button onClick={handleUpdate} className="bg-slate-900 p-2 px-6 rounded-xl text-xs font-black uppercase shadow-lg hover:scale-105 transition-all">Save Changes</button>
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function EditClient() {
               <EditField label="Total Service Charge" value={formData.totalServiceCharge} onChange={(v) => setFormData({...formData, totalServiceCharge: v})} />
               
               {/* Manual Due Field as requested */}
-              <EditField label="Outstanding Due Amount" value={formData.paymentDue} onChange={(v) => setFormData({...formData, paymentDue: v})} />
+              <EditField label="Pending Balance" value={formData.paymentDue} onChange={(v) => setFormData({...formData, paymentDue: v})} />
 
               {/* History List */}
               <div className="space-y-2 mt-6 max-h-40 overflow-y-auto pr-2">

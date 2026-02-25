@@ -46,7 +46,6 @@ const initialState = {
   consultant: "",
   name: "",
   mobile: "",
-  visitorType: "", 
   age: "",
   currentAddress: "",
   profession: "",
@@ -169,14 +168,14 @@ export default function AddVisitor() {
           <hr className="border-amber-200" />
 
           {/* Visitor Type */}
-          <div>
+          {/* <div>
             <label className="text-xs font-bold text-gray-600">Visitor Type</label>
             <select name="visitorType" value={formData.visitorType} onChange={handleChange} required className={inputStyle}>
               <option value="">Select Visitor Type</option>
               <option value="New Visitor">New</option>
               <option value="Client">Client</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Name + Mobile */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
