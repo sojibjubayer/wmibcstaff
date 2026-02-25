@@ -166,7 +166,7 @@ export default function ClientDetails() {
             styles: { fontStyle: "bold", halign: "right" },
           },
           {
-            content: `${client.paymentDue || 0} QAR`,
+            content: `${client.pendingBalance || 0} QAR`,
             styles: { fontStyle: "bold", fillColor: [254, 226, 226] },
           },
         ],
@@ -175,28 +175,50 @@ export default function ClientDetails() {
       styles: { fontSize: 9 },
     });
 
-    // --- 5. REMARKS ---
+    // --- 5. REMARKS (Handing remarksHistory Array) ---
     const finalY = doc.lastAutoTable.finalY + 30;
     doc.setFontSize(10);
-    doc.text("OFFICE REMARKS:", 40, finalY);
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(80);
-    const splitRemarks = doc.splitTextToSize(
-      client.remarks || "No official remarks recorded.",
-      pageWidth - 80,
-    );
-    doc.text(splitRemarks, 40, finalY + 15);
+    doc.setTextColor(0);
+    doc.setFont("helvetica", "bold");
+    doc.text("OFFICE REMARKS HISTORY:", 40, finalY);
 
-    // --- 6. FOOTER ---
+    let currentRemarkY = finalY + 20;
     doc.setFontSize(8);
-    doc.setTextColor(150);
-    doc.text(
-      "This is a computer-generated document. Signature is only required for verification.",
-      pageWidth / 2,
-      810,
-      { align: "center" },
-    );
+
+    if (client.remarksHistory && client.remarksHistory.length > 0) {
+      // We sort or reverse if you want the newest first, or just map them
+      client.remarksHistory.forEach((remark, idx) => {
+        // 1. Format the Date
+        const dateStr = new Date(remark.date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+
+        // 2. Set style for the "Date - Text" line
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(100); // Gray for date
+        doc.text(`${dateStr}:`, 40, currentRemarkY);
+
+        // 3. Wrap and print the actual remark text
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(60); // Darker gray for text
+        const wrappedText = doc.splitTextToSize(
+          remark.text || "",
+          pageWidth - 140,
+        );
+        doc.text(wrappedText, 110, currentRemarkY);
+
+        // 4. Calculate space for next remark (count lines in wrapped text)
+        const lineHeight = 12;
+        const entryHeight = wrappedText.length * lineHeight;
+        currentRemarkY += entryHeight + 5; // Add extra 5pt padding between entries
+      });
+    } else {
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150);
+      doc.text("No official remarks recorded.", 40, currentRemarkY);
+    }
 
     doc.save(`${client.clientName}_Detailed_Report.pdf`);
   };
@@ -289,7 +311,6 @@ export default function ClientDetails() {
       const pageWidth = doc.internal.pageSize.getWidth();
 
       // --- 1. HEADERS & IMAGES ---
-      // Left: English
       doc.setFontSize(11);
       doc.setTextColor(22, 53, 118);
       doc.setFont("helvetica", "bold");
@@ -313,7 +334,7 @@ export default function ClientDetails() {
           logoImg,
           "JPEG",
           (pageWidth - logoWidth) / 2,
-          yOffset + -1.5,
+          yOffset - 1,
           logoWidth,
           logoHeight,
         );
@@ -346,10 +367,9 @@ export default function ClientDetails() {
         align: "center",
       });
 
-      // --- 3. INFO BAR (Added Safety for ID) ---
+      // --- 3. INFO BAR ---
       doc.setFontSize(10);
       doc.setTextColor(200, 0, 0);
-      // Safety check: ensure id exists before slicing
       const displayId = id ? id.slice(-4).toUpperCase() : "0000";
       doc.text(`No: ${displayId}`, 40, yOffset + 105);
 
@@ -361,48 +381,68 @@ export default function ClientDetails() {
       doc.setFont("helvetica", "normal");
       doc.text(`Date: ${today}`, 460, yOffset + 105);
 
-      // --- 4. CONTENT BOX ---
+      // --- 4. CONTENT BOX (Dynamic Height based on Pending Balance) ---
+      const hasBalance = client.pendingBalance && client.pendingBalance > 0;
+      const boxHeight = hasBalance ? 110 : 92;
       doc.setDrawColor(22, 53, 118);
-      doc.rect(30, yOffset + 120, 535, 90);
+      doc.rect(30, yOffset + 120, 535, boxHeight);
 
-      const rowStart = yOffset + 138;
+      let currentRowY = yOffset + 138;
       doc.setFontSize(9);
 
-      // Received From
-      doc.text("Received from Mr. or M/s.", 45, rowStart);
+      // Row 1: Received From
+      doc.setFont("helvetica", "normal");
+      doc.text("Received from Mr. or M/s.", 45, currentRowY);
       doc.setFont("helvetica", "bold");
-      doc.text(`${client.clientName || ""}`, 155, rowStart);
-      doc.line(150, rowStart + 2, 500, rowStart + 2);
+      doc.text(`${client.clientName || ""}`, 155, currentRowY);
+      doc.line(150, currentRowY + 2, 530, currentRowY + 2);
 
-      // Sum
+      // Row 2: Sum in Words
+      currentRowY += 18;
       doc.setFont("helvetica", "normal");
-      doc.text("The Sum of Q.Rs.", 45, rowStart + 16);
+      doc.text("The Sum of Q.Rs.", 45, currentRowY);
       doc.setFont("helvetica", "italic");
-      doc.text(toWords(latestPayment.amount || 0), 125, rowStart + 16);
-      doc.line(120, rowStart + 18, 500, rowStart + 18);
+      doc.text(toWords(latestPayment.amount || 0), 125, currentRowY);
+      doc.line(120, currentRowY + 2, 530, currentRowY + 2);
 
-      // Passport & Mobile
+      // OPTIONAL Row: Pending Balance (Only shows if value exists)
+      if (hasBalance) {
+        currentRowY += 18;
+        doc.setFont("helvetica", "normal");
+        doc.text("Pending Balance:", 45, currentRowY);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(200, 0, 0); // Red for balance
+        doc.text(`${client.pendingBalance} QAR`, 125, currentRowY);
+        doc.setTextColor(0, 0, 0); // Reset
+        doc.line(120, currentRowY + 2, 530, currentRowY + 2);
+      }
+
+      // Row 3: Passport & Mobile
+      currentRowY += 18;
       doc.setFont("helvetica", "normal");
-      doc.text("Passport No:", 45, rowStart + 32);
-      doc.text(`${client.passport || "—"}`, 105, rowStart + 32);
-      doc.line(100, rowStart + 34, 230, rowStart + 34);
+      doc.text("Passport No:", 45, currentRowY);
+      doc.text(`${client.passport || "—"}`, 105, currentRowY);
+      doc.line(100, currentRowY + 2, 280, currentRowY + 2);
 
-      doc.text("Mobile No:", 250, rowStart + 32);
-      doc.text(`${client.contactNo || "—"}`, 305, rowStart + 32);
-      doc.line(300, rowStart + 34, 500, rowStart + 34);
+      doc.text("Mobile No:", 300, currentRowY);
+      doc.text(`${client.contactNo || "—"}`, 355, currentRowY);
+      doc.line(350, currentRowY + 2, 530, currentRowY + 2);
 
-      // Being For & Method (Safety checks added)
-      doc.text("Being for:", 45, rowStart + 48);
+      // Row 4: Purpose
+      currentRowY += 18;
+      doc.text("Being for:", 45, currentRowY);
       doc.setFont("helvetica", "italic");
       const purpose = `${latestPayment.paymentType || ""} ${client.visaType || ""} Service`;
-      doc.text(purpose.trim(), 95, rowStart + 48);
-      doc.line(90, rowStart + 50, 265, rowStart + 50);
+      doc.text(purpose.trim(), 95, currentRowY);
+      doc.line(90, currentRowY + 2, 530, currentRowY + 2);
 
+      // Row 5: Payment Method (ALWAYS LAST)
+      currentRowY += 18;
       doc.setFont("helvetica", "normal");
-      doc.text("Payment Method:", 275, rowStart + 48);
+      doc.text("Payment Method:", 45, currentRowY);
       doc.setFont("helvetica", "bold");
-      doc.text(`${latestPayment.paymentMethod || "Cash"}`, 355, rowStart + 48);
-      doc.line(350, rowStart + 50, 500, rowStart + 50);
+      doc.text(`${latestPayment.paymentMethod || "Cash"}`, 125, currentRowY);
+      doc.line(120, currentRowY + 2, 530, currentRowY + 2);
 
       // --- 5. SIGNATURES ---
       doc.setFontSize(8);
@@ -491,12 +531,38 @@ export default function ClientDetails() {
         {/* MAIN CARD UI */}
         <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
           {/* HEADER */}
-          <div className="bg-emerald-200 p-8 text-gray-700">
-            <h1 className="text-2xl font-black uppercase tracking-tight">
-              {client.clientName}
-            </h1>
-            <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest">
-              Consultant: {client.consultant}
+          <div className="bg-emerald-200 p-8 text-gray-700 flex justify-between">
+            <div>
+              <h1 className="text-2xl font-black uppercase tracking-tight">
+                {client.clientName}
+              </h1>
+              <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest">
+                Consultant: {client.consultant}
+              </p>
+            </div>
+
+            <p className="mt-2 text-gray-600 text-[10px] font-black uppercase tracking-widest">
+              
+              {client.updatedBy && client.updatedBy.length > 0 ? (
+                <>
+                Last Updated By:{" "}
+                  {client.updatedBy[client.updatedBy.length - 1].name}
+                  <br />
+                  at{" "}
+                  {new Date(
+                    client.updatedBy[client.updatedBy.length - 1].date,
+                  ).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </>
+              ) : (
+                ""
+              )}
             </p>
           </div>
 
@@ -588,7 +654,7 @@ export default function ClientDetails() {
                 <div className="pt-4 mt-2 border-t border-slate-200">
                   <InfoBox
                     label="Pending Balance"
-                    value={`${client.paymentDue || 0} QAR`}
+                    value={`${client.pendingBalance || 0} QAR`}
                   />
                 </div>
               </div>

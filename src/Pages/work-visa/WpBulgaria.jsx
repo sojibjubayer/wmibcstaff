@@ -24,7 +24,7 @@ const WpBulgaria = () => {
               "Hospitality",
               "Construction Worker",
               "Housekeeping",
-              "Hepler",
+              "Helper",
             ].map((job, index) => (
               <div
                 key={index}

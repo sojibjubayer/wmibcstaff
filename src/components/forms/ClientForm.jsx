@@ -73,7 +73,7 @@ export default function ClientForm() {
       paymentDate: null,
       paymentMethod: "",
     },
-    paymentDue: "",
+    pendingBalance: "",
     refundTerms: "",
     handover: "",
     applicationStatus: "",
@@ -456,13 +456,13 @@ export default function ClientForm() {
 
           <div>
             <label className={labelStyle}>
-              <FaMoneyBillWave /> Payment Due
+              <FaMoneyBillWave /> Pending Balance
             </label>
             <input
               type="number"
               className={inputStyle}
-              value={formData.paymentDue}
-              onChange={(e) => handleChange("paymentDue", e.target.value)}
+              value={formData.pendingBalance}
+              onChange={(e) => handleChange("pendingBalance", e.target.value)}
               required
             />
           </div>

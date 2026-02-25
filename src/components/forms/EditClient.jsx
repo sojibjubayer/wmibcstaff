@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaSave, FaTrash, FaPlus, FaCalendarAlt } from "react-icons/fa";
+import { FaSave, FaTrash, FaPlus, FaCalendarAlt, FaUserEdit } from "react-icons/fa";
 import toast, { Toaster } from "react-hot-toast";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -15,7 +15,9 @@ export default function EditClient() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   
-  // State for adding a new payment (Includes Date)
+  // LOGGED IN USER: Replace "Current Staff" with logic from your Auth Provider (e.g., user.displayName)
+  const [currentUser, setCurrentUser] = useState("Staff Member"); 
+
   const [newPayment, setNewPayment] = useState({ 
     paymentType: "", 
     amount: "", 
@@ -29,24 +31,54 @@ export default function EditClient() {
       .then(data => setFormData({
         ...data,
         amountReceived: Array.isArray(data.amountReceived) ? data.amountReceived : [],
+        remarksHistory: Array.isArray(data.remarksHistory) ? data.remarksHistory : [],
         fileSubmissionDate: data.fileSubmissionDate ? new Date(data.fileSubmissionDate) : null
       }))
       .catch(() => toast.error("Error loading data"));
   }, [id]);
 
-  const handleUpdate = async () => {
-    try {
-      const res = await fetch(`https://wmibcstaff-server.vercel.app/api/clients/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        toast.success("Client Updated Successfully!");
-        setTimeout(() => navigate(`/client-details/${id}`), 1000);
-      }
-    } catch (err) { toast.error("Failed to update"); }
+ const handleUpdate = async () => {
+  // 1. Correctly extract user.name from localStorage
+  let currentStaffName = "Unknown Staff";
+  try {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      // Parse the JSON object and target the .name property
+      const parsedUser = JSON.parse(userData);
+      currentStaffName = parsedUser.name || "Unknown Staff";
+    }
+  } catch (err) {
+    console.error("Auth parsing error:", err);
+  }
+
+  // 2. Prepare the new log entry object
+  const newLogEntry = {
+    name: currentStaffName,
+    date: new Date().toISOString()
   };
+
+  // 3. Prepare final data (RemarksHistory is NOT updated/added to)
+  const finalData = {
+    ...formData,
+    updatedBy: [...(formData.updatedBy || []), newLogEntry]
+  };
+
+  // 4. Send to Database
+  try {
+    const res = await fetch(`https://wmibcstaff-server.vercel.app/api/clients/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(finalData),
+    });
+
+    if (res.ok) {
+      toast.success("Client Updated Successfully!");
+      setTimeout(() => navigate(`/client-details/${id}`), 1000);
+    }
+  } catch (err) { 
+    toast.error("Failed to update"); 
+  }
+};
 
   const addPayment = () => {
     if (!newPayment.paymentType || !newPayment.amount || !newPayment.paymentMethod) {
@@ -60,8 +92,19 @@ export default function EditClient() {
         paymentDate: newPayment.paymentDate.toISOString() 
       }
     ];
-    setFormData({ ...formData, amountReceived: updated });
-    // Reset payment adder
+    
+    // Log the payment addition specifically
+    const paymentLog = {
+      text: `${newPayment.paymentType} of ${newPayment.amount} QAR added by ${currentUser}`,
+      date: new Date().toISOString()
+    };
+
+    setFormData({ 
+      ...formData, 
+      amountReceived: updated,
+      remarksHistory: [...formData.remarksHistory, paymentLog] 
+    });
+
     setNewPayment({ paymentType: "", amount: "", paymentMethod: "", paymentDate: new Date() });
     toast.success("Payment added to list");
   };
@@ -74,14 +117,19 @@ export default function EditClient() {
       <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-xl border border-amber-100 overflow-hidden">
         
         {/* Header Section */}
-        <div className="bg-amber-200 p-8 text-white flex justify-between items-center">
+        <div className="bg-amber-200 p-8 text-gray-700 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-700 uppercase tracking-tight">Edit Client</h1>
-            <p className="text-gray-800 text-xs font-bold uppercase tracking-widest">{formData.clientName}</p>
+            <h1 className="text-2xl font-bold uppercase tracking-tight">Edit Client</h1>
+            <div className="flex items-center gap-2 mt-1">
+               <FaUserEdit className="text-amber-600" />
+               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                 Editing as: <span className="text-slate-900">{currentUser}</span>
+               </p>
+            </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => navigate(-1)} className="bg-red-300 p-2 px-6 rounded-xl text-xs font-black uppercase hover:bg-red-400 transition-all">Cancel</button>
-            <button onClick={handleUpdate} className="bg-slate-900 p-2 px-6 rounded-xl text-xs font-black uppercase shadow-lg hover:scale-105 transition-all">Save Changes</button>
+            <button onClick={() => navigate(-1)} className="bg-white/50 p-2 px-6 rounded-xl text-xs font-black uppercase hover:bg-red-200 transition-all border border-red-100">Cancel</button>
+            <button onClick={handleUpdate} className="bg-slate-900 text-white p-2 px-6 rounded-xl text-xs font-black uppercase shadow-lg hover:scale-105 transition-all">Save Changes</button>
           </div>
         </div>
 
@@ -113,14 +161,12 @@ export default function EditClient() {
               </div>
             </div>
 
-            {/* COLUMN 3: ACCOUNTS (MANUAL DUE INPUT) */}
+            {/* COLUMN 3: ACCOUNTS */}
             <div className="bg-slate-50 p-6 rounded-4xl border border-amber-100 shadow-inner">
               <h3 className="text-slate-800 font-black text-[10px] uppercase border-b pb-3 mb-5 tracking-widest">Accounts Ledger</h3>
               
               <EditField label="Total Service Charge" value={formData.totalServiceCharge} onChange={(v) => setFormData({...formData, totalServiceCharge: v})} />
-              
-              {/* Manual Due Field as requested */}
-              <EditField label="Pending Balance" value={formData.paymentDue} onChange={(v) => setFormData({...formData, paymentDue: v})} />
+              <EditField label="Pending Balance" value={formData.pendingBalance} onChange={(v) => setFormData({...formData, pendingBalance: v})} />
 
               {/* History List */}
               <div className="space-y-2 mt-6 max-h-40 overflow-y-auto pr-2">
@@ -141,14 +187,14 @@ export default function EditClient() {
                 ))}
               </div>
 
-              {/* PAYMENT ADDER (WITH DATE PICKER) */}
+              {/* PAYMENT ADDER */}
               <div className="mt-6 p-4 bg-white rounded-2xl border-2 border-dashed border-amber-200 space-y-3">
                 <div className="flex gap-2">
-                  <select className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50" value={newPayment.paymentType} onChange={(e) => setNewPayment({...newPayment, paymentType: e.target.value})}>
+                  <select className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50 outline-none" value={newPayment.paymentType} onChange={(e) => setNewPayment({...newPayment, paymentType: e.target.value})}>
                     <option value="">Type</option>
                     {PAYMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
-                  <select className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50" value={newPayment.paymentMethod} onChange={(e) => setNewPayment({...newPayment, paymentMethod: e.target.value})}>
+                  <select className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50 outline-none" value={newPayment.paymentMethod} onChange={(e) => setNewPayment({...newPayment, paymentMethod: e.target.value})}>
                     <option value="">Method</option>
                     {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
                   </select>
@@ -164,26 +210,21 @@ export default function EditClient() {
                   />
                 </div>
 
-                <input type="number" placeholder="Amount (QAR)" className="w-full text-[10px] font-bold p-2 border rounded-lg" value={newPayment.amount} onChange={(e) => setNewPayment({...newPayment, amount: e.target.value})} />
+                <input type="number" placeholder="Amount (QAR)" className="w-full text-[10px] font-bold p-2 border rounded-lg outline-none" value={newPayment.amount} onChange={(e) => setNewPayment({...newPayment, amount: e.target.value})} />
 
-                <button onClick={addPayment} className="w-full bg-amber-500 text-white py-2 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-amber-600 transition-all">
+                <button onClick={addPayment} className="w-full bg-amber-500 text-white py-2 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-md">
                   <FaPlus size={10}/> Add Payment
                 </button>
               </div>
             </div>
           </div>
 
-          {/* BOTTOM GRID: STATUS & REMARKS */}
+          {/* BOTTOM GRID: STATUS */}
           <div className="mt-12 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-6">
              <EditSelect label="Agreement" value={formData.agreementPaper} options={AGREEMENT_OPTIONS} onChange={(v) => setFormData({...formData, agreementPaper: v})} />
              <EditField label="Handover Status" value={formData.handover} onChange={(v) => setFormData({...formData, handover: v})} />
              <EditField label="Refund Policy" value={formData.refundTerms} onChange={(v) => setFormData({...formData, refundTerms: v})} />
              <EditField label="Application Status" value={formData.applicationStatus} onChange={(v) => setFormData({...formData, applicationStatus: v})} />
-             
-             <div className="md:col-span-4 mt-6">
-                <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Office Remarks</p>
-                <textarea className="w-full p-5 bg-amber-50 border border-amber-100 rounded-3xl text-sm outline-none focus:ring-1 focus:ring-amber-300" rows="4" value={formData.remarks} onChange={(e) => setFormData({...formData, remarks: e.target.value})} />
-             </div>
           </div>
         </div>
       </div>
