@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { FaFilePdf, FaTimes, FaUserCircle, FaSearch, FaChevronLeft, FaChevronRight, FaPassport } from "react-icons/fa";
 
 export default function VisitorList() {
   const [visitors, setVisitors] = useState([]);
@@ -27,200 +28,125 @@ export default function VisitorList() {
     setConsultantName((user?.name || "").trim());
   }, []);
 
-  // --- HELPER FUNCTIONS ---
-  const formatLabel = (key) =>
-    key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
-
+  const formatLabel = (key) => key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
   const formatValue = (key, value) => {
     if (!value) return "N/A";
     if (key.toLowerCase().includes("date") || (typeof value === 'string' && value.includes('T'))) {
       const date = new Date(value);
       return isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
     }
-    if (typeof value === "boolean") return value ? "Yes" : "No";
     return String(value);
   };
 
-  // --- PDF GENERATION (Using DB Date & Time) ---
   const downloadPDF = (visitor) => {
     const doc = new jsPDF('p', 'pt', 'a4');
-
-    // Header 
-    doc.setFontSize(22);
-    doc.setTextColor(30, 41, 59); 
-    doc.setFont("helvetica", "bold");
-    doc.text("Consultation Form", 40, 50);
-
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(71, 85, 105);
-    doc.text(`Consultant: ${consultantName}`, 40, 70);
-
-    // ✅ FIX: Use Date and Time directly from DB
-    const dbDate = visitor.date ? new Date(visitor.date).toLocaleDateString() : "N/A";
-    const dbTime = visitor.time || ""; 
-    const timestamp = `${dbDate} | ${dbTime}`;
-
-    doc.setFontSize(9);
-    doc.setTextColor(148, 163, 184);
-    doc.text(`Issued on: ${timestamp}`, 40, 85);
-
-    // Filter out 'time' from the table rows to avoid repetition
+    doc.setFontSize(20);
+    doc.setTextColor(15, 23, 42);
+    doc.text("Consultation Profile", 40, 50);
     const tableRows = Object.entries(visitor)
-      .filter(([key]) => 
-        !["_id", "__v", "createdAt", "consultant", "consultantName", "date", "time"].includes(key)
-      )
+      .filter(([key]) => !["_id", "__v", "createdAt", "consultant", "date", "time"].includes(key))
       .map(([key, value]) => [formatLabel(key), formatValue(key, value)]);
-
-    autoTable(doc, {
-      startY: 105,
-      head: [["Field", "Details"]],
-      body: tableRows,
-      theme: "striped",
-      margin: { left: 40, right: 40 },
-      headStyles: { 
-        fillColor: [30, 41, 59],
-        fontSize: 11,
-        fontStyle: 'bold' 
-      },
-      styles: { 
-        fontSize: 10, 
-        cellPadding: 8,
-        overflow: 'linebreak'
-      },
-      columnStyles: {
-        0: { fontStyle: 'bold', textColor: [51, 65, 85], cellWidth: 206 },
-        1: { cellWidth: 309 }
-      }
-    });
-
-    doc.save(`${visitor.name.replace(/\s+/g, "_")}_Consultation.pdf`);
-    toast.success(`PDF Generated for ${visitor.name}`);
+    autoTable(doc, { startY: 80, head: [["Field", "Info"]], body: tableRows, theme: "striped", headStyles: { fillColor: [15, 23, 42] } });
+    doc.save(`${visitor.name}_Profile.pdf`);
   };
 
-  // --- DATA FETCHING ---
   const fetchVisitors = useCallback(async () => {
     if (!consultantName) return;
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        consultant: consultantName,
-        page: currentPage,
-        searchMobile,
-        filterVisa,
-        filterCountry,
-        filterStatus,
-        filterDate,
-      });
-      const res = await fetch(
-        `https://wmibcstaff-server.vercel.app/api/visitor?${params}`,
-      );
+      const params = new URLSearchParams({ consultant: consultantName, page: currentPage, searchMobile, filterVisa, filterCountry, filterStatus, filterDate });
+      const res = await fetch(`https://wmibcstaff-server.vercel.app/api/visitor?${params}`);
       const data = await res.json();
       setVisitors(data.visitors || []);
       setTotalPages(data.totalPages || 1);
       setAvailableVisas(data.visaCounts || []);
       setAvailableCountries(data.countryCounts || []);
       setAvailableStatuses(data.statusCounts || []);
-    } catch (err) {
-      toast.error("Failed to load data");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { toast.error("Load failed"); } finally { setLoading(false); }
   }, [consultantName, currentPage, searchMobile, filterVisa, filterCountry, filterStatus, filterDate]);
 
-  useEffect(() => {
-    fetchVisitors();
-  }, [fetchVisitors]);
-
-  const handleFilter = (setter) => (e) => {
-    setter(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const clearAllFilters = () => {
-    setSearchMobile("");
-    setFilterVisa("");
-    setFilterCountry("");
-    setFilterStatus("");
-    setFilterDate("");
-    setCurrentPage(1);
-    toast.success("Filters cleared");
-  };
+  useEffect(() => { fetchVisitors(); }, [fetchVisitors]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-      <Toaster />
-      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Visitor Records</h1>
-            <p className="text-sm text-slate-400 mt-1">Manage and review all visitor consultations</p>
-          </div> 
-          <div className="flex items-center gap-3"> 
-            <button onClick={clearAllFilters} className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all">
-              Clear Filters
-            </button>
-            <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-100">
-              <span className="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Staff</span>
-              <p className="text-sm font-bold text-emerald-700">{consultantName}</p>
-            </div>
+    <div className="min-h-screen bg-slate-100 p-2 md:p-6 text-slate-700">
+      <Toaster position="top-right" />
+      
+      {/* Centered & Width-Limited Container */}
+      <div className="max-w-5xl mx-auto space-y-4">
+        
+        {/* Compact Header */}
+        <div className="flex justify-between items-center bg-white px-5 py-3 rounded-2xl border border-white shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-pink-200 rounded-lg flex items-center justify-center text-slate-900 shadow-sm"><FaPassport size={16} /></div>
+            <h1 className="text-base font-black text-slate-900 tracking-tight uppercase">Visitor Log</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-right"><p className="text-[10px] font-bold text-slate-400 uppercase leading-none">{consultantName}</p></div>
+            <FaUserCircle size={20} className="text-slate-300" />
           </div>
         </div>
 
-        {/* Filters Section */}
-        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <input type="text" placeholder="Search by Mobile..." className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none" value={searchMobile} onChange={handleFilter(setSearchMobile)} />
-            <input type="date" className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none" value={filterDate} onChange={handleFilter(setFilterDate)} />
-            <select className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none" value={filterVisa} onChange={handleFilter(setFilterVisa)}>
-              <option value="">All Visas</option>
+        {/* Dense Filter Bar */}
+        <div className="bg-slate-900 p-4 rounded-2xl shadow-lg">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+            <div className="relative">
+                <FaSearch className="absolute left-3 top-2.5 text-slate-500 text-[10px]" />
+                <input type="text" placeholder="Mobile" className="w-full pl-8 pr-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none" value={searchMobile} onChange={(e) => {setSearchMobile(e.target.value); setCurrentPage(1);}} />
+            </div>
+            <input type="date" className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none" value={filterDate} onChange={(e) => {setFilterDate(e.target.value); setCurrentPage(1);}} />
+            <select className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none" value={filterVisa} onChange={(e) => {setFilterVisa(e.target.value); setCurrentPage(1);}}>
+              <option value="">Visas</option>
               {availableVisas.map((v) => <option key={v._id} value={v._id}>{v._id}</option>)}
             </select>
-            <select className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none" value={filterCountry} onChange={handleFilter(setFilterCountry)}>
-              <option value="">All Countries</option>
+            <select className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none" value={filterCountry} onChange={(e) => {setFilterCountry(e.target.value); setCurrentPage(1);}}>
+              <option value="">Countries</option>
               {availableCountries.map((c) => <option key={c._id} value={c._id}>{c._id}</option>)}
             </select>
-            <select className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none" value={filterStatus} onChange={handleFilter(setFilterStatus)}>
-              <option value="">All Statuses</option>
+            <select className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none" value={filterStatus} onChange={(e) => {setFilterStatus(e.target.value); setCurrentPage(1);}}>
+              <option value="">Status</option>
               {availableStatuses.map((s) => <option key={s._id} value={s._id}>{s._id}</option>)}
             </select>
+            <button onClick={() => {setSearchMobile(""); setFilterVisa(""); setFilterCountry(""); setFilterStatus(""); setFilterDate("");}} className="w-full py-2 bg-pink-200 text-slate-900 font-bold rounded-lg text-[10px] uppercase tracking-widest hover:bg-pink-300 transition-all">Reset</button>
           </div>
         </div>
 
-        {/* Table Section */}
-        <div className="overflow-x-auto border border-slate-100 rounded-xl">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500 font-medium">
-              <tr>
-                <th className="p-4">Name</th>
-                <th className="p-4">Contact</th>
-                <th className="p-4">Visa & Country</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-center">Action</th>
+        {/* Table Content - Narrower & Truncated */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+          <table className="w-full text-left border-collapse table-fixed">
+            <thead>
+              <tr className="bg-slate-50">
+                <th className="w-1/3 p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">Visitor</th>
+                <th className="hidden md:table-cell p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">Contact</th>
+                <th className="p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">Service</th>
+                <th className="p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center">Status</th>
+                <th className="w-20 p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-right">View</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan="6" className="p-10 text-center text-slate-400">Loading visitors...</td></tr>
+                <tr><td colSpan="5" className="p-10 text-center text-slate-400 text-xs">Loading...</td></tr>
               ) : visitors.length === 0 ? (
-                <tr><td colSpan="6" className="p-10 text-center text-slate-400">No visitors found</td></tr>
+                <tr><td colSpan="5" className="p-10 text-center text-slate-300 text-xs uppercase font-bold">No Records</td></tr>
               ) : (
                 visitors.map((v) => (
-                  <tr key={v._id} className="hover:bg-slate-50 transition-all">
-                    <td className="p-4 font-semibold text-slate-800">{v.name}</td>
-                    <td className="p-4 text-slate-600">{v.mobile}</td>
-                    <td className="p-4">
-                      <div className="font-medium text-slate-800">{v.visaType}</div>
-                      <div className="text-xs text-slate-400">{v.interestedCountry}</div>
+                  <tr key={v._id} className="hover:bg-slate-50 transition-all group">
+                    <td className="p-3">
+                      <p className="font-bold text-slate-900 text-xs truncate capitalize">{v.name}</p>
+                      <p className="text-[9px] text-slate-400">{v.date ? new Date(v.date).toLocaleDateString() : 'N/A'}</p>
                     </td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${v.consultationStatus === "Approved" ? "bg-green-100 text-green-700" : v.consultationStatus === "Rejected" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
-                        {v.consultationStatus}
-                      </span>
+                    <td className="hidden md:table-cell p-3 text-xs text-slate-600 font-medium">{v.mobile}</td>
+                    <td className="p-3 truncate">
+                        <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-bold uppercase mr-1">{v.visaType}</span>
+                        <span className="text-[11px] font-bold text-slate-800">{v.interestedCountry}</span>
                     </td>
-                    <td className="p-4 text-center">
-                      <button onClick={() => setSelectedVisitor(v)} className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 text-white hover:bg-black transition-all">
-                        View Details
+                    <td className="p-3 text-center">
+                      <span className={`px-2 py-1 text-[8px] font-black rounded-full uppercase tracking-tighter ${
+                        v.consultationStatus === "Highly Interested" ? "bg-emerald-100 text-emerald-700" : "bg-pink-100 text-pink-600"
+                      }`}>{v.consultationStatus.split(' ')[0]}</span>
+                    </td>
+                    <td className="p-3 text-right">
+                      <button onClick={() => setSelectedVisitor(v)} className="p-1.5 bg-slate-900 text-white rounded-lg hover:bg-pink-300 hover:text-slate-900 transition-all">
+                        <FaPassport size={12}/>
                       </button>
                     </td>
                   </tr>
@@ -228,44 +154,37 @@ export default function VisitorList() {
               )}
             </tbody>
           </table>
-        </div>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-10">
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="px-5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-all">Previous</button>
-          <span className="text-sm font-medium text-slate-600">Page <span className="font-bold">{currentPage}</span> of {totalPages}</span>
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="px-5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-all">Next</button>
+          {/* Compact Pagination */}
+          <div className="p-3 bg-slate-50 border-t flex justify-between items-center">
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30"><FaChevronLeft size={10}/></button>
+            <span className="text-[9px] font-black text-slate-400 uppercase">Page {currentPage} of {totalPages}</span>
+            <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30"><FaChevronRight size={10}/></button>
+          </div>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Tighter Detail Modal */}
       {selectedVisitor && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="p-6 border-b flex justify-between items-start bg-slate-50">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">Complete Visitor Profile</h2>
-                {selectedVisitor.visitorType && <span className="inline-block mt-2 px-3 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700 uppercase">{selectedVisitor.visitorType}</span>}
-              </div>
-              <button onClick={() => setSelectedVisitor(null)} className="text-slate-400 hover:text-slate-600 text-3xl">&times;</button>
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-5 bg-slate-900 flex justify-between items-center">
+              <h2 className="text-sm font-black text-white uppercase tracking-widest">Visitor Detail</h2>
+              <button onClick={() => setSelectedVisitor(null)} className="text-slate-400 hover:text-white"><FaTimes/></button>
             </div>
-
-            <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            <div className="p-5 grid grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto">
               {Object.entries(selectedVisitor)
                 .filter(([key]) => !["_id", "__v", "createdAt"].includes(key))
                 .map(([key, value]) => (
-                  <div key={key} className="border-b border-slate-100 pb-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">{formatLabel(key)}</label>
-                    <span className="text-sm font-medium text-slate-700 block">{formatValue(key, value)}</span>
+                  <div key={key} className="border-b border-slate-50 pb-1">
+                    <label className="text-[8px] font-black text-slate-300 uppercase block">{formatLabel(key)}</label>
+                    <span className="text-[11px] font-bold text-slate-800 block truncate">{formatValue(key, value)}</span>
                   </div>
                 ))}
             </div>
-
-            <div className="p-4 bg-slate-50 border-t flex justify-between gap-3">
-              <button onClick={() => downloadPDF(selectedVisitor)} className="px-6 py-2 bg-yellow-200 text-gray-800 rounded-xl text-sm font-bold hover:bg-yellow-400 flex items-center gap-2">
-                Download PDF
-              </button>
-              <button onClick={() => setSelectedVisitor(null)} className="px-6 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-black">Close</button>
+            <div className="p-5 bg-slate-50 flex gap-2">
+              <button onClick={() => downloadPDF(selectedVisitor)} className="flex-1 py-3 bg-pink-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><FaFilePdf/> PDF Report</button>
+              <button onClick={() => setSelectedVisitor(null)} className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Close</button>
             </div>
           </div>
         </div>

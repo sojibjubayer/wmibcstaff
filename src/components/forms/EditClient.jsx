@@ -7,7 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const COUNTRIES = ["Qatar", "UAE", "Saudi Arabia", "Kuwait", "Oman", "Bahrain", "Poland", "Romania", "Croatia", "Malta", "UK", "Canada", "Other"];
 const AGREEMENT_OPTIONS = ["Pending", "Not Required", "Handed over to Client"];
-const PAYMENT_TYPES = ["1st Payment", "2nd Payment", "Final Payment", "Due Payment", "Refund"];
+const PAYMENT_TYPES = ["1st Payment", "2nd Payment", "Final Payment", "Pending Balance", "Refund"];
 const PAYMENT_METHODS = ["Cash", "Bank Transfer", "Card Payment", "Cheque"];
 
 export default function EditClient() {
@@ -31,7 +31,7 @@ export default function EditClient() {
       .then(data => setFormData({
         ...data,
         amountReceived: Array.isArray(data.amountReceived) ? data.amountReceived : [],
-        remarksHistory: Array.isArray(data.remarksHistory) ? data.remarksHistory : [],
+        // remarksHistory: Array.isArray(data.remarksHistory) ? data.remarksHistory : [],
         fileSubmissionDate: data.fileSubmissionDate ? new Date(data.fileSubmissionDate) : null
       }))
       .catch(() => toast.error("Error loading data"));

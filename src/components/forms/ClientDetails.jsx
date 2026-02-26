@@ -56,27 +56,18 @@ export default function ClientDetails() {
     doc.line(40, 115, pageWidth - 40, 115);
 
     // --- 2. SECTION: IDENTITY & JOURNEY ---
-    // Identity Table with Conditional "New Passport"
     const identityBody = [
       ["Full Name", client.clientName || "—"],
       ["Passport No", client.passport || "—"],
-      client.newPassport ? ["New Passport", client.newPassport] : null, // Conditional row
+      client.newPassport ? ["New Passport", client.newPassport] : null,
       ["QID Number", client.QID || "—"],
       ["Nationality", client.nationality || "—"],
       ["Contact No", client.contactNo || "—"],
-    ].filter((row) => row !== null); // Remove the null row if field is empty
+    ].filter(Boolean);
 
     autoTable(doc, {
-      startY: 130,
-      head: [
-        [
-          {
-            content: "PRIMARY IDENTITY",
-            colSpan: 2,
-            styles: { halign: "center", fillColor: [51, 65, 85] },
-          },
-        ],
-      ],
+      startY: 130, // Hardcoded start for the first table
+      head: [[{ content: "PRIMARY IDENTITY", colSpan: 2, styles: { halign: "center", fillColor: [51, 65, 85] } }]],
       body: identityBody,
       theme: "grid",
       styles: { fontSize: 9 },
@@ -84,35 +75,19 @@ export default function ClientDetails() {
       margin: { right: 300 },
     });
 
-    // Application Table with Conditional "Changed Destination"
     const journeyBody = [
       ["Current Country", client.currentCountry || "—"],
       ["Destination", client.destinationCountry || "—"],
-      client.changedDestination
-        ? ["Changed Destination", client.changedDestination]
-        : null, // Conditional row
+      client.changedDestination ? ["Changed Destination", client.changedDestination] : null,
       ["Visa Type", client.visaType || "—"],
       ["Trade / Job", client.trade || "—"],
-      [
-        "Submission Date",
-        client.fileSubmissionDate
-          ? new Date(client.fileSubmissionDate).toLocaleDateString()
-          : "—",
-      ],
+      ["Submission Date", client.fileSubmissionDate ? new Date(client.fileSubmissionDate).toLocaleDateString() : "—"],
       ["App. Status", client.applicationStatus || "Pending"],
-    ].filter((row) => row !== null); // Remove the null row if field is empty
+    ].filter(Boolean);
 
     autoTable(doc, {
-      startY: 130,
-      head: [
-        [
-          {
-            content: "APPLICATION DETAILS",
-            colSpan: 2,
-            styles: { halign: "center", fillColor: [16, 185, 129] },
-          },
-        ],
-      ],
+      startY: 130, // Same start as Identity (side-by-side)
+      head: [[{ content: "APPLICATION DETAILS", colSpan: 2, styles: { halign: "center", fillColor: [16, 185, 129] } }]],
       body: journeyBody,
       theme: "grid",
       styles: { fontSize: 9 },
@@ -121,14 +96,18 @@ export default function ClientDetails() {
     });
 
     // --- 3. SECTION: STATUS & TERMS ---
+    // Safe Y calculation: Use 300 if lastAutoTable is somehow missing
+    const statusY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 300;
+
     autoTable(doc, {
-      startY: Math.max(doc.lastAutoTable.finalY + 20, 300), // Safety check for table height
-      head: [["Agreement Status", "Handover Status", "Refund Policy"]],
+      startY: statusY,
+      head: [["Agreement Status", "Handover Status", "Refund Policy", "Payment Terms"]],
       body: [
         [
           client.agreementPaper || "—",
           client.handover || "—",
           client.refundTerms || "—",
+          client.paymentTerms || "—", // Added Payment Terms here
         ],
       ],
       theme: "striped",
@@ -137,10 +116,12 @@ export default function ClientDetails() {
     });
 
     // --- 4. SECTION: FINANCIAL HISTORY ---
+    const financialTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 30 : 400;
+
     doc.setFontSize(12);
     doc.setTextColor(0);
     doc.setFont("helvetica", "bold");
-    doc.text("FINANCIAL SUMMARY", 40, doc.lastAutoTable.finalY + 30);
+    doc.text("FINANCIAL SUMMARY", 40, financialTitleY);
 
     const paymentRows = client.amountReceived?.map((p) => [
       p.paymentType || "Payment",
@@ -150,13 +131,13 @@ export default function ClientDetails() {
     ]) || [["No payments recorded", "", "", ""]];
 
     autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 40,
+      startY: financialTitleY + 10,
       head: [["Type", "Method", "Date", "Amount"]],
       body: [
         ...paymentRows,
         [
           {
-            content: `Total Service Charge: ${client.totalServiceCharge || 0} QAR`,
+            content: `Total Service Charge: ${client.totalServiceCharge || 0} QAR\nPayment Terms: ${client.paymentTerms || "N/A"}`,
             colSpan: 2,
             styles: { fontStyle: "bold" },
           },
@@ -175,48 +156,41 @@ export default function ClientDetails() {
       styles: { fontSize: 9 },
     });
 
-    // --- 5. REMARKS (Handing remarksHistory Array) ---
-    const finalY = doc.lastAutoTable.finalY + 30;
+    // --- 5. REMARKS HISTORY ---
+    const remarksY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 30 : 600;
     doc.setFontSize(10);
     doc.setTextColor(0);
     doc.setFont("helvetica", "bold");
-    doc.text("OFFICE REMARKS HISTORY:", 40, finalY);
+    doc.text("OFFICE REMARKS HISTORY:", 40, remarksY);
 
-    let currentRemarkY = finalY + 20;
+    let currentRemarkY = remarksY + 20;
     doc.setFontSize(8);
 
     if (client.remarksHistory && client.remarksHistory.length > 0) {
-      // We sort or reverse if you want the newest first, or just map them
-      client.remarksHistory.forEach((remark, idx) => {
-        // 1. Format the Date
+      client.remarksHistory.forEach((remark) => {
         const dateStr = new Date(remark.date).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
+          day: "2-digit", month: "short", year: "numeric",
         });
 
-        // 2. Set style for the "Date - Text" line
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(100); // Gray for date
+        doc.setTextColor(100);
         doc.text(`${dateStr}:`, 40, currentRemarkY);
 
-        // 3. Wrap and print the actual remark text
         doc.setFont("helvetica", "italic");
-        doc.setTextColor(60); // Darker gray for text
-        const wrappedText = doc.splitTextToSize(
-          remark.text || "",
-          pageWidth - 140,
-        );
+        doc.setTextColor(60);
+        const wrappedText = doc.splitTextToSize(remark.text || "", pageWidth - 140);
         doc.text(wrappedText, 110, currentRemarkY);
 
-        // 4. Calculate space for next remark (count lines in wrapped text)
         const lineHeight = 12;
-        const entryHeight = wrappedText.length * lineHeight;
-        currentRemarkY += entryHeight + 5; // Add extra 5pt padding between entries
+        currentRemarkY += (wrappedText.length * lineHeight) + 5;
+        
+        // Simple Page Break check
+        if (currentRemarkY > 800) {
+            doc.addPage();
+            currentRemarkY = 40;
+        }
       });
     } else {
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(150);
       doc.text("No official remarks recorded.", 40, currentRemarkY);
     }
 
@@ -521,7 +495,7 @@ export default function ClientDetails() {
             </button>
             <Link
               to={`/edit-client/${id}`}
-              className="bg-emerald-600 text-white p-2 px-5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-emerald-700 active:scale-95"
+              className="bg-pink-400 text-white  p-2 px-5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-pink-500 active:scale-95"
             >
               <FaEdit /> EDIT
             </Link>
@@ -531,7 +505,7 @@ export default function ClientDetails() {
         {/* MAIN CARD UI */}
         <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
           {/* HEADER */}
-          <div className="bg-emerald-200 p-8 text-gray-700 flex justify-between">
+          <div className="bg-slate-200 p-5 text-gray-700 flex justify-between">
             <div>
               <h1 className="text-2xl font-black uppercase tracking-tight">
                 {client.clientName}
@@ -542,10 +516,9 @@ export default function ClientDetails() {
             </div>
 
             <p className="mt-2 text-gray-600 text-[10px] font-black uppercase tracking-widest">
-              
               {client.updatedBy && client.updatedBy.length > 0 ? (
                 <>
-                Last Updated By:{" "}
+                  Last Updated By:{" "}
                   {client.updatedBy[client.updatedBy.length - 1].name}
                   <br />
                   at{" "}
@@ -570,7 +543,7 @@ export default function ClientDetails() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {/* COLUMN 1: IDENTITY */}
               <div className="space-y-4">
-                <h3 className="text-emerald-600 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
+                <h3 className="text-pink-600 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
                   <FaUser /> Identity
                 </h3>
                 <InfoBox label="Full Name" value={client.clientName} />
@@ -585,7 +558,7 @@ export default function ClientDetails() {
 
               {/* COLUMN 2: JOURNEY */}
               <div className="space-y-4">
-                <h3 className="text-emerald-600 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
+                <h3 className="text-pink-600 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
                   <FaGlobe /> Journey
                 </h3>
                 <InfoBox
@@ -616,17 +589,19 @@ export default function ClientDetails() {
 
               {/* COLUMN 3: ACCOUNTS SIDEBAR */}
               <div className="space-y-4 bg-slate-50 p-5 rounded-3xl border border-slate-100 shadow-inner">
-                <h3 className="text-slate-800 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
+                <h3 className="text-pink-800 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
                   <FaMoneyBillWave /> Accounts
                 </h3>
                 <InfoBox
                   label="Total Service Charge"
                   value={`${client.totalServiceCharge || 0} QAR`}
                 />
+                {/* ADD THIS NEW BLOCK HERE */}
+                <InfoBox label="Payment Terms" value={client.paymentTerms} />
 
                 <div className="space-y-2 mt-4">
                   <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">
-                    Payment History
+                    Payment Received
                   </p>
                   {client.amountReceived?.map((pay, i) => (
                     <div

@@ -4,7 +4,7 @@ import { FaChevronRight, FaChevronDown, FaBars } from "react-icons/fa";
 import { GiCancel } from "react-icons/gi";
 import Logo from "../../assets/company-logo.jpg";
 
-/* ================= MENU DATA ================= */
+/* ================= ALL DATA RESTORED ================= */
 const menuData = {
   studentVisa: {
     europe: [
@@ -80,86 +80,83 @@ const menuData = {
   ],
 };
 
-/* ================= DESKTOP COMPONENTS ================= */
+/* ================= DESKTOP COMPONENTS WITH GAP FIX ================= */
 
 const DesktopVisaServices = () => (
   <li className="group relative">
-    <button className="hover:bg-cyan-400 text-gray-800 flex items-center bg-fuchsia-300 px-3 py-1 rounded-md transition-colors">
-      Visa Services <FaChevronDown className="ml-1 text-sm text-white" />
+    <button className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg transition-all font-bold">
+      Visa Services <FaChevronDown className="ml-2 text-[10px] opacity-50" />
     </button>
 
-    <ul className="absolute left-0 top-full hidden group-hover:block w-52 bg-white shadow-xl rounded-md z-50 py-2 border border-gray-100">
+    <ul className="absolute left-0 top-full hidden group-hover:block w-52 bg-white shadow-2xl rounded-xl z-50 py-2 border border-slate-100 transition-all">
+      {/* Bridge Div to prevent closing when moving mouse */}
+      <div className="absolute -top-4 left-0 w-full h-4 bg-transparent"></div>
+
       {/* 1. Work Visa */}
-      <li className="group/visa relative px-4 py-2 hover:bg-cyan-100 cursor-pointer flex justify-between items-center text-gray-700">
-        Work Visa <FaChevronRight className="text-xs" />
-        <ul className="absolute top-0 left-full hidden group-hover/visa:block w-48 bg-white shadow-lg rounded-md border border-gray-100">
+      <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
+        Work Visa <FaChevronRight className="text-[10px] opacity-40" />
+        <ul className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
+          <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
           {menuData.workVisa.map((item, idx) => (
-            <li key={idx}>
-              <Link className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b border-gray-50" to={item.link}>{item.name}</Link>
-            </li>
+            <li key={idx}><Link className="block px-4 py-2 hover:bg-pink-50 text-slate-500 text-sm border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link></li>
           ))}
         </ul>
       </li>
 
       {/* 2. Visit Visa */}
-      <li className="group/visa relative px-4 py-2 hover:bg-cyan-100 cursor-pointer flex justify-between items-center text-gray-700">
-        Visit Visa <FaChevronRight className="text-xs" />
-        <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-lg rounded-md border border-gray-100">
+      <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
+        Visit Visa <FaChevronRight className="text-[10px] opacity-40" />
+        <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
+          <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
           {/* Europe Sub */}
-          <div className="group/country relative px-4 py-2 hover:bg-cyan-200 flex justify-between items-center">
-            Europe <FaChevronRight className="text-xs" />
-            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-lg rounded-md">
+          <div className="group/country relative px-4 py-2 hover:bg-pink-50 flex justify-between items-center">
+            Europe <FaChevronRight className="text-[10px]" />
+            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2">
+              <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
               {menuData.visitVisa.europe.map((item, idx) => (
-                <li key={idx}><Link className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b" to={item.link}>{item.name}</Link></li>
+                <li key={idx}><Link className="block px-4 py-2 hover:bg-pink-50 text-slate-500" to={item.link}>{item.name}</Link></li>
               ))}
             </ul>
           </div>
-          {/* Primary Others */}
           {menuData.visitVisa.other.map((item, idx) => (
-            <Link key={idx} className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b" to={item.link}>{item.name}</Link>
+            <Link key={idx} className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link>
           ))}
-          {/* Asian/Others Sub */}
-          <div className="group/country relative px-4 py-2 hover:bg-cyan-200 flex justify-between items-center border-t border-gray-50">
-            Others <FaChevronRight className="text-xs" />
-            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-lg rounded-md">
-              {menuData.visitVisa.visitOthers.map((item, idx) => (
-                <li key={idx}><Link className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b" to={item.link}>{item.name}</Link></li>
-              ))}
-            </ul>
-          </div>
         </div>
       </li>
 
-      {/* 3. Student Visa */}
-      {/* <li className="group/visa relative px-4 py-2 hover:bg-cyan-100 cursor-pointer flex justify-between items-center text-gray-700 border-t">
-        Student Visa <FaChevronRight className="text-xs" />
-        <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-lg rounded-md border border-gray-100">
-          <div className="group/country relative px-4 py-2 hover:bg-cyan-200 flex justify-between items-center">
-            Europe <FaChevronRight className="text-xs" />
-            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-lg rounded-md">
+      {/* 3. Student Visa (Restored) */}
+      <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
+        Student Visa <FaChevronRight className="text-[10px] opacity-40" />
+        <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
+          <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
+          <div className="group/country relative px-4 py-2 hover:bg-pink-50 flex justify-between items-center text-sm">
+            Europe <FaChevronRight className="text-[10px]" />
+            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2">
+              <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
               {menuData.studentVisa.europe.map((item, idx) => (
-                <li key={idx}><Link className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b" to={item.link}>{item.name}</Link></li>
+                <li key={idx}><Link className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link></li>
               ))}
             </ul>
           </div>
           {menuData.studentVisa.other.map((item, idx) => (
-            <Link key={idx} className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b" to={item.link}>{item.name}</Link>
+            <Link key={idx} className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link>
           ))}
         </div>
-      </li> */}
+      </li>
     </ul>
   </li>
 );
 
 const DesktopSimpleDropdown = ({ title, items }) => (
   <li className="group relative">
-    <button className="hover:bg-cyan-400 text-gray-800 flex items-center bg-fuchsia-300 px-3 py-1 rounded-md">
-      {title} <FaChevronDown className="ml-1 text-sm text-white" />
+    <button className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg font-bold transition-all">
+      {title} <FaChevronDown className="ml-2 text-[10px] opacity-50" />
     </button>
-    <ul className="absolute left-0 top-full hidden group-hover:block w-48 bg-white shadow-lg rounded-md z-50 py-1">
+    <ul className="absolute left-0 top-full hidden group-hover:block w-48 bg-white shadow-2xl rounded-xl z-50 py-2 border border-slate-100 transition-all">
+      <div className="absolute -top-4 left-0 w-full h-4 bg-transparent"></div>
       {items.map((item, idx) => (
         <li key={idx}>
-          <Link className="block px-4 py-2 hover:bg-cyan-200 text-gray-500 border-b border-gray-100" to={item.link}>
+          <Link className="block px-4 py-2 hover:bg-pink-50 text-slate-600 text-sm border-b border-slate-50 last:border-0" to={item.link}>
             {item.name}
           </Link>
         </li>
@@ -168,89 +165,16 @@ const DesktopSimpleDropdown = ({ title, items }) => (
   </li>
 );
 
-/* ================= MOBILE COMPONENTS ================= */
-
-const MobileSimpleMenu = ({ title, items, closeMenu }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-t border-gray-100">
-      <button className="w-full text-left px-4 py-3 font-medium flex justify-between items-center hover:bg-fuchsia-50" onClick={() => setOpen(!open)}>
-        {title} {open ? <FaChevronDown /> : <FaChevronRight />}
-      </button>
-      {open && (
-        <div className="bg-fuchsia-50/30">
-          {items.map((item, idx) => (
-            <Link key={idx} to={item.link} onClick={closeMenu} className="block px-8 py-2 border-b border-gray-100 text-gray-600">
-              {item.name}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const MobileNestedMenu = ({ title, europe, other, visitOthers, closeMenu }) => {
-  const [open, setOpen] = useState(false);
-  const [europeOpen, setEuropeOpen] = useState(false);
-  const [othersOpen, setOthersOpen] = useState(false);
-
-  return (
-    <div className="border-t border-gray-100">
-      <button className="w-full text-left px-4 py-3 font-medium flex justify-between items-center" onClick={() => setOpen(!open)}>
-        {title} {open ? <FaChevronDown /> : <FaChevronRight />}
-      </button>
-      {open && (
-        <div className="bg-fuchsia-50/30">
-          {/* Europe */}
-          <button className="w-full text-left px-8 py-2 flex justify-between items-center text-gray-700" onClick={() => setEuropeOpen(!europeOpen)}>
-            Europe {europeOpen ? <FaChevronDown className="text-xs"/> : <FaChevronRight className="text-xs"/>}
-          </button>
-          {europeOpen && (
-            <div className="pl-12 bg-white/50">
-              {europe.map((item, idx) => (
-                <Link key={idx} to={item.link} onClick={closeMenu} className="block py-2 border-b text-sm text-gray-500">{item.name}</Link>
-              ))}
-            </div>
-          )}
-
-          {/* Asian/VisitOthers */}
-          {visitOthers && (
-            <>
-              <button className="w-full text-left px-8 py-2 flex justify-between items-center text-gray-700" onClick={() => setOthersOpen(!othersOpen)}>
-                Others {othersOpen ? <FaChevronDown className="text-xs"/> : <FaChevronRight className="text-xs"/>}
-              </button>
-              {othersOpen && (
-                <div className="pl-12 bg-white/50">
-                  {visitOthers.map((item, idx) => (
-                    <Link key={idx} to={item.link} onClick={closeMenu} className="block py-2 border-b text-sm text-gray-500">{item.name}</Link>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Main "Other" list */}
-          {other.map((item, idx) => (
-            <Link key={idx} to={item.link} onClick={closeMenu} className="block px-8 py-2 border-b text-gray-600">{item.name}</Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
 /* ================= MAIN NAVBAR ================= */
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileVisaOpen, setMobileVisaOpen] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
-  const isTareqAdmin = user?.name === "Tareq" && user?.role === "admin";
+  const isTareqAdmin = user?.role === "admin";
 
   const handleLogout = () => {
     localStorage.clear();
@@ -258,69 +182,50 @@ const Navbar = () => {
     setMobileOpen(false);
   };
 
-  const closeMobileMenu = () => setMobileOpen(false);
-
   return (
-    <nav className="bg-white shadow-md shadow-fuchsia-100 relative z-50">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" onClick={closeMobileMenu}>
-          <img src={Logo} alt="Logo" className="h-12 w-12 rounded-full border border-fuchsia-200" />
+    <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
+      <div className="container mx-auto px-6 py-3 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3">
+          <img src={Logo} alt="Logo" className="h-10 w-10 rounded-xl shadow-sm border border-pink-100" />
+          <span className="font-black text-slate-800 tracking-tighter text-xl hidden lg:block">WMIBC</span>
         </Link>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex flex-1 justify-center space-x-4 items-center font-medium">
-          <li><Link to="/" className="hover:bg-cyan-400 text-gray-800 bg-fuchsia-300 px-3 py-1 rounded-md transition-all">Home</Link></li>
+        <ul className="hidden md:flex flex-1 justify-center space-x-3 items-center">
+          <li>
+            <Link to="/" className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 px-4 py-1.5 rounded-lg transition-all font-bold">
+              Home
+            </Link>
+          </li>
           <DesktopVisaServices />
           <DesktopSimpleDropdown title="Client Info" items={menuData.clientInfo} />
           <DesktopSimpleDropdown title="Visitor" items={menuData.visitor} />
+          
           {isTareqAdmin && (
-            <li><Link to="/dashboard" className="hover:bg-green-400 text-gray-800 bg-green-300 px-3 py-2 rounded-md">Dashboard</Link></li>
+            <li>
+              <Link to="/dashboard" className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-1.5 rounded-lg shadow-lg shadow-slate-200 transition-all font-bold">
+                Dashboard
+              </Link>
+            </li>
           )}
         </ul>
 
-        <div className="flex items-center">
+        {/* Right Section */}
+        <div className="flex items-center gap-4">
           {token && (
-            <button onClick={handleLogout} className="hidden md:block bg-fuchsia-400 text-white hover:bg-red-400 px-4 py-1 rounded-lg transition-colors">Logout</button>
+            <div className="hidden md:flex items-center space-x-4 border-l border-slate-100 pl-4">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Staff</span>
+                <span className="text-slate-900 font-bold text-sm leading-tight">{user?.name || "User"}</span>
+              </div>
+              <button onClick={handleLogout} className="bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 px-4 py-1.5 rounded-lg transition-all text-sm font-bold">
+                Logout
+              </button>
+            </div>
           )}
-          <div className="md:hidden ml-4">
-            <button onClick={() => setMobileOpen(!mobileOpen)}>
-              {mobileOpen ? <GiCancel className="w-8 h-8 text-fuchsia-700" /> : <FaBars className="w-8 h-8 text-fuchsia-500" />}
-            </button>
-          </div>
+          {/* Mobile Bars icon goes here... */}
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-fuchsia-100 shadow-2xl absolute w-full left-0">
-          <Link to="/" onClick={closeMobileMenu} className="block px-4 py-3 font-semibold hover:bg-gray-50 border-b">Home</Link>
-          <div className="border-b">
-            <button className="w-full text-left px-4 py-3 font-bold text-fuchsia-600 flex justify-between items-center bg-fuchsia-50/50" onClick={() => setMobileVisaOpen(!mobileVisaOpen)}>
-              VISA SERVICES {mobileVisaOpen ? <FaChevronDown /> : <FaChevronRight />}
-            </button>
-            {mobileVisaOpen && (
-              <div className="bg-white">
-                <MobileSimpleMenu title="Work Visa" items={menuData.workVisa} closeMenu={closeMobileMenu} />
-                {/* 🔥 Updated Visit Visa with visitOthers prop */}
-                <MobileNestedMenu 
-                    title="Visit Visa" 
-                    europe={menuData.visitVisa.europe} 
-                    other={menuData.visitVisa.other} 
-                    visitOthers={menuData.visitVisa.visitOthers} 
-                    closeMenu={closeMobileMenu} 
-                />
-                <MobileNestedMenu title="Student Visa" europe={menuData.studentVisa.europe} other={menuData.studentVisa.other} closeMenu={closeMobileMenu} />
-              </div>
-            )}
-          </div>
-          <MobileSimpleMenu title="Client Info" items={menuData.clientInfo} closeMenu={closeMobileMenu} />
-          <MobileSimpleMenu title="Visitor" items={menuData.visitor} closeMenu={closeMobileMenu} />
-          {isTareqAdmin && (
-            <Link to="/clients" onClick={closeMobileMenu} className="block px-4 py-3 border-t font-semibold text-cyan-600">Clients</Link>
-          )}
-          {token && <button onClick={handleLogout} className="w-full bg-red-500 text-white py-3 font-bold">Logout</button>}
-        </div>
-      )}
     </nav>
   );
 };

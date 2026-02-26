@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom"; // Added for navigation
+import { useNavigate } from "react-router-dom";
 import { 
-  FaChartPie, FaUsers, FaPassport, FaCog, FaBell, 
-  FaSearch, FaChevronLeft, FaChevronRight, FaSync 
+  FaChartPie, FaUsers, FaPassport, FaSearch, 
+  FaChevronLeft, FaChevronRight, FaSync, FaTimes, FaGlobe 
 } from "react-icons/fa";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 12;
 const CONSULTANTS = ["shohag", "adil", "nizam", "sandesh"];
 
 const Dashboard = () => {
-  const navigate = useNavigate(); // Hook for the "Details" button
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Overview");
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
+  // Data States
   const [allVisitors, setAllVisitors] = useState([]);
   const [allClients, setAllClients] = useState([]);
   const [stats, setStats] = useState({
@@ -22,23 +24,36 @@ const Dashboard = () => {
     monthlyRevenue: 0
   });
 
+  // Pagination & Filter States
   const [visitorPage, setVisitorPage] = useState(1);
   const [clientPage, setClientPage] = useState(1);
+  const [clientFilterConsultant, setClientFilterConsultant] = useState("");
+  const [clientFilterCountry, setClientFilterCountry] = useState("");
 
+  // Helper: Calculate total collected from a client
+  const calculateClientTotal = (client) => {
+    const payments = Array.isArray(client.amountReceived) ? client.amountReceived : [client.amountReceived];
+    return payments.reduce((sum, p) => sum + (parseFloat(p?.amount) || 0), 0);
+  };
+
+  // Fetch Data logic
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const visitorRes = await fetch(`https://wmibcstaff-server.vercel.app/api/visitor?limit=2000`);
-      const visitorData = await visitorRes.json();
-      const visitors = visitorData.visitors || [];
+      const [visitorRes, clientRes] = await Promise.all([
+        fetch(`https://wmibcstaff-server.vercel.app/api/visitor?limit=2000`),
+        fetch(`https://wmibcstaff-server.vercel.app/api/clients`)
+      ]);
 
-      const clientRes = await fetch(`https://wmibcstaff-server.vercel.app/api/clients`);
+      const visitorData = await visitorRes.json();
       const clientData = await clientRes.json();
+      
+      const visitors = visitorData.visitors || [];
       const clients = Array.isArray(clientData) ? clientData : [];
 
-      // Calculate Global Stats
-      const todayString = new Date().toLocaleDateString();
-      const todayCount = visitors.filter(v => v.date && new Date(v.date).toLocaleDateString() === todayString).length;
+      // Global Stats Logic
+      const today = new Date().toISOString().split('T')[0];
+      const todayCount = visitors.filter(v => v.date === today).length;
       
       let monthlySum = 0;
       const now = new Date();
@@ -47,7 +62,7 @@ const Dashboard = () => {
         payments.forEach(p => {
           const d = new Date(p?.paymentDate || p?.date || c.createdAt);
           if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-            monthlySum += parseFloat(p?.amount || 0);
+            monthlySum += (parseFloat(p?.amount) || 0);
           }
         });
       });
@@ -70,157 +85,238 @@ const Dashboard = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Unique countries for the dropdown filter
+  const uniqueCountries = [...new Set(allClients.map(c => c.destinationCountry).filter(Boolean))].sort();
+
+  // --- FILTERING LOGIC ---
+  const getFilteredVisitors = () => {
+    if (!searchQuery) return allVisitors;
+    const q = searchQuery.toLowerCase();
+    return allVisitors.filter(v => 
+      (v.name || "").toLowerCase().includes(q) || 
+      (v.mobile || "").toString().includes(q)
+    );
+  };
+
+  const getFilteredClients = () => {
+    let data = allClients;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      data = data.filter(item => 
+        (item.clientName || "").toLowerCase().includes(q) || 
+        (item.contactNo || "").toString().includes(q) || 
+        (item.QID || "").toString().includes(q)
+      );
+    }
+    if (clientFilterConsultant) {
+      data = data.filter(c => c.consultant?.toLowerCase() === clientFilterConsultant.toLowerCase());
+    }
+    if (clientFilterCountry) {
+      data = data.filter(c => c.destinationCountry === clientFilterCountry);
+    }
+    return data;
+  };
+
   const paginate = (data, page) => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return data.slice(start, start + ITEMS_PER_PAGE);
   };
 
+  const filteredVisitors = getFilteredVisitors();
+  const filteredClients = getFilteredClients();
+
   return (
-    <div className="flex h-screen bg-slate-50 font-sans text-slate-900">
+    <div className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
+      
       {/* SIDEBAR */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-blue-600 tracking-tight">WMIBC Global</h2>
+      <aside className="w-64 bg-slate-900 hidden lg:flex flex-col shadow-2xl">
+        <div className="p-8">
+          <h2 className="text-xl font-black text-white tracking-tighter uppercase italic">WMIBC <span className="text-pink-300">HQ</span></h2>
+          <p className="text-[9px] text-slate-500 font-bold tracking-[0.3em] mt-1 uppercase">Administrative Suite</p>
         </div>
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-2">
           <SidebarItem icon={<FaChartPie />} label="Overview" active={activeTab === "Overview"} onClick={() => setActiveTab("Overview")} />
-          <SidebarItem icon={<FaUsers />} label="Visitors" active={activeTab === "Visitors"} onClick={() => {setActiveTab("Visitors"); setVisitorPage(1);}} />
-          <SidebarItem icon={<FaPassport />} label="Clients" active={activeTab === "Clients"} onClick={() => {setActiveTab("Clients"); setClientPage(1);}} />
+          <SidebarItem icon={<FaUsers />} label="Visitor Log" active={activeTab === "Visitors"} onClick={() => {setActiveTab("Visitors"); setVisitorPage(1);}} />
+          <SidebarItem icon={<FaPassport />} label="Client Base" active={activeTab === "Clients"} onClick={() => {setActiveTab("Clients"); setClientPage(1);}} />
         </nav>
+        <div className="p-6 border-t border-slate-800">
+           <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+              <p className="text-[10px] font-bold text-slate-500 uppercase">System Status</p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="text-xs text-slate-300 font-medium">Live Server</span>
+              </div>
+           </div>
+        </div>
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-          <div className="relative w-96 text-slate-400">
-            <FaSearch className="absolute left-3 top-3"/>
-            <input type="text" placeholder="Search database..." className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <main className="flex-1 flex flex-col min-w-0">
+        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+          <div className="relative w-full max-w-md">
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"/>
+            <input 
+              type="text" 
+              placeholder="Search directory..." 
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setVisitorPage(1); setClientPage(1); }}
+              className="w-full pl-11 pr-12 py-3 bg-slate-100 border-none rounded-2xl text-xs font-medium focus:ring-2 focus:ring-pink-200 outline-none transition-all" 
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500">
+                <FaTimes />
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-4">
-            <button onClick={fetchData} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+          <div className="flex items-center gap-6">
+            <button onClick={fetchData} className="p-3 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-xl transition-all border border-slate-100">
                <FaSync className={loading ? "animate-spin" : ""} />
             </button>
-            <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs">HQ</div>
+            <div className="flex items-center gap-3 border-l pl-6 border-slate-200">
+                <div className="text-right">
+                    <p className="text-[10px] font-black text-slate-400 uppercase leading-none">Global Admin</p>
+                    <p className="text-xs font-bold text-slate-900 mt-1">Superuser</p>
+                </div>
+                <div className="h-10 w-10 rounded-2xl bg-pink-200 flex items-center justify-center text-slate-900 font-black text-xs shadow-lg shadow-pink-100">HQ</div>
+            </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          
           {/* TAB 1: OVERVIEW */}
           {activeTab === "Overview" && (
-            <div className="space-y-8">
+            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard label="Today's Visitor" value={stats.todayVisitors} color="text-blue-600" loading={loading} live />
-                <StatCard label="Total Visitors" value={stats.totalVisitors} color="text-slate-800" loading={loading} />
-                <StatCard label="Total Clients" value={stats.totalClients} color="text-green-600" loading={loading} />
-                <StatCard label="Monthly Revenue" value={`${stats.monthlyRevenue.toLocaleString()} QAR`} color="text-indigo-600" loading={loading} />
+                <StatCard label="Today's Arrival" value={stats.todayVisitors} color="text-pink-600" loading={loading} live />
+                <StatCard label="Database Volume" value={stats.totalVisitors} color="text-slate-900" loading={loading} />
+                <StatCard label="Active Clients" value={stats.totalClients} color="text-blue-600" loading={loading} />
+                <StatCard label="Monthly Revenue" value={`${stats.monthlyRevenue.toLocaleString()} QAR`} color="text-emerald-600" loading={loading} />
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30">
-                  <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Recent Visitors</h3>
-                </div>
-                <Table 
-                  columns={["Name", "Consultant", "Country", "Date"]}
-                  data={allVisitors.slice(0, 10)}
-                  loading={loading}
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                 <div className="lg:col-span-2 bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                    <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                        <h3 className="font-black text-slate-900 text-xs uppercase tracking-[0.2em]">Latest Consultation Log</h3>
+                        <button onClick={() => setActiveTab("Visitors")} className="text-[10px] font-bold text-pink-500 uppercase hover:underline">View All</button>
+                    </div>
+                    <Table columns={["Visitor Name", "Consultant", "Interested In", "Date"]} data={allVisitors.slice(0, 8)} loading={loading} />
+                 </div>
+                 
+                 <div className="space-y-4">
+                    <h3 className="font-black text-slate-400 text-[10px] uppercase tracking-[0.2em] px-2">Consultant Performance</h3>
+                    {CONSULTANTS.map(name => {
+                      const consultantClients = allClients.filter(c => c.consultant?.toLowerCase() === name.toLowerCase());
+                      const totalSales = consultantClients.reduce((sum, client) => sum + calculateClientTotal(client), 0);
+                      return (
+                        <div key={name} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:scale-[1.02] transition-transform">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{name}</p>
+                            <span className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{consultantClients.length}</span>
+                          </div>
+                          <h4 className="text-lg font-bold text-slate-800 mt-2">{totalSales.toLocaleString()} <span className="text-[10px] text-slate-400">QAR</span></h4>
+                        </div>
+                      );
+                    })}
+                 </div>
               </div>
             </div>
           )}
 
           {/* TAB 2: VISITORS */}
           {activeTab === "Visitors" && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="px-6 py-4 border-b">
-                <h3 className="font-bold text-slate-800">All Visitors List</h3>
+            <div className="max-w-7xl mx-auto bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in duration-300">
+              <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+                <h3 className="font-black text-slate-900 text-xs uppercase tracking-[0.2em]">Global Visitor Registry</h3>
+                {searchQuery && <span className="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Found {filteredVisitors.length} results</span>}
               </div>
-              <Table 
-                columns={["Name", "Consultant", "Country", "Date"]}
-                data={paginate(allVisitors, visitorPage)}
-                loading={loading}
-              />
-              <Pagination 
-                currentPage={visitorPage} 
-                totalItems={allVisitors.length} 
-                onPageChange={setVisitorPage} 
-              />
+              <Table columns={["Name", "Consultant", "Interested In", "Date"]} data={paginate(filteredVisitors, visitorPage)} loading={loading} />
+              <Pagination currentPage={visitorPage} totalItems={filteredVisitors.length} onPageChange={setVisitorPage} />
             </div>
           )}
 
           {/* TAB 3: CLIENTS */}
           {activeTab === "Clients" && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {CONSULTANTS.map(name => {
-                   const consultantClients = allClients.filter(c => c.consultant?.toLowerCase() === name.toLowerCase());
-                   const totalSales = consultantClients.reduce((sum, client) => {
-                     const payments = Array.isArray(client.amountReceived) ? client.amountReceived : [client.amountReceived];
-                     const first = payments.find(p => p?.paymentType === "1st Payment");
-                     return sum + parseFloat(first?.amount || 0);
-                   }, 0);
+            <div className="max-w-7xl mx-auto space-y-4 animate-in fade-in duration-300">
+              
+              {/* HQ CLIENT FILTERS */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900 p-4 rounded-3xl shadow-lg border border-slate-800">
+                <select 
+                  value={clientFilterConsultant} 
+                  onChange={(e) => { setClientFilterConsultant(e.target.value); setClientPage(1); }}
+                  className="bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-3 rounded-2xl border-none focus:ring-2 focus:ring-pink-300 outline-none cursor-pointer transition-all"
+                >
+                  <option value="">All Consultants</option>
+                  {CONSULTANTS.map(name => <option key={name} value={name}>{name.toUpperCase()}</option>)}
+                </select>
 
-                   return (
-                    <div key={name} className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="text-xs font-black text-blue-600 uppercase tracking-widest">{name}</p>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">{consultantClients.length} Clients</span>
-                      </div>
-                      <h4 className="text-xl font-bold text-slate-800">{totalSales.toLocaleString()} QAR</h4>
-                    </div>
-                   );
-                })}
+                <select 
+                  value={clientFilterCountry} 
+                  onChange={(e) => { setClientFilterCountry(e.target.value); setClientPage(1); }}
+                  className="bg-slate-800 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-3 rounded-2xl border-none focus:ring-2 focus:ring-pink-300 outline-none cursor-pointer transition-all"
+                >
+                  <option value="">All Destination Countries</option>
+                  {uniqueCountries.map(country => <option key={country} value={country}>{country}</option>)}
+                </select>
+
+                <button 
+                  onClick={() => { setClientFilterConsultant(""); setClientFilterCountry(""); setSearchQuery(""); }}
+                  className="bg-pink-200 text-slate-900 text-[11px] font-black uppercase tracking-widest px-4 py-3 rounded-2xl hover:bg-pink-300 transition-all shadow-lg shadow-pink-500/10"
+                >
+                  Reset Directory
+                </button>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/30 font-bold text-slate-800 uppercase text-xs tracking-widest">
-                  Global Client Directory
+              <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+                  <h3 className="font-black text-slate-900 text-xs uppercase tracking-[0.2em]">Active Client Database</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Filtered Result:</span>
+                    <span className="text-xs font-bold text-pink-500">{filteredClients.length}</span>
+                  </div>
                 </div>
-                
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="bg-slate-50 text-slate-500 text-[10px] uppercase font-bold tracking-wider border-b">
-                        <th className="px-6 py-4">Name</th>
-                        <th className="px-6 py-4">Destination</th>
-                        <th className="px-6 py-4">Submission Date</th>
-                        <th className="px-6 py-4">Consultant</th>
-                        <th className="px-6 py-4 text-center">Action</th>
+                      <tr className="bg-slate-50/50 text-slate-400 text-[9px] uppercase font-black tracking-[0.2em] border-b">
+                        <th className="px-8 py-4 text-center w-16">#</th>
+                        <th className="px-8 py-4">Client Detail</th>
+                        <th className="px-8 py-4">Identification</th>
+                        <th className="px-8 py-4">Consultant</th>
+                        <th className="px-8 py-4 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-sm">
-                      {loading ? (
-                        <tr><td colSpan="5" className="text-center py-10">Loading...</td></tr>
-                      ) : paginate(allClients, clientPage).map((client) => (
-                        <tr key={client._id} className="hover:bg-blue-50/30 transition-colors">
-                          <td className="px-6 py-4 font-semibold text-slate-800">{client.clientName || client.name}</td>
-                          <td className="px-6 py-4 text-slate-600">{client.destinationCountry || "N/A"}</td>
-                          <td className="px-6 py-4 text-slate-500">
-                            {client.fileSubmissionDate ? new Date(client.fileSubmissionDate).toLocaleDateString() : "-"}
+                    <tbody className="divide-y divide-slate-50">
+                      {!loading && paginate(filteredClients, clientPage).map((client, idx) => (
+                        <tr key={client._id} className="hover:bg-slate-50/80 transition-all group">
+                          <td className="px-8 py-5 text-center text-slate-300 font-bold text-xs">{(clientPage-1)*ITEMS_PER_PAGE + idx + 1}</td>
+                          <td className="px-8 py-5">
+                            <div className="font-bold text-slate-900 text-sm">{client.clientName}</div>
+                            <div className="text-[10px] text-slate-400 font-bold uppercase mt-0.5">{client.destinationCountry || "Global"} • {client.nationality}</div>
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase border border-blue-100">
-                              {client.consultant || "Unassigned"}
+                          <td className="px-8 py-5">
+                            <div className="text-xs font-bold text-slate-700">{client.contactNo}</div>
+                            <div className="text-[10px] text-slate-400 font-bold mt-0.5">QID: {client.QID}</div>
+                          </td>
+                          <td className="px-8 py-5">
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${client.consultant ? "bg-slate-900 text-white" : "bg-rose-100 text-rose-600"}`}>
+                              {client.consultant || "System"}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-center">
-                            <button 
-                              onClick={() => navigate(`/client-details/${client._id}`)}
-                              className="bg-slate-900 text-white text-[10px] px-4 py-2 rounded-lg font-bold uppercase hover:bg-blue-600 transition-all"
-                            >
-                              Details
+                          <td className="px-8 py-5 text-right">
+                            <button onClick={() => navigate(`/client-details/${client._id}`)} className="bg-white border border-slate-200 text-slate-900 text-[10px] px-4 py-2 rounded-xl font-black uppercase tracking-widest hover:bg-pink-200 hover:border-pink-200 transition-all shadow-sm">
+                              Profile
                             </button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  {filteredClients.length === 0 && !loading && (
+                    <div className="p-20 text-center text-slate-300 font-black uppercase tracking-[0.3em] text-xs">No records found matching filters</div>
+                  )}
                 </div>
-
-                <Pagination 
-                  currentPage={clientPage} 
-                  totalItems={allClients.length} 
-                  onPageChange={setClientPage} 
-                />
+                <Pagination currentPage={clientPage} totalItems={filteredClients.length} onPageChange={setClientPage} />
               </div>
             </div>
           )}
@@ -230,48 +326,40 @@ const Dashboard = () => {
   );
 };
 
-// --- SUB-COMPONENTS (Keep these below or in separate files) ---
+// --- SUB-COMPONENTS ---
 
 const SidebarItem = ({ icon, label, active, onClick }) => (
-  <button onClick={onClick} className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${active ? "bg-blue-50 text-blue-600 shadow-sm" : "text-slate-500 hover:bg-slate-50"}`}>
+  <button onClick={onClick} className={`w-full flex items-center px-6 py-4 rounded-2xl transition-all duration-300 ${active ? "bg-pink-200 text-slate-900 shadow-xl shadow-pink-500/10 scale-105" : "text-slate-400 hover:text-white hover:bg-slate-800"}`}>
     <span className="text-lg mr-4">{icon}</span>
-    <span className="font-semibold text-sm">{label}</span>
+    <span className="font-bold text-xs uppercase tracking-widest">{label}</span>
   </button>
 );
 
 const StatCard = ({ label, value, color, loading, live }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-    <div className="flex justify-between items-start mb-1">
-      <p className="text-sm font-medium text-slate-500">{label}</p>
-      {live && <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse mt-1"></span>}
+  <div className="bg-white p-6 rounded-4xl shadow-xl shadow-slate-200/50 border border-white">
+    <div className="flex justify-between items-center mb-3">
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+      {live && <div className="h-2 w-2 rounded-full bg-pink-400 animate-ping"></div>}
     </div>
-    <h3 className={`text-2xl font-bold ${color} ${loading ? 'animate-pulse' : ''}`}>{loading ? "..." : value}</h3>
+    <h3 className={`text-2xl font-black ${color} tracking-tight ${loading ? 'animate-pulse' : ''}`}>{loading ? "..." : value}</h3>
   </div>
 );
 
 const Table = ({ columns, data, loading }) => (
   <div className="overflow-x-auto">
     <table className="w-full text-left">
-      <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-        <tr>
-          {columns.map(col => <th key={col} className="px-6 py-4 font-semibold">{col}</th>)}
-        </tr>
+      <thead className="bg-slate-50/50 text-slate-400 text-[9px] uppercase font-black tracking-[0.2em] border-b">
+        <tr>{columns.map(col => <th key={col} className="px-8 py-4">{col}</th>)}</tr>
       </thead>
-      <tbody className="divide-y divide-slate-100 text-sm">
+      <tbody className="divide-y divide-slate-50">
         {!loading && data.map((item, idx) => (
-          <tr key={idx} className="hover:bg-slate-50 transition-colors">
-            <td className="px-6 py-4 font-medium text-slate-700">{item.name || item.clientName}</td>
-            <td className="px-6 py-4">
-              <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase">
-                {item.consultant || "Unassigned"}
-              </span>
+          <tr key={idx} className="hover:bg-slate-50/80 transition-all">
+            <td className="px-8 py-5 font-bold text-slate-900 text-xs capitalize">{item.name || item.clientName}</td>
+            <td className="px-8 py-5">
+              <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">{item.consultant || "HQ"}</span>
             </td>
-            <td className="px-6 py-4 text-slate-600">
-              {item.interestedCountry || item.country || item.destinationCountry || "N/A"}
-            </td>
-            <td className="px-6 py-4 text-slate-500">
-              {new Date(item.date || item.createdAt).toLocaleDateString()}
-            </td>
+            <td className="px-8 py-5 text-slate-700 font-bold text-xs">{item.interestedCountry || item.destinationCountry || "General Inquiry"}</td>
+            <td className="px-8 py-5 text-slate-400 font-bold text-[10px]">{new Date(item.date || item.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</td>
           </tr>
         ))}
       </tbody>
@@ -282,25 +370,12 @@ const Table = ({ columns, data, loading }) => (
 const Pagination = ({ currentPage, totalItems, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   if (totalPages <= 1) return null;
-
   return (
-    <div className="px-6 py-4 border-t flex items-center justify-between bg-slate-50">
-      <span className="text-xs text-slate-500 font-medium">Showing page {currentPage} of {totalPages}</span>
+    <div className="px-8 py-5 border-t border-slate-50 flex items-center justify-between bg-slate-50/30">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page {currentPage} of {totalPages}</span>
       <div className="flex gap-2">
-        <button 
-          disabled={currentPage === 1} 
-          onClick={() => onPageChange(prev => prev - 1)}
-          className="p-2 border rounded-lg bg-white hover:bg-slate-50 disabled:opacity-50 transition-colors shadow-sm"
-        >
-          <FaChevronLeft size={12} />
-        </button>
-        <button 
-          disabled={currentPage === totalPages} 
-          onClick={() => onPageChange(prev => prev + 1)}
-          className="p-2 border rounded-lg bg-white hover:bg-slate-50 disabled:opacity-50 transition-colors shadow-sm"
-        >
-          <FaChevronRight size={12} />
-        </button>
+        <button disabled={currentPage === 1} onClick={() => onPageChange(prev => prev - 1)} className="p-2.5 border border-slate-200 rounded-xl bg-white hover:bg-pink-50 disabled:opacity-30 transition-all shadow-sm"><FaChevronLeft size={10} /></button>
+        <button disabled={currentPage === totalPages} onClick={() => onPageChange(prev => prev + 1)} className="p-2.5 border border-slate-200 rounded-xl bg-white hover:bg-pink-50 disabled:opacity-30 transition-all shadow-sm"><FaChevronRight size={10} /></button>
       </div>
     </div>
   );

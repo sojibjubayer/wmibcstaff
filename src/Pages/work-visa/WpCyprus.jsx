@@ -23,9 +23,9 @@ const WpCyprus = () => {
             {[
               "Hospitality",
               "Construction Worker",
-              "Housekeeping",
-              "Hepler",
-            ].map((job, index) => (
+              "Housekeeping", 
+              "Helper",
+            ].map((job, index) => ( 
               <div
                 key={index}
                 className="bg-yellow-50 rounded-lg p-3 text-center font-medium"

@@ -19,7 +19,7 @@ const WpSerbia = () => {
             Position Name
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {["Construction", "Cleaner", "Warehouse"].map((job, index) => (
+            {["Construction", "Cleaner", "Warehouse", "Tile Mason"].map((job, index) => (
               <div
                 key={index}
                 className="bg-blue-50 rounded-lg p-4 text-center font-semibold text-lg"

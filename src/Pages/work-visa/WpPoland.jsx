@@ -14,7 +14,7 @@ const WpPoland = () => {
         {/* Position Section */}
         <div className="mt-8 bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-bold text-red-700 mb-4">
-            Position Name
+            Position Name 
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {["Construction", "Cleaner"].map((job, index) => (
@@ -41,14 +41,14 @@ const WpPoland = () => {
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h3 className="font-bold text-red-700 mb-2">Duty Hours</h3>
-            <p>8 hours + Overtime</p>
-            <p>5 days per week</p>
+            <p>8 hours + Overtime</p> 
+            <p>5 days per week</p> 
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h3 className="font-bold text-red-700 mb-2">TRC & Processing</h3>
-            <p>TRC: 3 Months</p>
-            <p>Processing Time: 7 – 8 Months</p>
+            <p>TRC: 3 Months</p> 
+            <p>Processing Time: 7 – 8 Months</p> 
           </div>
         </div>
 
@@ -58,7 +58,7 @@ const WpPoland = () => {
             Service Charge
           </h2>
           <p className="text-lg font-semibold text-gray-800 mb-4">
-            15,000 Riyal
+            18,000 Riyal
           </p>
 
           <div className="space-y-3">
@@ -74,7 +74,7 @@ const WpPoland = () => {
 
             <div className="bg-red-100 p-4 rounded-lg flex justify-between">
               <span>3rd Payment (After Visa Approval)</span>
-              <span className="font-semibold">8,500</span>
+              <span className="font-semibold">11,500</span>
             </div>
           </div>
         </div>

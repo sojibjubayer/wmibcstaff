@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-// import underConstructionAnimation from "../assets/lottie/site under construction.json";
-// import Lottie from "lottie-react";
+import underConstructionAnimation from "../assets/lottie/site under construction.json";
+import Lottie from "lottie-react";
 
 const NotFound = () => {
     return (
