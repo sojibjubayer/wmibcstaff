@@ -24,6 +24,10 @@ export default function ClientDetails() {
   const navigate = useNavigate();
   const [client, setClient] = useState(null);
   const [newRemark, setNewRemark] = useState("");
+  // --- ADDED: Get user role from local storage ---
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRole = storedUser?.role?.toLowerCase(); 
+  const isAuthorized = userRole === "admin" || userRole === "accountant";
 
   useEffect(() => {
     fetch(`https://wmibcstaff-server.vercel.app/api/clients/${id}`)
@@ -481,24 +485,29 @@ export default function ClientDetails() {
           </button>
 
           <div className="flex gap-2">
-            <button
-              onClick={generateReceipt}
-              className="bg-white border border-blue-100 p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-600 shadow-sm active:scale-95"
-            >
-              <FaFileInvoice /> RECEIPT
-            </button>
+{isAuthorized && (
+              <button
+                onClick={generateReceipt}
+                className="bg-white border border-blue-100 p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-600 shadow-sm active:scale-95"
+              >
+                <FaFileInvoice /> RECEIPT
+              </button>
+            )}
             <button
               onClick={downloadPDF}
               className="bg-white border p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm active:scale-95"
             >
               <FaFileDownload className="text-emerald-600" /> PDF REPORT
             </button>
-            <Link
-              to={`/edit-client/${id}`}
-              className="bg-pink-400 text-white  p-2 px-5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-pink-500 active:scale-95"
-            >
-              <FaEdit /> EDIT
-            </Link>
+{/* CONDITIONAL EDIT BUTTON */}
+            {isAuthorized && (
+              <Link
+                to={`/edit-client/${id}`}
+                className="bg-pink-400 text-white p-2 px-5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-pink-500 active:scale-95"
+              >
+                <FaEdit /> EDIT
+              </Link>
+            )}
           </div>
         </div>
 

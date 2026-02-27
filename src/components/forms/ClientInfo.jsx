@@ -19,29 +19,38 @@ const ClientInfo = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const getClients = async () => {
-      try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
-        if (!storedUser || !storedUser.name) {
-          setError("Session expired. Please login again.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(
-          "https://wmibcstaff-server.vercel.app/api/clients",
-          { params: { consultant: storedUser.name } }
-        );
-        setClients(response.data.reverse());
-      } catch (err) {
-        setError("Unable to connect to server");
-      } finally {
+useEffect(() => {
+  const getClients = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      
+      if (!storedUser || !storedUser.name) {
+        setError("Session expired. Please login again.");
         setLoading(false);
+        return;
       }
-    };
-    getClients();
-  }, []);
+
+      const userRole = storedUser.role?.toLowerCase();
+      const isAdminOrAccountant = userRole === "admin" || userRole === "accountant";
+
+      // If Admin/Accountant, we send NO consultant param (to get all)
+      // If regular user, we send their name as the consultant param
+      const params = isAdminOrAccountant ? {} : { consultant: storedUser.name };
+
+      const response = await axios.get(
+        "https://wmibcstaff-server.vercel.app/api/clients",
+        { params }
+      );
+      
+      setClients(response.data.reverse());
+    } catch (err) {
+      setError("Unable to connect to server");
+    } finally {
+      setLoading(false);
+    }
+  };
+  getClients();
+}, []);
 
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {
