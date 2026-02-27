@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FaChartPie, FaUsers, FaPassport, FaSearch, 
-  FaChevronLeft, FaChevronRight, FaSync, FaTimes, FaGlobe 
+  FaChevronLeft, FaChevronRight, FaSync, FaTimes, FaFilter, FaIdBadge 
 } from "react-icons/fa";
 
 const ITEMS_PER_PAGE = 12;
@@ -27,6 +27,11 @@ const Dashboard = () => {
   // Pagination & Filter States
   const [visitorPage, setVisitorPage] = useState(1);
   const [clientPage, setClientPage] = useState(1);
+  
+  // Visitor specific filters
+  const [visitorFilterConsultant, setVisitorFilterConsultant] = useState("");
+  
+  // Client specific filters
   const [clientFilterConsultant, setClientFilterConsultant] = useState("");
   const [clientFilterCountry, setClientFilterCountry] = useState("");
 
@@ -86,19 +91,27 @@ const Dashboard = () => {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   // Unique countries for the dropdown filter
-  const uniqueCountries = [...new Set(allClients.map(c => c.destinationCountry).filter(Boolean))].sort();
+  const uniqueCountries = useMemo(() => 
+    [...new Set(allClients.map(c => c.destinationCountry).filter(Boolean))].sort()
+  , [allClients]);
 
   // --- FILTERING LOGIC ---
-  const getFilteredVisitors = () => {
-    if (!searchQuery) return allVisitors;
-    const q = searchQuery.toLowerCase();
-    return allVisitors.filter(v => 
-      (v.name || "").toLowerCase().includes(q) || 
-      (v.mobile || "").toString().includes(q)
-    );
-  };
+  const filteredVisitors = useMemo(() => {
+    let data = allVisitors;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      data = data.filter(v => 
+        (v.name || "").toLowerCase().includes(q) || 
+        (v.mobile || "").toString().includes(q)
+      );
+    }
+    if (visitorFilterConsultant) {
+      data = data.filter(v => v.consultant?.toLowerCase() === visitorFilterConsultant.toLowerCase());
+    }
+    return data;
+  }, [allVisitors, searchQuery, visitorFilterConsultant]);
 
-  const getFilteredClients = () => {
+  const filteredClients = useMemo(() => {
     let data = allClients;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -115,15 +128,12 @@ const Dashboard = () => {
       data = data.filter(c => c.destinationCountry === clientFilterCountry);
     }
     return data;
-  };
+  }, [allClients, searchQuery, clientFilterConsultant, clientFilterCountry]);
 
   const paginate = (data, page) => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return data.slice(start, start + ITEMS_PER_PAGE);
   };
-
-  const filteredVisitors = getFilteredVisitors();
-  const filteredClients = getFilteredClients();
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
@@ -153,7 +163,7 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col min-w-0">
         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-          <div className="relative w-full max-w-md">
+          <div className="relative w-full max-md">
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"/>
             <input 
               type="text" 
@@ -162,11 +172,6 @@ const Dashboard = () => {
               onChange={(e) => { setSearchQuery(e.target.value); setVisitorPage(1); setClientPage(1); }}
               className="w-full pl-11 pr-12 py-3 bg-slate-100 border-none rounded-2xl text-xs font-medium focus:ring-2 focus:ring-pink-200 outline-none transition-all" 
             />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500">
-                <FaTimes />
-              </button>
-            )}
           </div>
           <div className="flex items-center gap-6">
             <button onClick={fetchData} className="p-3 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-xl transition-all border border-slate-100">
@@ -225,21 +230,56 @@ const Dashboard = () => {
 
           {/* TAB 2: VISITORS */}
           {activeTab === "Visitors" && (
-            <div className="max-w-7xl mx-auto bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden animate-in fade-in duration-300">
-              <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
-                <h3 className="font-black text-slate-900 text-xs uppercase tracking-[0.2em]">Global Visitor Registry</h3>
-                {searchQuery && <span className="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Found {filteredVisitors.length} results</span>}
+            <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
+              
+              {/* NEW VISITOR LOG FILTERS & TOTAL */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-1 bg-slate-500 p-5 rounded-3xl shadow-lg  flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-pink-300/20 p-3 rounded-2xl text-pink-300">
+                      <FaUsers size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-100 uppercase tracking-widest">Total Results</p>
+                      <h4 className="text-xl font-black text-white">{filteredVisitors.length}</h4>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2 bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4">
+                  <div className="relative flex-1">
+                    <FaFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                    <select 
+                      value={visitorFilterConsultant} 
+                      onChange={(e) => { setVisitorFilterConsultant(e.target.value); setVisitorPage(1); }}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-[11px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-pink-200 outline-none cursor-pointer appearance-none"
+                    >
+                      <option value="">Filter By Consultant</option>
+                      {CONSULTANTS.map(name => <option key={name} value={name}>{name.toUpperCase()}</option>)}
+                    </select>
+                  </div>
+                  <button 
+                    onClick={() => { setVisitorFilterConsultant(""); setSearchQuery(""); }}
+                    className="px-6 py-3 bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-rose-50 hover:text-rose-500 transition-all"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
-              <Table columns={["Name", "Consultant", "Interested In", "Date"]} data={paginate(filteredVisitors, visitorPage)} loading={loading} />
-              <Pagination currentPage={visitorPage} totalItems={filteredVisitors.length} onPageChange={setVisitorPage} />
+
+              <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+                  <h3 className="font-black text-slate-900 text-xs uppercase tracking-[0.2em]">Global Visitor Registry</h3>
+                </div>
+                <Table columns={["Name", "Consultant", "Interested In", "Date"]} data={paginate(filteredVisitors, visitorPage)} loading={loading} />
+                <Pagination currentPage={visitorPage} totalItems={filteredVisitors.length} onPageChange={setVisitorPage} />
+              </div>
             </div>
           )}
 
           {/* TAB 3: CLIENTS */}
           {activeTab === "Clients" && (
             <div className="max-w-7xl mx-auto space-y-4 animate-in fade-in duration-300">
-              
-              {/* HQ CLIENT FILTERS */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900 p-4 rounded-3xl shadow-lg border border-slate-800">
                 <select 
                   value={clientFilterConsultant} 
@@ -353,7 +393,7 @@ const Table = ({ columns, data, loading }) => (
       </thead>
       <tbody className="divide-y divide-slate-50">
         {!loading && data.map((item, idx) => (
-          <tr key={idx} className="hover:bg-slate-50/80 transition-all">
+          <tr key={idx} className="hover:bg-slate-50/80 transition-all group">
             <td className="px-8 py-5 font-bold text-slate-900 text-xs capitalize">{item.name || item.clientName}</td>
             <td className="px-8 py-5">
               <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">{item.consultant || "HQ"}</span>

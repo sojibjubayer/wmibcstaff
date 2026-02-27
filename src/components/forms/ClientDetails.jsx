@@ -24,16 +24,29 @@ export default function ClientDetails() {
   const navigate = useNavigate();
   const [client, setClient] = useState(null);
   const [newRemark, setNewRemark] = useState("");
+  const [loading, setLoading] = useState(true);
+
   // --- ADDED: Get user role from local storage ---
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const userRole = storedUser?.role?.toLowerCase(); 
+  const userRole = storedUser?.role?.toLowerCase();
   const isAuthorized = userRole === "admin" || userRole === "accountant";
 
   useEffect(() => {
+    setLoading(true); // Start loading when ID changes
     fetch(`https://wmibcstaff-server.vercel.app/api/clients/${id}`)
-      .then((res) => res.json())
-      .then((data) => setClient(data))
-      .catch(() => toast.error("Failed to load client"));
+      .then((res) => {
+        if (!res.ok) throw new Error("Client not found");
+        return res.json();
+      })
+      .then((data) => {
+        setClient(data);
+        setLoading(false); // SUCCESS: Stop loading
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to load client details");
+        setLoading(false); // ERROR: Stop loading so we don't get stuck
+      });
   }, [id]);
 
   // --- MODERN PDF REPORT LOGIC ---
@@ -71,7 +84,15 @@ export default function ClientDetails() {
 
     autoTable(doc, {
       startY: 130, // Hardcoded start for the first table
-      head: [[{ content: "PRIMARY IDENTITY", colSpan: 2, styles: { halign: "center", fillColor: [51, 65, 85] } }]],
+      head: [
+        [
+          {
+            content: "PRIMARY IDENTITY",
+            colSpan: 2,
+            styles: { halign: "center", fillColor: [51, 65, 85] },
+          },
+        ],
+      ],
       body: identityBody,
       theme: "grid",
       styles: { fontSize: 9 },
@@ -82,16 +103,31 @@ export default function ClientDetails() {
     const journeyBody = [
       ["Current Country", client.currentCountry || "—"],
       ["Destination", client.destinationCountry || "—"],
-      client.changedDestination ? ["Changed Destination", client.changedDestination] : null,
+      client.changedDestination
+        ? ["Changed Destination", client.changedDestination]
+        : null,
       ["Visa Type", client.visaType || "—"],
       ["Trade / Job", client.trade || "—"],
-      ["Submission Date", client.fileSubmissionDate ? new Date(client.fileSubmissionDate).toLocaleDateString() : "—"],
+      [
+        "Submission Date",
+        client.fileSubmissionDate
+          ? new Date(client.fileSubmissionDate).toLocaleDateString()
+          : "—",
+      ],
       ["App. Status", client.applicationStatus || "Pending"],
     ].filter(Boolean);
 
     autoTable(doc, {
       startY: 130, // Same start as Identity (side-by-side)
-      head: [[{ content: "APPLICATION DETAILS", colSpan: 2, styles: { halign: "center", fillColor: [16, 185, 129] } }]],
+      head: [
+        [
+          {
+            content: "APPLICATION DETAILS",
+            colSpan: 2,
+            styles: { halign: "center", fillColor: [16, 185, 129] },
+          },
+        ],
+      ],
       body: journeyBody,
       theme: "grid",
       styles: { fontSize: 9 },
@@ -105,7 +141,14 @@ export default function ClientDetails() {
 
     autoTable(doc, {
       startY: statusY,
-      head: [["Agreement Status", "Handover Status", "Refund Policy", "Payment Terms"]],
+      head: [
+        [
+          "Agreement Status",
+          "Handover Status",
+          "Refund Policy",
+          "Payment Terms",
+        ],
+      ],
       body: [
         [
           client.agreementPaper || "—",
@@ -120,7 +163,9 @@ export default function ClientDetails() {
     });
 
     // --- 4. SECTION: FINANCIAL HISTORY ---
-    const financialTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 30 : 400;
+    const financialTitleY = doc.lastAutoTable
+      ? doc.lastAutoTable.finalY + 30
+      : 400;
 
     doc.setFontSize(12);
     doc.setTextColor(0);
@@ -173,7 +218,9 @@ export default function ClientDetails() {
     if (client.remarksHistory && client.remarksHistory.length > 0) {
       client.remarksHistory.forEach((remark) => {
         const dateStr = new Date(remark.date).toLocaleDateString("en-GB", {
-          day: "2-digit", month: "short", year: "numeric",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
         });
 
         doc.setFont("helvetica", "bold");
@@ -182,16 +229,19 @@ export default function ClientDetails() {
 
         doc.setFont("helvetica", "italic");
         doc.setTextColor(60);
-        const wrappedText = doc.splitTextToSize(remark.text || "", pageWidth - 140);
+        const wrappedText = doc.splitTextToSize(
+          remark.text || "",
+          pageWidth - 140,
+        );
         doc.text(wrappedText, 110, currentRemarkY);
 
         const lineHeight = 12;
-        currentRemarkY += (wrappedText.length * lineHeight) + 5;
-        
+        currentRemarkY += wrappedText.length * lineHeight + 5;
+
         // Simple Page Break check
         if (currentRemarkY > 800) {
-            doc.addPage();
-            currentRemarkY = 40;
+          doc.addPage();
+          currentRemarkY = 40;
         }
       });
     } else {
@@ -464,10 +514,13 @@ export default function ClientDetails() {
     }
   };
 
-  if (!client)
+  if (loading)
     return (
-      <div className="h-screen flex items-center justify-center font-bold text-emerald-600">
-        LOADING...
+      <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mb-4"></div>
+        <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">
+          Loading Database...
+        </p>
       </div>
     );
 
@@ -485,7 +538,7 @@ export default function ClientDetails() {
           </button>
 
           <div className="flex gap-2">
-{isAuthorized && (
+            {isAuthorized && (
               <button
                 onClick={generateReceipt}
                 className="bg-white border border-blue-100 p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-600 shadow-sm active:scale-95"
@@ -499,7 +552,7 @@ export default function ClientDetails() {
             >
               <FaFileDownload className="text-emerald-600" /> PDF REPORT
             </button>
-{/* CONDITIONAL EDIT BUTTON */}
+            {/* CONDITIONAL EDIT BUTTON */}
             {isAuthorized && (
               <Link
                 to={`/edit-client/${id}`}

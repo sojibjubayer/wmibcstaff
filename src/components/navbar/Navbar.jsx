@@ -98,7 +98,14 @@ const DesktopVisaServices = () => (
         <ul className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
           <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
           {menuData.workVisa.map((item, idx) => (
-            <li key={idx}><Link className="block px-4 py-2 hover:bg-pink-50 text-slate-500 text-sm border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link></li>
+            <li key={idx}>
+              <Link
+                className="block px-4 py-2 hover:bg-pink-50 text-slate-500 text-sm border-b border-slate-50 last:border-0"
+                to={item.link}
+              >
+                {item.name}
+              </Link>
+            </li>
           ))}
         </ul>
       </li>
@@ -114,18 +121,31 @@ const DesktopVisaServices = () => (
             <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2">
               <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
               {menuData.visitVisa.europe.map((item, idx) => (
-                <li key={idx}><Link className="block px-4 py-2 hover:bg-pink-50 text-slate-500" to={item.link}>{item.name}</Link></li>
+                <li key={idx}>
+                  <Link
+                    className="block px-4 py-2 hover:bg-pink-50 text-slate-500"
+                    to={item.link}
+                  >
+                    {item.name}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
           {menuData.visitVisa.other.map((item, idx) => (
-            <Link key={idx} className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link>
+            <Link
+              key={idx}
+              className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0"
+              to={item.link}
+            >
+              {item.name}
+            </Link>
           ))}
         </div>
       </li>
 
       {/* 3. Student Visa (Restored) */}
-      <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
+      {/* <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
         Student Visa <FaChevronRight className="text-[10px] opacity-40" />
         <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
           <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
@@ -142,6 +162,12 @@ const DesktopVisaServices = () => (
             <Link key={idx} className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link>
           ))}
         </div>
+      </li> */}
+      <li className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium text-sm">
+        <Link to="/student-visa" className="flex justify-between items-center">
+          Student Visa
+          {/* <FaChevronRight className="text-[10px] opacity-40" /> */}
+        </Link>
       </li>
     </ul>
   </li>
@@ -156,7 +182,10 @@ const DesktopSimpleDropdown = ({ title, items }) => (
       <div className="absolute -top-4 left-0 w-full h-4 bg-transparent"></div>
       {items.map((item, idx) => (
         <li key={idx}>
-          <Link className="block px-4 py-2 hover:bg-pink-50 text-slate-600 text-sm border-b border-slate-50 last:border-0" to={item.link}>
+          <Link
+            className="block px-4 py-2 hover:bg-pink-50 text-slate-600 text-sm border-b border-slate-50 last:border-0"
+            to={item.link}
+          >
             {item.name}
           </Link>
         </li>
@@ -186,24 +215,39 @@ const Navbar = () => {
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
       <div className="container mx-auto px-6 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <img src={Logo} alt="Logo" className="h-10 w-10 rounded-xl shadow-sm border border-pink-100" />
-          <span className="font-black text-slate-800 tracking-tighter text-xl hidden lg:block">WMIBC</span>
+          <img
+            src={Logo}
+            alt="Logo"
+            className="h-10 w-10 rounded-xl shadow-sm border border-pink-100"
+          />
+          <span className="font-black text-slate-800 tracking-tighter text-xl hidden lg:block">
+            WMIBC
+          </span>
         </Link>
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex flex-1 justify-center space-x-3 items-center">
           <li>
-            <Link to="/" className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 px-4 py-1.5 rounded-lg transition-all font-bold">
+            <Link
+              to="/"
+              className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 px-4 py-1.5 rounded-lg transition-all font-bold"
+            >
               Home
             </Link>
           </li>
           <DesktopVisaServices />
-          <DesktopSimpleDropdown title="Client Info" items={menuData.clientInfo} />
+          <DesktopSimpleDropdown
+            title="Client Info"
+            items={menuData.clientInfo}
+          />
           <DesktopSimpleDropdown title="Visitor" items={menuData.visitor} />
-          
+
           {isTareqAdmin && (
             <li>
-              <Link to="/dashboard" className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-1.5 rounded-lg shadow-lg shadow-slate-200 transition-all font-bold">
+              <Link
+                to="/dashboard"
+                className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-1.5 rounded-lg shadow-lg shadow-slate-200 transition-all font-bold"
+              >
                 Dashboard
               </Link>
             </li>
@@ -215,10 +259,17 @@ const Navbar = () => {
           {token && (
             <div className="hidden md:flex items-center space-x-4 border-l border-slate-100 pl-4">
               <div className="flex flex-col items-end">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Staff</span>
-                <span className="text-slate-900 font-bold text-sm leading-tight">{user?.name || "User"}</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">
+                  Staff
+                </span>
+                <span className="text-slate-900 font-bold text-sm leading-tight">
+                  {user?.name || "User"}
+                </span>
               </div>
-              <button onClick={handleLogout} className="bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 px-4 py-1.5 rounded-lg transition-all text-sm font-bold">
+              <button
+                onClick={handleLogout}
+                className="bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 px-4 py-1.5 rounded-lg transition-all text-sm font-bold"
+              >
                 Logout
               </button>
             </div>
