@@ -111,37 +111,10 @@ const DesktopVisaServices = () => (
       </li>
 
       {/* 2. Visit Visa */}
-      <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
-        Visit Visa <FaChevronRight className="text-[10px] opacity-40" />
-        <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
-          <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
-          {/* Europe Sub */}
-          <div className="group/country relative px-4 py-2 hover:bg-pink-50 flex justify-between items-center">
-            Europe <FaChevronRight className="text-[10px]" />
-            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2">
-              <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
-              {menuData.visitVisa.europe.map((item, idx) => (
-                <li key={idx}>
-                  <Link
-                    className="block px-4 py-2 hover:bg-pink-50 text-slate-500"
-                    to={item.link}
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          {menuData.visitVisa.other.map((item, idx) => (
-            <Link
-              key={idx}
-              className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0"
-              to={item.link}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
+      <li className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium text-sm">
+        <Link to="/visit-visa" className="flex justify-between items-center">
+          Visit Visa
+        </Link>
       </li>
 
       {/* 3. Student Visa (Restored) */}
