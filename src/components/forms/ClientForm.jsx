@@ -35,7 +35,6 @@ const touristCountries = {
     "New Zealand",
     "United Kingdom",
     "Turkey",
-    "Others",
   ],
 };
 
@@ -48,7 +47,6 @@ const workCountries = [
   "Serbia",
   "North Macedonia",
   "Cyprus",
-  "Others",
 ];
 
 export default function ClientForm() {
@@ -387,18 +385,19 @@ export default function ClientForm() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaCalendarAlt className="text-pink-300" /> Submit Date
+                  <FaCalendarAlt className="text-pink-300" /> File Submit Date
                 </label>
                 <DatePicker
                   selected={formData.fileSubmissionDate}
                   onChange={(date) => handleChange("fileSubmissionDate", date)}
                   dateFormat="dd/MM/yyyy"
                   className={inputStyle}
+                  required
                 />
               </div>
               <div>
                 <label className={labelStyle}>
-                  <FaCalendarAlt className="text-pink-300" /> Duration
+                  <FaCalendarAlt className="text-pink-300" /> Processing Time
                 </label>
                 <input
                   className={inputStyle}
@@ -407,6 +406,7 @@ export default function ClientForm() {
                     handleChange("processingTime", e.target.value)
                   }
                   placeholder="e.g. 6 Months"
+                  required
                 />
               </div>
             </div>
@@ -475,27 +475,32 @@ export default function ClientForm() {
                   onChange={(e) =>
                     handleChange("totalServiceCharge", e.target.value)
                   }
+                  onWheel={(e) => e.target.blur()}
                   required
                 />
               </div>
+
               <div>
-                <label className={labelStyle}>
-                  <FaFileSignature className="text-pink-300" /> Agreement
-                </label>
-                <select
+                <label className={labelStyle}>Non Refundable</label>
+                <input
                   className={inputStyle}
-                  value={formData.agreementPaper}
-                  onChange={(e) =>
-                    handleChange("agreementPaper", e.target.value)
-                  }
+                  value={formData.refundTerms}
+                  onChange={(e) => handleChange("refundTerms", e.target.value)}
+                  placeholder="amount"
                   required
-                >
-                  <option value="">Status</option>
-                  <option>Pending</option>
-                  <option>Handed Over</option>
-                  <option>Not Required</option>
-                </select>
+                />
               </div>
+            </div>
+
+            <div>
+              <label className={labelStyle}>Payment Terms</label>
+              <input
+                className={inputStyle}
+                value={formData.paymentTerms}
+                onChange={(e) => handleChange("paymentTerms", e.target.value)}
+                placeholder="e.g. 2000-5000-23000"
+                required
+              />
             </div>
 
             {/* Payment Box */}
@@ -503,10 +508,37 @@ export default function ClientForm() {
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-2">
                 Initial Collection
               </p>
+
+              {/* NEW: Payment Type Selection */}
+              <div>
+                <label className="text-[9px] font-bold text-slate-400">
+                  Transaction Type
+                </label>
+                <select
+                  className={inputStyle}
+                  value={formData.amountReceived.paymentType}
+                  onChange={(e) =>
+                    handleAmountChange("paymentType", e.target.value)
+                  }
+                  required
+                >
+                  <option value="">Select Type</option>
+                  {[
+                    "1st Payment",
+                    "Final Payment"
+
+                  ].map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[9px] font-bold text-slate-400">
-                    Paid
+                    Amount
                   </label>
                   <input
                     type="number"
@@ -515,6 +547,9 @@ export default function ClientForm() {
                     onChange={(e) =>
                       handleAmountChange("amount", e.target.value)
                     }
+                    onWheel={(e) => e.target.blur()}
+                    placeholder="0.00"
+                    required
                   />
                 </div>
                 <div>
@@ -528,9 +563,13 @@ export default function ClientForm() {
                     onChange={(e) =>
                       handleChange("pendingBalance", e.target.value)
                     }
+                    onWheel={(e) => e.target.blur()}
+                    placeholder="0.00"
+                    required
                   />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <select
                   className={inputStyle}
@@ -538,11 +577,13 @@ export default function ClientForm() {
                   onChange={(e) =>
                     handleAmountChange("paymentMethod", e.target.value)
                   }
+                  required
                 >
                   <option value="">Method</option>
                   <option>Cash</option>
                   <option>Card</option>
-                  <option>Bank</option>
+                  <option>Bank Transfer</option>
+                  <option>Cheque</option>
                 </select>
                 <DatePicker
                   selected={formData.amountReceived.paymentDate}
@@ -550,28 +591,26 @@ export default function ClientForm() {
                   dateFormat="dd/MM/yyyy"
                   className={inputStyle}
                   placeholderText="Date"
+                  required
                 />
               </div>
             </div>
 
             <div>
-              <label className={labelStyle}>Payment Terms</label>
-              <input
+              <label className={labelStyle}>
+                <FaFileSignature className="text-pink-300" /> Agreement
+              </label>
+              <select
                 className={inputStyle}
-                value={formData.paymentTerms}
-                onChange={(e) => handleChange("paymentTerms", e.target.value)}
-                placeholder="e.g. 2000-5000-23000"
-              />
-            </div>
-
-            <div>
-              <label className={labelStyle}>Refund Terms</label>
-              <input
-                className={inputStyle}
-                value={formData.refundTerms}
-                onChange={(e) => handleChange("refundTerms", e.target.value)}
-                placeholder="Terms of refund"
-              />
+                value={formData.agreementPaper}
+                onChange={(e) => handleChange("agreementPaper", e.target.value)}
+                required
+              >
+                <option value="">Status</option>
+                <option>Pending</option>
+                <option>Handed Over</option>
+                <option>Not Required</option>
+              </select>
             </div>
           </div>
 

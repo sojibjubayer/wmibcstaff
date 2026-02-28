@@ -6,30 +6,6 @@ import Logo from "../../assets/company-logo.jpg";
 
 /* ================= ALL DATA RESTORED ================= */
 const menuData = {
-  studentVisa: {
-    europe: [
-      { name: "Germany", link: "/student-visa/Germany" },
-      { name: "Netherlands", link: "/student-visa/Netherlands" },
-      { name: "Sweden", link: "/student-visa/Sweden" },
-      { name: "Denmark", link: "/student-visa/Denmark" },
-      { name: "Poland", link: "/student-visa/Poland" },
-      { name: "France", link: "/student-visa/France" },
-      { name: "Italy", link: "/student-visa/Italy" },
-      { name: "Malta", link: "/student-visa/Malta" },
-      { name: "Hungary", link: "/student-visa/Hungary" },
-      { name: "Lithuania", link: "/student-visa/Lithuania" },
-      { name: "Estonia", link: "/student-visa/Estonia" },
-      { name: "Romania", link: "/student-visa/Romania" },
-    ],
-    other: [
-      { name: "USA", link: "/student-visa/USA" },
-      { name: "Canada", link: "/student-visa/Canada" },
-      { name: "Australia", link: "/student-visa/Australia" },
-      { name: "New Zealand", link: "/student-visa/NewZealand" },
-      { name: "UK", link: "/student-visa/UK" },
-      { name: "Malaysia", link: "/student-visa/Malaysia" },
-    ],
-  },
   visitVisa: {
     europe: [
       { name: "France", link: "/visit-visa/france" },
@@ -113,29 +89,9 @@ const DesktopVisaServices = () => (
       {/* 2. Visit Visa */}
       <li className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium text-sm">
         <Link to="/visit-visa" className="flex justify-between items-center">
-          Visit Visa
+          Visit Visa 
         </Link>
       </li>
-
-      {/* 3. Student Visa (Restored) */}
-      {/* <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
-        Student Visa <FaChevronRight className="text-[10px] opacity-40" />
-        <div className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
-          <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
-          <div className="group/country relative px-4 py-2 hover:bg-pink-50 flex justify-between items-center text-sm">
-            Europe <FaChevronRight className="text-[10px]" />
-            <ul className="absolute top-0 left-full hidden group-hover/country:block w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2">
-              <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
-              {menuData.studentVisa.europe.map((item, idx) => (
-                <li key={idx}><Link className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link></li>
-              ))}
-            </ul>
-          </div>
-          {menuData.studentVisa.other.map((item, idx) => (
-            <Link key={idx} className="block px-4 py-2 hover:bg-pink-50 text-slate-500 border-b border-slate-50 last:border-0" to={item.link}>{item.name}</Link>
-          ))}
-        </div>
-      </li> */}
       <li className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium text-sm">
         <Link to="/student-visa" className="flex justify-between items-center">
           Student Visa
@@ -178,8 +134,44 @@ const Navbar = () => {
   const user = userString ? JSON.parse(userString) : null;
   const isTareqAdmin = user?.role === "admin";
 
+  // --- AUTO LOGOUT LOGIC START ---
+  React.useEffect(() => {
+    const checkSession = () => {
+      const loginTimestamp = localStorage.getItem("loginTimestamp");
+      const TWO_HOURS = 2 * 60 * 60 * 1000; // 7,200,000 ms
+
+      if (token && loginTimestamp) {
+        const now = new Date().getTime();
+        const timeElapsed = now - parseInt(loginTimestamp);
+
+        if (timeElapsed > TWO_HOURS) {
+          console.log("Session expired. Logging out...");
+          handleLogout();
+        }
+      } else if (token && !loginTimestamp) {
+        // If logged in but no timestamp exists, set it now (safety fallback)
+        localStorage.setItem("loginTimestamp", new Date().getTime().toString());
+      }
+    };
+
+    // Check immediately on load
+    checkSession();
+
+    // Check every minute while the tab is open
+    const interval = setInterval(checkSession, 60000);
+    return () => clearInterval(interval);
+  }, [token]); 
+  // --- AUTO LOGOUT LOGIC END ---
+
   const handleLogout = () => {
-    localStorage.clear();
+    // Clear everything to fix the "old user" credential problem
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("loginTimestamp");
+    
+    // Safety: Clear all if needed
+    // localStorage.clear(); 
+
     navigate("/login");
     setMobileOpen(false);
   };

@@ -29,7 +29,11 @@ export default function ClientDetails() {
   // --- ADDED: Get user role from local storage ---
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userRole = storedUser?.role?.toLowerCase();
+  const userName = storedUser?.name?.toLowerCase();
   const isAuthorized = userRole === "admin" || userRole === "accountant";
+
+  // Logic: Hide if user is BOTH an accountant AND named Neshat
+  const canSeeReceipt = !(userRole === "accountant" && userName === "neshat");
 
   useEffect(() => {
     setLoading(true); // Start loading when ID changes
@@ -538,7 +542,7 @@ export default function ClientDetails() {
           </button>
 
           <div className="flex gap-2">
-            {isAuthorized && (
+            {isAuthorized && canSeeReceipt && (
               <button
                 onClick={generateReceipt}
                 className="bg-white border border-blue-100 p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-600 shadow-sm active:scale-95"
@@ -567,7 +571,7 @@ export default function ClientDetails() {
         {/* MAIN CARD UI */}
         <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
           {/* HEADER */}
-          <div className="bg-slate-200 p-5 text-gray-700 flex justify-between">
+          <div className="bg-slate-200 p-5 text-pink-600 flex justify-between">
             <div>
               <h1 className="text-2xl font-black uppercase tracking-tight">
                 {client.clientName}

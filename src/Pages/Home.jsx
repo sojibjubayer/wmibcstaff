@@ -15,21 +15,24 @@ const Home = () => {
   const cards = [
     {
       title: "Work Visa",
-      description: "Explore job opportunities and work permits for skilled professionals.",
+      description:
+        "Explore job opportunities and work permits for skilled professionals.",
       route: "/work-visa",
       icon: <FaBriefcase className="text-3xl mb-4 text-pink-400" />,
     },
     {
-      title: "Student Visa",
-      description: "Admission guidance and visa support for top global universities.",
-      route: "/student-visa",
-      icon: <FaUserGraduate className="text-3xl mb-4 text-pink-400" />,
-    },
-    {
       title: "Visit Visa",
-      description: "Hassle-free tourist and short-term travel visas for your next trip.",
+      description:
+        "Hassle-free tourist and short-term travel visas for your next trip.",
       route: "/visit-visa",
       icon: <FaGlobeAmericas className="text-3xl mb-4 text-pink-400" />,
+    },
+    {
+      title: "Student Visa",
+      description:
+        "Admission guidance and visa support for top global universities.",
+      route: "/student-visa",
+      icon: <FaUserGraduate className="text-3xl mb-4 text-pink-400" />,
     },
   ];
 
@@ -39,10 +42,11 @@ const Home = () => {
       <div className="bg-white border-b border-slate-100 py-16 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
-             <span className="text-pink-400">Visa</span> Portal
+            <span className="text-pink-400">Visa</span> Portal
           </h1>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto">
-            Welcome to the WMIBC management system. Streamline your visa applications and client consulting from one central hub.
+            Welcome to the WMIBC management system. Streamline your visa
+            applications and client consulting from one central hub.
           </p>
         </div>
       </div>
@@ -66,14 +70,16 @@ const Home = () => {
               <h2 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-pink-500 transition-colors">
                 {card.title}
               </h2>
-              
+
               <p className="text-slate-500 leading-relaxed mb-6">
                 {card.description}
               </p>
 
               <div className="flex items-center text-pink-500 font-bold text-sm uppercase tracking-wider">
                 Explore Services
-                <span className="ml-2 group-hover:translate-x-2 transition-transform">→</span>
+                <span className="ml-2 group-hover:translate-x-2 transition-transform">
+                  →
+                </span>
               </div>
             </div>
           ))}
