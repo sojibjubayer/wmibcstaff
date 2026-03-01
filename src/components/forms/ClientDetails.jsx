@@ -255,8 +255,49 @@ export default function ClientDetails() {
     doc.save(`${client.clientName}_Detailed_Report.pdf`);
   };
 
+  //CONFIRM RECEIPT
+  const handleReceiptClick = () => {
+  toast((t) => (
+    <div className="flex flex-col gap-3 min-w-50">
+      <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
+        Confirm Receipt?
+      </span>
+      <p className="text-[11px] text-slate-500">
+        Generate and download the voucher for {client.clientName}?
+      </p>
+      <div className="flex gap-2 justify-end mt-2">
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="text-[10px] font-black text-gray-400 uppercase hover:text-gray-600 px-2"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            toast.dismiss(t.id);
+            generateReceipt(); // Your original PDF function
+          }}
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all"
+        >
+          Generate
+        </button>
+      </div>
+    </div>
+  ), {
+    duration: 6000,
+    position: 'top-center',
+    style: {
+      borderRadius: '20px',
+      background: '#fff',
+      border: '1px solid #f1f5f9',
+      padding: '16px',
+    },
+  });
+};
+
   // --- 3-COPY RECEIPT LOGIC ---
   const generateReceipt = () => {
+    
     if (
       !client ||
       !client.amountReceived ||
@@ -544,7 +585,7 @@ export default function ClientDetails() {
           <div className="flex gap-2">
             {isAuthorized && canSeeReceipt && (
               <button
-                onClick={generateReceipt}
+                onClick={handleReceiptClick}
                 className="bg-white border border-blue-100 p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-600 shadow-sm active:scale-95"
               >
                 <FaFileInvoice /> RECEIPT

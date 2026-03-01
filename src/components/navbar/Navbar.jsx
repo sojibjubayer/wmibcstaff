@@ -138,13 +138,13 @@ const Navbar = () => {
   React.useEffect(() => {
     const checkSession = () => {
       const loginTimestamp = localStorage.getItem("loginTimestamp");
-      const TWO_HOURS = 2 * 60 * 60 * 1000; // 7,200,000 ms
+      const TWELVE_HOURS = 12 * 60 * 60 * 1000; 
 
       if (token && loginTimestamp) {
         const now = new Date().getTime();
         const timeElapsed = now - parseInt(loginTimestamp);
 
-        if (timeElapsed > TWO_HOURS) {
+        if (timeElapsed > TWELVE_HOURS) {
           console.log("Session expired. Logging out...");
           handleLogout();
         }
