@@ -46,7 +46,7 @@ export default function Login() {
             <div className="inline-flex items-center justify-center w-14 h-14 bg-white shadow-sm border border-slate-100 rounded-2xl mb-4">
                 <FiShield className="text-pink-400 text-2xl" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">WMIBC Staff Portal</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">WMIBC Visa Portal</h1>
             <p className="text-slate-500 text-sm mt-1">Authorized Personnel Only</p>
         </div>
 

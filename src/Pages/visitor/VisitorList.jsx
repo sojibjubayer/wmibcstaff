@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { FaFilePdf, FaTimes, FaUserCircle, FaSearch, FaChevronLeft, FaChevronRight, FaPassport } from "react-icons/fa";
+import { FaFilePdf, FaTimes, FaUserCircle, FaSearch, FaChevronLeft, FaChevronRight, FaPassport, FaEdit, FaSave } from "react-icons/fa";
 
 export default function VisitorList() {
   const [visitors, setVisitors] = useState([]);
@@ -17,7 +17,11 @@ export default function VisitorList() {
   const [filterCountry, setFilterCountry] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDate, setFilterDate] = useState("");
+  
+  // Modal & Edit States
   const [selectedVisitor, setSelectedVisitor] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({});
 
   const [availableVisas, setAvailableVisas] = useState([]);
   const [availableCountries, setAvailableCountries] = useState([]);
@@ -29,6 +33,7 @@ export default function VisitorList() {
   }, []);
 
   const formatLabel = (key) => key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+  
   const formatValue = (key, value) => {
     if (!value) return "N/A";
     if (key.toLowerCase().includes("date") || (typeof value === 'string' && value.includes('T'))) {
@@ -36,18 +41,6 @@ export default function VisitorList() {
       return isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
     }
     return String(value);
-  };
-
-  const downloadPDF = (visitor) => {
-    const doc = new jsPDF('p', 'pt', 'a4');
-    doc.setFontSize(20);
-    doc.setTextColor(15, 23, 42);
-    doc.text("Consultation Profile", 40, 50);
-    const tableRows = Object.entries(visitor)
-      .filter(([key]) => !["_id", "__v", "createdAt", "consultant", "date", "time"].includes(key))
-      .map(([key, value]) => [formatLabel(key), formatValue(key, value)]);
-    autoTable(doc, { startY: 80, head: [["Field", "Info"]], body: tableRows, theme: "striped", headStyles: { fillColor: [15, 23, 42] } });
-    doc.save(`${visitor.name}_Profile.pdf`);
   };
 
   const fetchVisitors = useCallback(async () => {
@@ -67,14 +60,98 @@ export default function VisitorList() {
 
   useEffect(() => { fetchVisitors(); }, [fetchVisitors]);
 
+  // Open Modal and initialize edit data
+  const handleOpenDetails = (visitor) => {
+    setSelectedVisitor(visitor);
+    setEditData(visitor);
+    setIsEditing(false);
+  };
+
+  // Handle Update API Call
+const handleUpdate = async () => {
+  // Define the update logic as a promise for the toast to track
+  const updatePromise = async () => {
+    const { _id, ...updatePayload } = editData;
+
+    const res = await fetch(`https://wmibcstaff-server.vercel.app/api/visitor/${_id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatePayload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Update failed");
+    }
+
+    // Update the main list state so the table refreshes instantly
+    setVisitors((prev) =>
+      prev.map((v) => (v._id === _id ? { ...v, ...updatePayload } : v))
+    );
+
+    // Update the modal view and close edit mode
+    setSelectedVisitor({ ...selectedVisitor, ...updatePayload });
+    setIsEditing(false);
+    
+    return data; // Passed to the success toast
+  };
+
+  // Trigger the cute "Promise" toast
+  toast.promise(
+    updatePromise(),
+    {
+      loading: 'Saving changes... ✨',
+      success: 'Visitor updated successfully! 💖',
+      error: (err) => `Oops! ${err.message || 'Something went wrong'} ❌`,
+    },
+    {
+      style: {
+        borderRadius: '15px',
+        background: '#0f172a', // slate-900
+        color: '#fff',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+      },
+      success: {
+        duration: 3000,
+        icon: '✅',
+        style: {
+          background: '#fbcfe8', // pink-200
+          color: '#0f172a', // slate-900
+          border: '2px solid #ec4899', // pink-500
+        },
+      },
+      error: {
+        duration: 4000,
+        style: {
+          background: '#fee2e2', // red-100
+          color: '#991b1b', // red-800
+        },
+      },
+    }
+  );
+};
+
+  const downloadPDF = (visitor) => {
+    const doc = new jsPDF('p', 'pt', 'a4');
+    doc.setFontSize(20);
+    doc.setTextColor(15, 23, 42);
+    doc.text("Consultation Profile", 40, 50);
+    const tableRows = Object.entries(visitor)
+      .filter(([key]) => !["_id", "__v", "createdAt", "consultant", "date", "time"].includes(key))
+      .map(([key, value]) => [formatLabel(key), formatValue(key, value)]);
+    autoTable(doc, { startY: 80, head: [["Field", "Info"]], body: tableRows, theme: "striped", headStyles: { fillColor: [15, 23, 42] } });
+    doc.save(`${visitor.name}_Profile.pdf`);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-100 p-2 md:p-6 text-slate-700">
+    <div className="min-h-screen bg-slate-100 p-2 md:p-6 text-slate-700 font-sans">
       <Toaster position="top-right" />
       
-      {/* Centered & Width-Limited Container */}
       <div className="max-w-5xl mx-auto space-y-4">
-        
-        {/* Compact Header */}
+        {/* Header and Filters (Unchanged for brevity) */}
         <div className="flex justify-between items-center bg-white px-5 py-3 rounded-2xl border border-white shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-pink-200 rounded-lg flex items-center justify-center text-slate-900 shadow-sm"><FaPassport size={16} /></div>
@@ -86,7 +163,7 @@ export default function VisitorList() {
           </div>
         </div>
 
-        {/* Dense Filter Bar */}
+        {/* Filter Bar */}
         <div className="bg-slate-900 p-4 rounded-2xl shadow-lg">
           <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
             <div className="relative">
@@ -110,7 +187,7 @@ export default function VisitorList() {
           </div>
         </div>
 
-        {/* Table Content - Narrower & Truncated */}
+        {/* Table Content */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
           <table className="w-full text-left border-collapse table-fixed">
             <thead>
@@ -142,10 +219,10 @@ export default function VisitorList() {
                     <td className="p-3 text-center">
                       <span className={`px-2 py-1 text-[8px] font-black rounded-full uppercase tracking-tighter ${
                         v.consultationStatus === "Highly Interested" ? "bg-emerald-100 text-emerald-700" : "bg-pink-100 text-pink-600"
-                      }`}>{v.consultationStatus.split(' ')[0]}</span>
+                      }`}>{v.consultationStatus?.split(' ')[0]}</span>
                     </td>
                     <td className="p-3 text-right">
-                      <button onClick={() => setSelectedVisitor(v)} className="p-1.5 bg-slate-900 text-white rounded-lg hover:bg-pink-300 hover:text-slate-900 transition-all">
+                      <button onClick={() => handleOpenDetails(v)} className="p-1.5 bg-slate-900 text-white rounded-lg hover:bg-pink-300 hover:text-slate-900 transition-all">
                         <FaPassport size={12}/>
                       </button>
                     </td>
@@ -155,7 +232,7 @@ export default function VisitorList() {
             </tbody>
           </table>
 
-          {/* Compact Pagination */}
+          {/* Pagination */}
           <div className="p-3 bg-slate-50 border-t flex justify-between items-center">
             <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30"><FaChevronLeft size={10}/></button>
             <span className="text-[9px] font-black text-slate-400 uppercase">Page {currentPage} of {totalPages}</span>
@@ -164,27 +241,56 @@ export default function VisitorList() {
         </div>
       </div>
 
-      {/* Tighter Detail Modal */}
+      {/* Editable Detail Modal */}
       {selectedVisitor && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
           <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
             <div className="p-5 bg-slate-900 flex justify-between items-center">
-              <h2 className="text-sm font-black text-white uppercase tracking-widest">Visitor Detail</h2>
-              <button onClick={() => setSelectedVisitor(null)} className="text-slate-400 hover:text-white"><FaTimes/></button>
+              <h2 className="text-sm font-black text-white uppercase tracking-widest">
+                {isEditing ? "Editing Visitor" : "Visitor Detail"}
+              </h2>
+              <button onClick={() => {setSelectedVisitor(null); setIsEditing(false);}} className="text-slate-400 hover:text-white"><FaTimes/></button>
             </div>
+
             <div className="p-5 grid grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto">
-              {Object.entries(selectedVisitor)
-                .filter(([key]) => !["_id", "__v", "createdAt"].includes(key))
+              {Object.entries(editData)
+                .filter(([key]) => !["_id", "__v", "createdAt", "consultant"].includes(key))
                 .map(([key, value]) => (
-                  <div key={key} className="border-b border-slate-50 pb-1">
-                    <label className="text-[8px] font-black text-slate-300 uppercase block">{formatLabel(key)}</label>
-                    <span className="text-[11px] font-bold text-slate-800 block truncate">{formatValue(key, value)}</span>
+                  <div key={key} className="border-b border-slate-50 pb-2">
+                    <label className="text-[8px] font-black text-slate-400 uppercase block mb-1">{formatLabel(key)}</label>
+                    {isEditing ? (
+                      <input 
+                        className="w-full text-[11px] font-bold text-slate-800 bg-slate-50 border-none rounded p-1 outline-pink-300"
+                        value={value || ""}
+                        onChange={(e) => setEditData({...editData, [key]: e.target.value})}
+                      />
+                    ) : (
+                      <span className="text-[11px] font-bold text-slate-800 block truncate">{formatValue(key, value)}</span>
+                    )}
                   </div>
                 ))}
             </div>
+
             <div className="p-5 bg-slate-50 flex gap-2">
-              <button onClick={() => downloadPDF(selectedVisitor)} className="flex-1 py-3 bg-pink-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><FaFilePdf/> PDF Report</button>
-              <button onClick={() => setSelectedVisitor(null)} className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Close</button>
+              {!isEditing ? (
+                <>
+                  <button onClick={() => setIsEditing(true)} className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all">
+                    <FaEdit/> Edit Profile
+                  </button>
+                  <button onClick={() => downloadPDF(selectedVisitor)} className="flex-1 py-3 bg-pink-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-pink-300 transition-all">
+                    <FaFilePdf/> PDF Report
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={handleUpdate} className="flex-1 py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all">
+                    <FaSave/> Save Changes
+                  </button>
+                  <button onClick={() => {setIsEditing(false); setEditData(selectedVisitor);}} className="flex-1 py-3 bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-300 transition-all">
+                    Cancel
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
