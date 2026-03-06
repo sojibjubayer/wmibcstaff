@@ -44,7 +44,7 @@ const initialState = {
   interestedCountry: "",
   paymentTerms: "",
   consultationStatus: "",
-  visitorComment: "",
+  visitorEnquiry: "",
   remarks: "",
 };
 
@@ -169,7 +169,7 @@ export default function AddVisitor() {
               </div>
               <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required className={inputStyle} />
               <input type="text" name="mobile" placeholder="Mobile Number" value={formData.mobile} onChange={handleChange} required className={inputStyle} />
-              <input type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} className={inputStyle} />
+              <input type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} className={inputStyle} required/>
               <input type="text" name="currentAddress" placeholder="Address / Location" value={formData.currentAddress} onChange={handleChange} className={inputStyle} />
           </div>
 
@@ -179,9 +179,9 @@ export default function AddVisitor() {
                     <div className="h-4 w-1 bg-pink-300 rounded-full"></div>
                     <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">Service Requirements</h2>
                 </div>
-                <input type="text" name="profession" placeholder="Current Profession" value={formData.profession} onChange={handleChange} className={inputStyle} />
+                <input type="text" name="profession" placeholder="Current Profession" value={formData.profession} onChange={handleChange} className={inputStyle} required />
                 
-                <select name="nationality" value={formData.nationality} onChange={handleChange} className={inputStyle}>
+                <select name="nationality" value={formData.nationality} onChange={handleChange} className={inputStyle} required>
                     <option value="">Select Nationality</option>
                     {nationalities.map((nat) => <option key={nat} value={nat}>{nat}</option>)}
                 </select>
@@ -202,7 +202,7 @@ export default function AddVisitor() {
                             )}
                         </div>
                     ) : (
-                        <select name="interestedCountry" value={formData.interestedCountry} onChange={handleChange} className={inputStyle}>
+                        <select name="interestedCountry" value={formData.interestedCountry} onChange={handleChange} className={inputStyle} required >
                             <option value="">Interested Country</option>
                             {formData.visaType === "Visit" && (
                                 <>
@@ -228,8 +228,8 @@ export default function AddVisitor() {
                   <option value="">Consultation Status</option>
                   {consultationStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
               </select>
-              <textarea name="visitorComment" placeholder="Visitor Comments" value={formData.visitorComment} onChange={handleChange} rows="1" className={inputStyle} />
-              <textarea name="remarks" placeholder="Internal Remarks" value={formData.remarks} onChange={handleChange} rows="1" className={inputStyle} />
+              <textarea name="visitorEnquiry" placeholder="Visitor Enquiry" value={formData.visitorEnquiry} onChange={handleChange} rows="1" className={inputStyle} required />
+              <textarea name="remarks" placeholder="Consultant Remarks" value={formData.remarks} onChange={handleChange} rows="1" className={inputStyle} required />
           </div>
 
           <div className="pt-2">

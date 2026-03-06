@@ -3,9 +3,9 @@ import React from "react";
 const JOBS = ["Hospitality", "Construction Worker", "Housekeeping", "Helper"];
 
 const PAYMENTS = [
-  { label: "1st Payment (With Documents)", amount: "2,500" },
-  { label: "2nd Payment (After Work Permit)", amount: "5,000" },
-  { label: "3rd Payment (After Visa)", amount: "22,500" },
+  { label: "1st Payment (With Documents)", amount: "2,000" },
+  { label: "2nd Payment (After Work Permit)", amount: "3,000" },
+  { label: "3rd Payment (After Visa)", amount: "34,000" },
 ];
 
 const WpBulgaria = () => {
@@ -62,7 +62,7 @@ const WpBulgaria = () => {
               </div>
               <div className="pt-4 border-t border-pink-100">
                 <h4 className="font-bold text-slate-800 text-xs uppercase tracking-widest">Processing</h4>
-                <p className="text-slate-600 text-sm mt-1">6 – 8 Months Total</p>
+                <p className="text-slate-600 text-sm mt-1">6 Months </p>
               </div>
             </section>
           </div>
@@ -73,10 +73,10 @@ const WpBulgaria = () => {
           <div className="bg-slate-800 p-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-center sm:text-left">
               <h2 className="text-xl font-bold text-white uppercase tracking-tight">Service Charge</h2>
-              <p className="text-slate-400 text-sm font-medium italic">Excluding Air Ticket</p>
+              <p className="text-slate-400 text-sm font-medium italic">Including Air Ticket</p>
             </div>
             <div className="bg-white/5 px-6 py-2 rounded-full border border-pink-300/30">
-              <span className="text-2xl font-bold text-pink-200">30,000 <span className="text-sm font-normal text-slate-400 uppercase">QAR</span></span>
+              <span className="text-2xl font-bold text-pink-200">39,000 <span className="text-sm font-normal text-slate-400 uppercase">QAR</span></span>
             </div>
           </div>
           

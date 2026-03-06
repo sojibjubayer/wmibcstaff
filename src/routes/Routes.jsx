@@ -42,20 +42,6 @@ import StvGermany from "../Pages/student-visa/europe/StvGermany";
 
 // VISIT VISA
 import VisitVisa from "../Pages/visit-visa/VisitVisa";
-import VisitUSA from "../Pages/visit-visa/VisitUSA";
-import VisitCanada from "../Pages/visit-visa/VisitCanada";
-import VisitAustralia from "../Pages/visit-visa/VisitAustralia";
-import VisitNewZealand from "../Pages/visit-visa/VisitNewZealand";
-import VisitFrance from "../Pages/visit-visa/VisitFrance";
-import VisitGermany from "../Pages/visit-visa/VisitGermany";
-import VisitGreece from "../Pages/visit-visa/VisitGreece";
-import VisitItaly from "../Pages/visit-visa/VisitItaly";
-import VisitNetherlands from "../Pages/visit-visa/VisitNetherlands";
-import VisitSwitzerland from "../Pages/visit-visa/VisitSwitzerland";
-import VisitAustria from "../Pages/visit-visa/VisitAustria";
-import VisitTurkey from "../Pages/visit-visa/VisitTurkey";
-import VisitUK from "../Pages/visit-visa/VisitUK";
-import VisitSpain from "../Pages/visit-visa/VisitSPain";
 import PrivateRoute from "../Pages/auth/PrivateRoute";
 import WpBulgaria from "../Pages/work-visa/WpBulgaria";
 import WpCyprus from "../Pages/work-visa/WpCyprus";
@@ -66,8 +52,11 @@ import ClientDetails from "../components/forms/ClientDetails";
 import EditClient from "../components/forms/EditClient";
 import AddVisitor from "../Pages/visitor/AddVisitor";
 import VisitorList from "../Pages/visitor/VisitorList";
-import Dashboard from "../components/layout/Dashboard";
+
 import AdminRoute from "../Pages/auth/AdminRoute";
+import WpBosnia from "../Pages/work-visa/WpBosnia";
+import International from "../Pages/work-visa/International";
+import Dashboard from "../Pages/dashboard/Dashboard";
 
 const router = createBrowserRouter([
   { 
@@ -92,6 +81,8 @@ const router = createBrowserRouter([
       { path: "work-visa/montenegro", element: <PrivateRoute><WpMontenegro /></PrivateRoute> },
       { path: "work-visa/croatia", element: <PrivateRoute><WpCroatia /></PrivateRoute> },
       { path: "work-visa/bulgaria", element: <PrivateRoute><WpBulgaria /></PrivateRoute> },
+      { path: "work-visa/bosnia", element: <PrivateRoute><WpBosnia /></PrivateRoute> },
+      { path: "work-visa/international", element: <PrivateRoute><International /></PrivateRoute> },
 
       // Student Visa
       // { path: "student-visa", element: <PrivateRoute><StudentVisa /></PrivateRoute> },

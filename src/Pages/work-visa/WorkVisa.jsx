@@ -4,7 +4,7 @@ import { Globe, Briefcase, ArrowRight } from "lucide-react";
 const WorkVisa = () => {
   const countries = [
     "Greece", "Poland", "Portugal", "Bulgaria", "Croatia", 
-    "Cyprus", "Serbia", "North Macedonia", "Montenegro"
+    "Cyprus", "Serbia", "North Macedonia", "Montenegro", "Bosnia"
   ];
 
   const countryFlagStyles = {
@@ -17,6 +17,7 @@ const WorkVisa = () => {
     Serbia: "linear-gradient(to bottom, #FF0000 33%, #002395 33%, #002395 66%, #FFFFFF 66%)",
     "North Macedonia": "radial-gradient(circle, #FFD700 20%, #D20000 21%)",
     Montenegro: "linear-gradient(#C8102E, #C8102E)",
+    Bosnia: "linear-gradient(135deg, #002395 65%, #FCD116 65%, #FCD116 75%, #002395 75%)"
   };
 
   return (

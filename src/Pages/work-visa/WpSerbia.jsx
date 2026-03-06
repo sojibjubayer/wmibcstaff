@@ -4,9 +4,8 @@ const JOBS = ["Construction", "Cleaner", "Warehouse", "Tile Mason"];
 
 const PAYMENTS = [
   { label: "1st Payment (With Documents)", amount: "1,500" },
-  { label: "2nd Payment (After Online Approval)", amount: "2,000" },
-  { label: "3rd Payment (After Visa Approval)", amount: "9,000" },
-  { label: "4th Payment (After Visa Stamping)", amount: "8,500" },
+  { label: "2nd Payment (After Work Permit)", amount: "3,000" },
+  { label: "3rd Payment (After Visa)", amount: "22,500" },
 ];
 
 const WpSerbia = () => {
@@ -59,8 +58,8 @@ const WpSerbia = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="bg-[#fce4ec]/10 border border-pink-100 p-8 rounded-2xl flex flex-col justify-center">
             <h4 className="font-bold text-slate-800 text-xs uppercase tracking-widest mb-2">Duty Hours</h4>
-            <p className="text-slate-600">8 Hours + Overtime</p>
-            <p className="text-slate-400 text-sm italic">5 Days per week</p>
+            <p className="text-slate-600">8 Hours + Overtime</p> 
+            <p className="text-slate-400 text-sm italic">5 Days per week</p> 
           </div>
 
           <div className="bg-[#fce4ec]/10 border border-pink-100 p-8 rounded-2xl flex flex-col justify-center">
@@ -78,18 +77,18 @@ const WpSerbia = () => {
               <p className="text-slate-400 text-sm italic">21,000 QAR Total Investment</p>
             </div>
             <div className="px-6 py-2 rounded-full border border-pink-300/30 bg-white/5">
-              <span className="text-2xl font-bold text-pink-300">21,000 <span className="text-sm font-normal text-slate-500">QAR</span></span>
+              <span className="text-2xl font-bold text-pink-300">27,000 <span className="text-sm font-normal text-slate-500">QAR</span></span>
             </div>
-          </div>
+          </div> 
           
           <div className="p-8">
             <div className="space-y-3">
               {PAYMENTS.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-center p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-pink-200 transition-colors">
                   <span className="text-slate-600 font-medium text-sm sm:text-base">{item.label}</span>
-                  <div className="text-right">
+                  <div className="text-right"> 
                     <span className="text-slate-900 font-bold">{item.amount}</span>
-                    <span className="ml-1 text-[10px] text-slate-400 font-bold">QAR</span>
+                    <span className="ml-1 text-[10px] text-slate-400 font-bold">QAR</span> 
                   </div>
                 </div>
               ))}

@@ -1,40 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaChevronRight, FaChevronDown, FaBars } from "react-icons/fa";
-import { GiCancel } from "react-icons/gi";
+import { FaChevronRight, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
 import Logo from "../../assets/company-logo.jpg";
 
-/* ================= ALL DATA RESTORED ================= */
 const menuData = {
-  visitVisa: {
-    europe: [
-      { name: "France", link: "/visit-visa/france" },
-      { name: "Germany", link: "/visit-visa/germany" },
-      { name: "Italy", link: "/visit-visa/italy" },
-      { name: "Spain", link: "/visit-visa/spain" },
-      { name: "Greece", link: "/visit-visa/greece" },
-      { name: "Netherlands", link: "/visit-visa/netherlands" },
-      { name: "Switzerland", link: "/visit-visa/switzerland" },
-      { name: "Austria", link: "/visit-visa/austria" },
-    ],
-    other: [
-      { name: "USA", link: "/visit-visa/usa" },
-      { name: "Canada", link: "/visit-visa/canada" },
-      { name: "Australia", link: "/visit-visa/australia" },
-      { name: "New Zealand", link: "/visit-visa/new-zealand" },
-      { name: "United Kingdom", link: "/visit-visa/uk" },
-      { name: "Turkey", link: "/visit-visa/turkey" },
-    ],
-    visitOthers: [
-      { name: "Thailand", link: "/visit-visa/thailand" },
-      { name: "China", link: "/visit-visa/china" },
-      { name: "Singapore", link: "/visit-visa/singapore" },
-      { name: "South Korea", link: "/visit-visa/south-korea" },
-      { name: "Japan", link: "/visit-visa/japan" },
-      { name: "India", link: "/visit-visa/india" },
-      { name: "Malaysia", link: "/visit-visa/malaysia" },
-    ],
-  },
   workVisa: [
     { name: "Greece", link: "/work-visa/greece" },
     { name: "Portugal", link: "/work-visa/portugal" },
@@ -45,6 +14,7 @@ const menuData = {
     { name: "North Macedonia", link: "/work-visa/north-macedonia" },
     { name: "Cyprus", link: "/work-visa/cyprus" },
     { name: "Montenegro", link: "/work-visa/montenegro" },
+    { name: "International", link: "/work-visa/international" },
   ],
   clientInfo: [
     { name: "Add Client ", link: "/client-form" },
@@ -56,129 +26,29 @@ const menuData = {
   ],
 };
 
-/* ================= DESKTOP COMPONENTS WITH GAP FIX ================= */
-
-const DesktopVisaServices = () => (
-  <li className="group relative">
-    <button className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg transition-all font-bold">
-      Visa Services <FaChevronDown className="ml-2 text-[10px] opacity-50" />
-    </button>
-
-    <ul className="absolute left-0 top-full hidden group-hover:block w-52 bg-white shadow-2xl rounded-xl z-50 py-2 border border-slate-100 transition-all">
-      {/* Bridge Div to prevent closing when moving mouse */}
-      <div className="absolute -top-4 left-0 w-full h-4 bg-transparent"></div>
-
-      {/* 1. Work Visa */}
-      <li className="group/visa relative px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-slate-700 font-medium text-sm">
-        Work Visa <FaChevronRight className="text-[10px] opacity-40" />
-        <ul className="absolute top-0 left-full hidden group-hover/visa:block w-52 bg-white shadow-xl rounded-xl border border-slate-100 py-2 ml-0">
-          <div className="absolute top-0 -left-4 w-4 h-full bg-transparent"></div>
-          {menuData.workVisa.map((item, idx) => (
-            <li key={idx}>
-              <Link
-                className="block px-4 py-2 hover:bg-pink-50 text-slate-500 text-sm border-b border-slate-50 last:border-0"
-                to={item.link}
-              >
-                {item.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </li>
-
-      {/* 2. Visit Visa */}
-      <li className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium text-sm">
-        <Link to="/visit-visa" className="flex justify-between items-center">
-          Visit Visa 
-        </Link>
-      </li>
-      <li className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium text-sm">
-        <Link to="/student-visa" className="flex justify-between items-center">
-          Student Visa
-          {/* <FaChevronRight className="text-[10px] opacity-40" /> */}
-        </Link>
-      </li>
-    </ul>
-  </li>
-);
-
-const DesktopSimpleDropdown = ({ title, items }) => (
-  <li className="group relative">
-    <button className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg font-bold transition-all">
-      {title} <FaChevronDown className="ml-2 text-[10px] opacity-50" />
-    </button>
-    <ul className="absolute left-0 top-full hidden group-hover:block w-48 bg-white shadow-2xl rounded-xl z-50 py-2 border border-slate-100 transition-all">
-      <div className="absolute -top-4 left-0 w-full h-4 bg-transparent"></div>
-      {items.map((item, idx) => (
-        <li key={idx}>
-          <Link
-            className="block px-4 py-2 hover:bg-pink-50 text-slate-600 text-sm border-b border-slate-50 last:border-0"
-            to={item.link}
-          >
-            {item.name}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  </li>
-);
-
-/* ================= MAIN NAVBAR ================= */
-
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navigate = useNavigate();
+  const [activeAccordion, setActiveAccordion] = useState(null);
+  const [activeSubAccordion, setActiveSubAccordion] = useState(null);
 
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
+  const user = JSON.parse(localStorage.getItem("user") || "null");
   const isTareqAdmin = user?.role === "admin";
 
-  // --- AUTO LOGOUT LOGIC START ---
-  React.useEffect(() => {
-    const checkSession = () => {
-      const loginTimestamp = localStorage.getItem("loginTimestamp");
-      const TWELVE_HOURS = 12 * 60 * 60 * 1000; 
-
-      if (token && loginTimestamp) {
-        const now = new Date().getTime();
-        const timeElapsed = now - parseInt(loginTimestamp);
-
-        if (timeElapsed > TWELVE_HOURS) {
-          console.log("Session expired. Logging out...");
-          handleLogout();
-        }
-      } else if (token && !loginTimestamp) {
-        // If logged in but no timestamp exists, set it now (safety fallback)
-        localStorage.setItem("loginTimestamp", new Date().getTime().toString());
-      }
-    };
-
-    // Check immediately on load
-    checkSession();
-
-    // Check every minute while the tab is open
-    const interval = setInterval(checkSession, 60000);
-    return () => clearInterval(interval);
-  }, [token]); 
-  // --- AUTO LOGOUT LOGIC END ---
-
   const handleLogout = () => {
-    // Clear everything to fix the "old user" credential problem
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("loginTimestamp");
-    
-    // Safety: Clear all if needed
-    // localStorage.clear(); 
-
+    localStorage.clear();
     navigate("/login");
     setMobileOpen(false);
   };
 
+  const toggleAccordion = (val) =>
+    setActiveAccordion(activeAccordion === val ? null : val);
+
   return (
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
       <div className="container mx-auto px-6 py-3 flex items-center justify-between">
+        {/* Logo Section */}
         <Link to="/" className="flex items-center gap-3">
           <img
             src={Logo}
@@ -190,28 +60,98 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Desktop Menu */}
+        {/* --- DESKTOP MENU --- */}
         <ul className="hidden md:flex flex-1 justify-center space-x-3 items-center">
           <li>
             <Link
               to="/"
-              className="bg-pink-200 shadow-md shadow-pink-200/50 hover:bg-pink-300 text-slate-800 px-4 py-1.5 rounded-lg transition-all font-bold"
+              className="bg-pink-200 shadow-md shadow-pink-500 hover:bg-pink-300 text-slate-800 px-4 py-1.5 rounded-lg transition-all font-bold"
             >
               Home
             </Link>
           </li>
-          <DesktopVisaServices />
-          <DesktopSimpleDropdown
-            title="Client Info"
-            items={menuData.clientInfo}
-          />
-          <DesktopSimpleDropdown title="Visitor" items={menuData.visitor} />
+
+          {/* Visa Services Desktop */}
+          <li className="group relative">
+            <button className="bg-pink-200 shadow-md shadow-pink-500 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg transition-all font-bold">
+              Visa Services{" "}
+              <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+            </button>
+
+            <div className="absolute left-0 top-full pt-2 hidden group-hover:block w-52 z-50">
+              <ul className="bg-pink-200 shadow-2xl rounded-xl py-2 border border-slate-100">
+                <li className="group/work relative px-4 py-2 hover:bg-white cursor-pointer flex justify-between items-center text-slate-800 font-medium text-sm">
+                  Work Visa{" "}
+                  <FaChevronRight className="text-[10px] opacity-40" />
+                  <div className="absolute top-0 left-full pl-2 hidden group-hover/work:block w-52">
+                    <ul className="bg-pink-100 shadow-xl rounded-xl border border-slate-100 py-2">
+                      {menuData.workVisa.map((item, idx) => (
+                        <li key={idx}>
+                          <Link
+                            className="block px-4 py-2 hover:bg-white text-slate-800 text-sm border-b border-white last:text"
+                            to={item.link}
+                          > 
+                            {item.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </li>
+
+                <li className="px-4 py-2 border-t border-white hover:bg-white cursor-pointer text-slate-700 font-medium text-sm">
+                  <Link to="/visit-visa" className="block w-full">
+                    Visit Visa
+                  </Link>
+                </li>
+
+                <li className="px-4 py-2 border-t border-white hover:bg-white cursor-pointer text-slate-700 font-medium text-sm">
+                  <Link to="/student-visa" className="block w-full">
+                    Student Visa
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          {/* Client & Visitor Dropdowns - BORDERS ADDED HERE */}
+          {/* Client & Visitor Dropdowns */}
+          {[
+            { title: "Client", items: menuData.clientInfo },
+            { title: "Visitor", items: menuData.visitor },
+          ].map((drop, i) => (
+            <li key={i} className="group relative">
+              <button className="bg-pink-200 shadow-md shadow-pink-500 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg font-bold transition-all">
+                {drop.title}{" "}
+                <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+              </button>
+
+              <div className="absolute left-0 top-full pt-2 hidden group-hover:block w-48 z-50">
+                {/* Added overflow-hidden here to keep corners clean */}
+                <ul className="bg-pink-200 shadow-2xl rounded-xl border border-slate-100 overflow-hidden">
+                  {drop.items.map((item, idx) => (
+                    <li
+                      key={idx}
+                      className="border-t border-white first:border-0"
+                    >
+                      <Link
+                        className="block px-4 py-2 hover:bg-white text-slate-800 text-sm transition-colors"
+                        to={item.link}
+                      >
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
 
           {isTareqAdmin && (
             <li>
               <Link
                 to="/dashboard"
-                className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-1.5 rounded-lg shadow-lg shadow-slate-200 transition-all font-bold"
+                className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-1.5 rounded-lg shadow-md shadow-blue-400 transition-all font-bold "
               >
                 Dashboard
               </Link>
@@ -224,11 +164,11 @@ const Navbar = () => {
           {token && (
             <div className="hidden md:flex items-center space-x-4 border-l border-slate-100 pl-4">
               <div className="flex flex-col items-end">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">
+                <span className="text-[10px] text-slate-400 font-bold uppercase leading-none">
                   Staff
                 </span>
                 <span className="text-slate-900 font-bold text-sm leading-tight">
-                  {user?.name || "User"}
+                  {user?.name}
                 </span>
               </div>
               <button
@@ -239,11 +179,145 @@ const Navbar = () => {
               </button>
             </div>
           )}
-          {/* Mobile Bars icon goes here... */}
+
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2 text-pink-600 bg-pink-100 rounded-lg"
+          >
+            {mobileOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* --- MOBILE PINK DRAWER --- */}
+      <div
+        className={`fixed inset-0 bg-white/95 backdrop-blur-md z-100 transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "translate-x-full"} md:hidden overflow-y-auto`}
+      >
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-8 border-b border-pink-100 pb-4">
+            <div className="flex items-center gap-2">
+              <img src={Logo} className="h-8 w-8 rounded-lg" alt="logo" />
+              <span className="font-black text-slate-800 tracking-tighter">
+                WMIBC MENU
+              </span>
+            </div>
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="text-slate-500 bg-slate-100 p-2 rounded-full"
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <ul className="space-y-4">
+            <li>
+              <Link
+                to="/"
+                onClick={() => setMobileOpen(false)}
+                className="block w-full bg-pink-200 text-slate-800 font-bold px-4 py-3 rounded-xl shadow-sm"
+              >
+                Home
+              </Link>
+            </li>
+
+            <li>
+              <button
+                onClick={() => toggleAccordion("visa")}
+                className="flex justify-between items-center w-full bg-pink-200 text-slate-800 font-bold px-4 py-3 rounded-xl shadow-sm"
+              >
+                Visa Services{" "}
+                <FaChevronDown
+                  className={`transition-transform ${activeAccordion === "visa" ? "rotate-180" : ""}`}
+                />
+              </button>
+              {activeAccordion === "visa" && (
+                <div className="mt-2 space-y-2 bg-pink-50 p-4 rounded-xl border border-pink-100 shadow-inner">
+                  <button
+                    onClick={() =>
+                      setActiveSubAccordion(
+                        activeSubAccordion === "work" ? null : "work",
+                      )
+                    }
+                    className="flex justify-between w-full text-slate-700 font-bold text-sm uppercase py-1"
+                  >
+                    Work Visa{" "}
+                    {activeSubAccordion === "work" ? (
+                      <FaChevronDown className="text-pink-500" />
+                    ) : (
+                      <FaChevronRight className="text-pink-300" />
+                    )}
+                  </button>
+                  {activeSubAccordion === "work" && (
+                    <div className="grid grid-cols-2 gap-2 pl-2 pb-2">
+                      {menuData.workVisa.map((v, i) => (
+                        <Link
+                          key={i}
+                          to={v.link}
+                          onClick={() => setMobileOpen(false)}
+                          className="text-xs bg-white p-2 rounded border border-pink-100 text-slate-600 font-semibold"
+                        >
+                          {v.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  <Link
+                    to="/visit-visa"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-slate-700 font-bold border-t border-pink-200 pt-2 pb-1"
+                  >
+                    Visit Visa 
+                  </Link>
+                  <Link
+                    to="/student-visa"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-slate-700 font-bold border-t border-pink-200 pt-2"
+                  >
+                    Student Visa 
+                  </Link>
+                </div>
+              )}
+            </li>
+
+            {[
+              {
+                key: "client",
+                label: "Client Info",
+                data: menuData.clientInfo,
+              },
+              { key: "visitor", label: "Visitor", data: menuData.visitor },
+            ].map((section) => (
+              <li key={section.key}> 
+                <button
+                  onClick={() => toggleAccordion(section.key)}
+                  className="flex justify-between items-center w-full bg-pink-200 text-slate-800 font-bold px-4 py-3 rounded-xl shadow-sm"
+                >
+                  {section.label}{" "}
+                  <FaChevronDown
+                    className={`transition-transform ${activeAccordion === section.key ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {activeAccordion === section.key && (
+                  <div className="mt-2 space-y-2 bg-pink-50 p-4 rounded-xl border border-pink-100">
+                    {section.data.map((item, i) => (
+                      <Link
+                        key={i}
+                        to={item.link}
+                        onClick={() => setMobileOpen(false)}
+                        className="block py-2 text-slate-700 border-b border-white last:border-0 font-bold text-sm"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </nav>
   );
 };
 
-export default Navbar;
+export default Navbar; 

@@ -368,6 +368,17 @@ const VisitVisa = () => {
         "Yellow Fever Certificate (If traveling from risk zones)",
       ],
     },
+    "Saudi Arabia": {
+      name: "Tourist Visa ",
+      validity: "30 Days",
+      fee: "650 QAR (Service Charge)",
+      docs: [
+        "Passport - 6 months validity",
+        "Qatar ID (QID) - 3 months validity",
+        "Passport Size Photo",
+        "Valid visa from the US/UK/Schengen countries (if any)"
+      ],
+    },
   };
 
   const countries = [
@@ -392,6 +403,7 @@ const VisitVisa = () => {
     "Japan",
     "India",
     "Malaysia",
+    "Saudi Arabia"
   ];
 
   const closeModal = () => setSelectedCountry(null);
