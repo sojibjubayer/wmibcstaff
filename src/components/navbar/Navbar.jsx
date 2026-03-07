@@ -14,6 +14,7 @@ const menuData = {
     { name: "North Macedonia", link: "/work-visa/north-macedonia" },
     { name: "Cyprus", link: "/work-visa/cyprus" },
     { name: "Montenegro", link: "/work-visa/montenegro" },
+    { name: "Bosnia", link: "/work-visa/bosnia" },
     { name: "International", link: "/work-visa/international" },
   ],
   clientInfo: [

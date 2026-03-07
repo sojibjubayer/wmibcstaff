@@ -1,42 +1,32 @@
-import React from "react";
-import { FaSearch, FaSync, FaPassport } from "react-icons/fa";
-import { generateSalesReport } from "./utils/PdfReport";
-import { useState } from "react";
+import React from 'react';
+import { FaSearch } from "react-icons/fa";
 
-const DashboardHeader = ({ fetchData, loading }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-
+const DashboardHeader = ({ searchQuery, setSearchQuery }) => {
   return (
-    <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-      <div className="relative w-full max-w-md">
-        <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white rounded-[2.5rem] p-7 shadow-xl shadow-pink-500/5 border border-slate-50 mb-10">
+      {/* Brand & System Title */}
+      <div>
+        <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
+          Executive <span className="text-pink-500">Panel</span>
+        </h1>
+        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          WMIBC Management System
+        </p>
+      </div>
 
+      {/* Global Intelligence Search */}
+      <div className="relative group w-full md:w-96">
+        <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-xs group-focus-within:text-pink-500 transition-colors" />
         <input
           type="text"
-          placeholder="Search directory..."
+          placeholder="Search System Intelligence..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-11 pr-12 py-3 bg-slate-100 border-none rounded-2xl text-xs"
+          className="w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-3xl text-[11px] font-bold focus:bg-white focus:border-pink-200 focus:ring-4 focus:ring-pink-500/5 outline-none transition-all shadow-inner"
         />
       </div>
-
-      <div className="flex items-center gap-6">
-        <button
-          onClick={fetchData}
-          className="p-3 bg-slate-50 text-slate-400 rounded-xl"
-        >
-          <FaSync className={loading ? "animate-spin" : ""} />
-        </button>
-
-        <button
-          onClick={generateSalesReport}
-          className="flex items-center gap-2 bg-pink-200 text-slate-900 text-[10px] px-4 py-2.5 rounded-xl font-black uppercase"
-        >
-          <FaPassport />
-          Sales Report
-        </button>
-      </div>
-    </header>
+    </div>
   );
 };
 

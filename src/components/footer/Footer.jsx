@@ -57,8 +57,8 @@ const Footer = () => {
 
             <div className="text-center space-y-1 relative z-10">
               <h2 className="text-sm font-bold text-slate-900">Jubayer Adil</h2>
-              <p className="text-[10px] text-pink-600 font-bold tracking-wider">
-                BSc & MSc in CSE
+              <p className="text-[10px] text-slate-600 font-bold tracking-wider">
+                BSc & MSc in <br/> Computer Science & Engineering
               </p>
               <p className="text-[10px] font-medium text-slate-500">
                 Student Visa Counselor, WMIBC
