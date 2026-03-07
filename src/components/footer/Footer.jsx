@@ -64,7 +64,7 @@ const Footer = () => {
                 Student Visa Counselor, WMIBC
               </p>
 
-              <div className="text-[11px] mt-3 pt-3 border-t border-slate-100">
+              {/* <div className="text-[11px] mt-3 pt-3 border-t border-slate-100">
                 <p className="font-bold text-slate-700 mb-2">Certifications</p>
                 <ul className="text-left space-y-1.5">
                   <li className="flex items-start gap-2">
@@ -89,14 +89,14 @@ const Footer = () => {
                     </span>
                   </li>
                 </ul>
-              </div>
+              </div> */}
 
               <p className="mt-3 text-[11px]">
                 <a
                   href="mailto:adilwmibc@gmail.com"
                   className="text-blue-600 font-semibold hover:text-pink-600 transition-colors"
                 >
-                  adilwmibc@gmail.com
+                  contact@wmibc.com
                 </a>
               </p>
             </div>
