@@ -1,7 +1,16 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaSearch, FaFilter, FaUndo, FaEye, FaPassport, FaUserTag, FaGlobe } from "react-icons/fa";
+import {
+  FaSearch,
+  FaFilter,
+  FaUndo,
+  FaEye,
+  FaPassport,
+  FaUserTag,
+  FaGlobe,
+  FaDownload,
+} from "react-icons/fa";
 
 const formatDate = (date) => {
   if (!date) return "-";
@@ -19,38 +28,40 @@ const ClientInfo = () => {
 
   const navigate = useNavigate();
 
-useEffect(() => {
-  const getClients = async () => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      
-      if (!storedUser || !storedUser.name) {
-        setError("Session expired. Please login again.");
+  useEffect(() => {
+    const getClients = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+
+        if (!storedUser || !storedUser.name) {
+          setError("Session expired. Please login again.");
+          setLoading(false);
+          return;
+        }
+
+        const userRole = storedUser.role?.toLowerCase();
+        const isAdminOrAccountant =
+          userRole === "admin" || userRole === "accountant";
+
+        const params = isAdminOrAccountant
+          ? {}
+          : { consultant: storedUser.name };
+
+        const response = await axios.get(
+          "https://wmibcstaff-server.vercel.app/api/clients",
+          { params },
+        );
+
+        setClients(response.data.reverse());
+      } catch (err) {
+        setError("Unable to connect to server");
+      } finally {
         setLoading(false);
-        return;
       }
+    };
 
-      const userRole = storedUser.role?.toLowerCase();
-      const isAdminOrAccountant = userRole === "admin" || userRole === "accountant";
-
-      // If Admin/Accountant, we send NO consultant param (to get all)
-      // If regular user, we send their name as the consultant param
-      const params = isAdminOrAccountant ? {} : { consultant: storedUser.name };
-
-      const response = await axios.get(
-        "https://wmibcstaff-server.vercel.app/api/clients",
-        { params }
-      );
-      
-      setClients(response.data.reverse());
-    } catch (err) {
-      setError("Unable to connect to server");
-    } finally {
-      setLoading(false);
-    }
-  };
-  getClients();
-}, []);
+    getClients();
+  }, []);
 
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {
@@ -60,9 +71,12 @@ useEffect(() => {
       const matchPassport = client.passport?.toString().toLowerCase().includes(query);
       const matchNewPassport = client.newPassport?.toString().toLowerCase().includes(query);
 
-      const matchSearch = matchName || matchMobile || matchPassport || matchNewPassport;
+      const matchSearch =
+        matchName || matchMobile || matchPassport || matchNewPassport;
       const matchVisa = visaFilter ? client.visaType === visaFilter : true;
-      const matchCountry = countryFilter ? client.destinationCountry === countryFilter : true;
+      const matchCountry = countryFilter
+        ? client.destinationCountry === countryFilter
+        : true;
 
       return matchSearch && matchVisa && matchCountry;
     });
@@ -74,23 +88,51 @@ useEffect(() => {
     setCountryFilter("");
   };
 
-  if (loading) return (
-    <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mb-4"></div>
-      <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Database...</p>
-    </div>
-  );
+  const handleDownload = (fileUrl, clientName) => {
+    if (!fileUrl) return;
+
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.download = `${clientName || "agreement"}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mb-4"></div>
+        <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">
+          Loading Database...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-slate-50">
+        <p className="text-red-500 font-bold text-sm">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Client Summary</h2>
-            <p className="text-slate-500 text-sm font-medium">Manage and track your active visa applications</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+              Client Summary
+            </h2>
+            <p className="text-slate-500 text-sm font-medium">
+              Manage and track your active visa applications
+            </p>
           </div>
+
           <div className="bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
             <span className="text-xs font-bold text-slate-600 uppercase tracking-tighter">
@@ -99,10 +141,8 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* 🔍 Search + Filter Bar */}
         <div className="bg-white p-4 rounded-4xl shadow-xl shadow-slate-200/60 border border-white mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            
             <div className="relative group">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pink-400 transition-colors" />
               <input
@@ -155,41 +195,57 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Table Container */}
         <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-900">
-                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Client Identity</th>
-                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Service Details</th>
-                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timeline</th>
-                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Action</th>
+                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    Client Identity
+                  </th>
+                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    Service Details
+                  </th>
+                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    Timeline
+                  </th>
+                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-50">
                 {filteredClients.length > 0 ? (
                   filteredClients.map((client) => (
-                    <tr key={client._id} className="hover:bg-slate-50/80 transition-colors group">
+                    <tr
+                      key={client._id}
+                      className="hover:bg-slate-50/80 transition-colors group"
+                    >
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold text-sm">
                             {client.clientName?.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-bold text-slate-900 text-sm leading-none mb-1">{client.clientName}</p>
-                            <p className="text-xs text-slate-400 font-medium">{client.contactNo}</p>
+                            <p className="font-bold text-slate-900 text-sm leading-none mb-1">
+                              {client.clientName}
+                            </p>
+                            <p className="text-xs text-slate-400 font-medium">
+                              {client.contactNo}
+                            </p>
                           </div>
                         </div>
                       </td>
-                      
+
                       <td className="px-6 py-5">
                         <div className="flex flex-col gap-1">
                           <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold w-fit uppercase">
                             {client.visaType}
                           </span>
-                          <p className="text-sm font-bold text-slate-700">{client.destinationCountry}</p>
+                          <p className="text-sm font-bold text-slate-700">
+                            {client.destinationCountry}
+                          </p>
                           <div className="flex items-center gap-1.5 text-[10px] text-pink-400 font-bold uppercase">
                             <FaPassport size={10} /> {client.passport}
                           </div>
@@ -199,23 +255,48 @@ useEffect(() => {
                       <td className="px-6 py-5">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-300 uppercase w-12">Submit:</span>
-                            <span className="text-xs font-bold text-slate-600">{formatDate(client.fileSubmissionDate)}</span>
+                            <span className="text-[10px] font-bold text-slate-300 uppercase w-12">
+                              Submit:
+                            </span>
+                            <span className="text-xs font-bold text-slate-600">
+                              {formatDate(client.fileSubmissionDate)}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-300 uppercase w-12">Period:</span>
-                            <span className="text-xs font-bold text-slate-600">{client.processingTime}</span>
+                            <span className="text-[10px] font-bold text-slate-300 uppercase w-12">
+                              Period:
+                            </span>
+                            <span className="text-xs font-bold text-slate-600">
+                              {client.processingTime}
+                            </span>
                           </div>
                         </div>
                       </td>
 
                       <td className="px-6 py-5 text-center">
-                        <button
-                          onClick={() => navigate(`/client-details/${client._id}`)}
-                          className="inline-flex items-center gap-2 bg-pink-50 text-pink-600 hover:bg-pink-200 hover:text-slate-900 px-4 py-2 rounded-xl text-xs font-black transition-all"
-                        >
-                          <FaEye /> DETAILS
-                        </button>
+                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                          <button
+                            onClick={() => navigate(`/client-details/${client._id}`)}
+                            className="inline-flex items-center gap-2 bg-pink-50 text-pink-600 hover:bg-pink-200 hover:text-slate-900 px-4 py-2 rounded-xl text-xs font-black transition-all"
+                          >
+                            <FaEye /> DETAILS
+                          </button>
+
+    {client.agreementFile ? (
+  <button
+    onClick={() =>
+      handleDownload(client.agreementFile, client.clientName)
+    }
+    className="flex items-center justify-center gap-1 w-28 h-9 bg-emerald-50 text-emerald-600 hover:bg-emerald-200 hover:text-slate-900 rounded-xl text-[10px] font-bold transition-all"
+  >
+    <FaDownload size={12} /> Download File
+  </button>
+) : (
+  <div className="flex items-center justify-center w-28 h-9 bg-slate-100 text-slate-400 rounded-xl text-[10px] font-bold uppercase">
+    No File
+  </div>
+)}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -226,7 +307,9 @@ useEffect(() => {
                         <div className="bg-slate-50 p-4 rounded-full mb-3">
                           <FaUserTag className="text-slate-200 text-3xl" />
                         </div>
-                        <p className="text-slate-400 font-bold text-sm">No clients found matching your search</p>
+                        <p className="text-slate-400 font-bold text-sm">
+                          No clients found matching your search
+                        </p>
                       </div>
                     </td>
                   </tr>

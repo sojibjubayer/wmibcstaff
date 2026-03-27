@@ -101,6 +101,7 @@ const WpMontenegro = () => {
                 </div>
               ))}
             </div>
+            <p className="text-white mt-10 text-center">Bangladeshi: 21.5k | Pakistani: 12k | Indian/Srilankan:  10k </p>
           </div>
         </section>
 

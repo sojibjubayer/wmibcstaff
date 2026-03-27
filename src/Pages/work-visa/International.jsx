@@ -35,7 +35,7 @@ const International = () => {
     { country: "South Africa", services: ["Romania Work Permit"] },
     {
       country: "Bangladesh",
-      services: ["Serbia-10 lakh", "Bosnia-11 lakh", "Bulgaria-14 lakh"],
+      services: ["Serbia-10L (1L-3L-6L)", "Bosnia-11L (1L-3L-7L)", "Bulgaria-14L (1L-3L-10L)", "Portugal-22L (1.5L-2L-3.5L-15L)"],
     },
   ];
 

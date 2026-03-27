@@ -4,7 +4,7 @@ import { Globe, Briefcase, ArrowRight } from "lucide-react";
 const WorkVisa = () => {
   const countries = [
     "Greece", "Poland", "Portugal", "Bulgaria", "Croatia", 
-    "Cyprus", "Serbia", "North Macedonia", "Montenegro", "Bosnia"
+    "Cyprus", "Serbia", "North Macedonia", "Montenegro", "Bosnia","Turkey","UK", "Australia", "New Zealand","Albania"
   ];
 
   const countryFlagStyles = {
@@ -17,7 +17,13 @@ const WorkVisa = () => {
     Serbia: "linear-gradient(to bottom, #FF0000 33%, #002395 33%, #002395 66%, #FFFFFF 66%)",
     "North Macedonia": "radial-gradient(circle, #FFD700 20%, #D20000 21%)",
     Montenegro: "linear-gradient(#C8102E, #C8102E)",
-    Bosnia: "linear-gradient(135deg, #002395 65%, #FCD116 65%, #FCD116 75%, #002395 75%)"
+    Bosnia: "linear-gradient(135deg, #002395 65%, #FCD116 65%, #FCD116 75%, #002395 75%)",
+    Turkey: "linear-gradient(135deg, #E30A17 0%, #E30A17 75%, #FFFFFF 75%, #FFFFFF 100%)",
+    UK: "linear-gradient(135deg, #012169 0%, #012169 45%, #FFFFFF 45%, #FFFFFF 55%, #C8102E 55%, #C8102E 65%, #FFFFFF 65%, #FFFFFF 75%, #012169 75%, #012169 100%)",
+    Australia:"linear-gradient(to bottom, #002395 33%, #FFFFFF 33%, #FFFFFF 66%, #FF0000 66%)",
+    "New Zealand": "linear-gradient(135deg, #002395 80%, #FFFFFF 80%, #FFFFFF 85%, #FF0000 85%)",
+    Albania:"linear-gradient(to bottom, #FF0000 33%, #000000 33%, #000000 66%, #FF0000 66%)",
+
   };
 
   return (

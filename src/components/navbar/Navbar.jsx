@@ -4,23 +4,36 @@ import { FaChevronRight, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
 import Logo from "../../assets/company-logo.jpg";
 
 const menuData = {
-  workVisa: [
-    { name: "Greece", link: "/work-visa/greece" },
-    { name: "Portugal", link: "/work-visa/portugal" },
-    { name: "Poland", link: "/work-visa/poland" },
-    { name: "Bulgaria", link: "/work-visa/bulgaria" },
-    { name: "Croatia", link: "/work-visa/croatia" },
-    { name: "Serbia", link: "/work-visa/serbia" },
-    { name: "North Macedonia", link: "/work-visa/north-macedonia" },
-    { name: "Cyprus", link: "/work-visa/cyprus" },
-    { name: "Montenegro", link: "/work-visa/montenegro" },
-    { name: "Bosnia", link: "/work-visa/bosnia" },
-    { name: "International", link: "/work-visa/international" },
-  ],
+  workVisa: {
+    schengen: [
+      { name: "Greece", link: "/work-visa/greece" },
+      { name: "Portugal", link: "/work-visa/portugal" },
+      { name: "Poland", link: "/work-visa/poland" },
+      { name: "Croatia", link: "/work-visa/croatia" },
+      { name: "Bulgaria", link: "/work-visa/bulgaria" },
+    ],
+    nonSchengenEurope: [
+      { name: "Serbia", link: "/work-visa/serbia" },
+      { name: "North Macedonia", link: "/work-visa/north-macedonia" },
+      { name: "Cyprus", link: "/work-visa/cyprus" },
+      { name: "Montenegro", link: "/work-visa/montenegro" },
+      { name: "Bosnia", link: "/work-visa/bosnia" },
+      { name: "Albania", link: "/work-visa/albania" },
+    ],
+    direct: [
+      { name: "Turkey", link: "/work-visa/turkey" },
+      { name: "UK", link: "/work-visa/uk" },
+      { name: "Australia", link: "/work-visa/australia" },
+      { name: "New Zealand", link: "/work-visa/new-zealand" },
+      { name: "International", link: "/work-visa/international" },
+    ],
+  },
+
   clientInfo: [
     { name: "Add Client", link: "/client-form" },
     { name: "View Client", link: "/client-info" },
   ],
+
   visitor: [
     { name: "Add Visitor", link: "/add-new-visitor" },
     { name: "Visitor List", link: "/visitor-list" },
@@ -82,22 +95,67 @@ const Navbar = () => {
           {/* Visa Services */}
           <li className="group relative">
             <button className="bg-pink-200 shadow-md shadow-pink-500 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg transition-all font-bold">
-              Visa Services <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+              Visa Services{" "}
+              <FaChevronDown className="ml-2 text-[10px] opacity-50" />
             </button>
 
             <div className="absolute left-0 top-full pt-2 hidden group-hover:block w-52 z-100">
               <ul className="bg-pink-200 shadow-2xl rounded-xl py-2 border border-slate-100">
                 {/* Work Visa */}
                 <li className="group/work relative px-4 py-2 hover:bg-white cursor-pointer flex justify-between items-center text-slate-800 font-medium text-sm">
-                  Work Visa <FaChevronRight className="text-[10px] opacity-40" />
-                  <div className="absolute top-0 left-full pl-2 hidden group-hover/work:block w-52">
+                  Work Visa
+                  <FaChevronRight className="text-[10px] opacity-40" />
+                  <div className="absolute top-0 left-full pl-2 hidden group-hover/work:block w-56">
                     <ul className="bg-pink-100 shadow-xl rounded-xl border border-slate-100 py-2">
-                      {menuData.workVisa.map((item, idx) => (
-                        <li key={idx}>
-                          <Link
-                            className="block px-4 py-2 hover:bg-white text-slate-800 text-sm border-b border-white last:border-0"
-                            to={item.link}
-                          >
+                      {/* Schengen */}
+                      <li className="group/schengen relative px-4 py-2 hover:bg-white cursor-pointer flex justify-between items-center text-slate-800 text-sm font-medium">
+                        Schengen
+                        <FaChevronRight className="text-[10px] opacity-40" />
+                        <div className="absolute top-0 left-full pl-2 hidden group-hover/schengen:block w-56">
+                          <ul className="bg-pink-50 shadow-xl rounded-xl border border-slate-100 py-2">
+                            {menuData.workVisa.schengen.map((item, idx) => (
+                              <li key={idx}>
+                                <Link
+                                  to={item.link}
+                                  className="block px-4 py-2 hover:bg-white text-slate-800 text-sm border-b border-white"
+                                >
+                                  {item.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </li>
+
+                      {/* Non-Schengen Europe */}
+                      <li className="group/nonschengen relative px-4 py-2 hover:bg-white cursor-pointer flex justify-between items-center text-slate-800 text-sm font-medium border-t border-white">
+                        Non-Schengen Europe
+                        <FaChevronRight className="text-[10px] opacity-40" />
+                        <div className="absolute top-0 left-full pl-2 hidden group-hover/nonschengen:block w-64">
+                          <ul className="bg-pink-50 shadow-xl rounded-xl border border-slate-100 py-2">
+                            {menuData.workVisa.nonSchengenEurope.map(
+                              (item, idx) => (
+                                <li key={idx}>
+                                  <Link
+                                    to={item.link}
+                                    className="block px-4 py-2 hover:bg-white text-slate-800 text-sm border-b border-white"
+                                  >
+                                    {item.name}
+                                  </Link>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      </li>
+
+                      {/* Direct items */}
+                      {menuData.workVisa.direct.map((item, idx) => (
+                        <li
+                          key={idx}
+                          className="px-4 py-2 border-t border-white hover:bg-white cursor-pointer text-slate-800 text-sm font-medium"
+                        >
+                          <Link to={item.link} className="block w-full">
                             {item.name}
                           </Link>
                         </li>
@@ -122,30 +180,41 @@ const Navbar = () => {
           </li>
 
           {/* Client & Visitor */}
-          {[{ title: "Client", items: menuData.clientInfo }, { title: "Visitor", items: menuData.visitor }].map(
-            (drop, i) => (
-              <li key={i} className="group relative">
-                <button className="bg-pink-200 shadow-md shadow-pink-500 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg font-bold transition-all">
-                  {drop.title} <FaChevronDown className="ml-2 text-[10px] opacity-50" />
-                </button>
+          {[
+            { title: "Client", items: menuData.clientInfo },
+            { title: "Visitor", items: menuData.visitor },
+          ].map((drop, i) => (
+            <li key={i} className="group relative">
+              <button className="bg-pink-200 shadow-md shadow-pink-500 hover:bg-pink-300 text-slate-800 flex items-center px-4 py-1.5 rounded-lg font-bold transition-all">
+                {drop.title}{" "}
+                <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+              </button>
+              <div className="absolute left-0 top-full pt-2 hidden group-hover:block w-48 z-100">
+                <ul className="bg-pink-200 shadow-2xl rounded-xl border border-slate-100 overflow-hidden">
+                  {drop.items.map((item, idx) => {
+                    // Only open in a new tab if it is exactly the "Add Visitor" link
+                    const isAddVisitor = item.name === "Add Visitor";
 
-                <div className="absolute left-0 top-full pt-2 hidden group-hover:block w-48 z-100">
-                  <ul className="bg-pink-200 shadow-2xl rounded-xl border border-slate-100 overflow-hidden">
-                    {drop.items.map((item, idx) => (
-                      <li key={idx} className="border-t border-white first:border-0">
+                    return (
+                      <li
+                        key={idx}
+                        className="border-t border-white first:border-0"
+                      >
                         <Link
                           className="block px-4 py-2 hover:bg-white text-slate-800 text-sm transition-colors"
                           to={item.link}
+                          target={isAddVisitor ? "_blank" : undefined}
+                          rel={isAddVisitor ? "noopener noreferrer" : undefined}
                         >
                           {item.name}
                         </Link>
                       </li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-            )
-          )}
+                    );
+                  })}
+                </ul>
+              </div>
+            </li>
+          ))}
 
           {/* Dashboard */}
           {isTareqAdmin && (
@@ -169,7 +238,9 @@ const Navbar = () => {
                 <span className="text-[10px] text-slate-400 font-bold uppercase leading-none">
                   Staff
                 </span>
-                <span className="text-slate-900 font-bold text-sm leading-tight">{user?.name}</span>
+                <span className="text-slate-900 font-bold text-sm leading-tight">
+                  {user?.name}
+                </span>
               </div>
               <button
                 onClick={handleLogout}
@@ -201,9 +272,14 @@ const Navbar = () => {
           <div className="flex justify-between items-center mb-8 border-b border-pink-100 pb-4">
             <div className="flex items-center gap-2">
               <img src={Logo} className="h-8 w-8 rounded-lg" alt="logo" />
-              <span className="font-black text-slate-800 tracking-tighter">WMIBC MENU</span>
+              <span className="font-black text-slate-800 tracking-tighter">
+                WMIBC MENU
+              </span>
             </div>
-            <button onClick={() => setMobileOpen(false)} className="text-slate-500 bg-slate-100 p-2 rounded-full">
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="text-slate-500 bg-slate-100 p-2 rounded-full"
+            >
               <FaTimes />
             </button>
           </div>
@@ -248,7 +324,9 @@ const Navbar = () => {
                 <div className="mt-2 space-y-2 bg-pink-50 p-4 rounded-xl border border-pink-100 shadow-inner">
                   <button
                     onClick={() =>
-                      setActiveSubAccordion(activeSubAccordion === "work" ? null : "work")
+                      setActiveSubAccordion(
+                        activeSubAccordion === "work" ? null : "work",
+                      )
                     }
                     className="flex justify-between w-full text-slate-700 font-bold text-sm uppercase py-1"
                   >
@@ -292,8 +370,14 @@ const Navbar = () => {
             </li>
 
             {/* Client & Visitor */}
-            {[{ key: "client", label: "Client Info", data: menuData.clientInfo },
-              { key: "visitor", label: "Visitor", data: menuData.visitor }].map(section => (
+            {[
+              {
+                key: "client",
+                label: "Client Info",
+                data: menuData.clientInfo,
+              },
+              { key: "visitor", label: "Visitor", data: menuData.visitor },
+            ].map((section) => (
               <li key={section.key}>
                 <button
                   onClick={() => toggleAccordion(section.key)}
@@ -324,7 +408,9 @@ const Navbar = () => {
             {/* Logout */}
             {token && (
               <div className="mt-8 border-t border-pink-100 pt-6">
-                <p className="text-xs text-slate-400 font-bold uppercase mb-1">Logged in as</p>
+                <p className="text-xs text-slate-400 font-bold uppercase mb-1">
+                  Logged in as
+                </p>
                 <p className="font-bold text-slate-800 mb-3">{user?.name}</p>
                 <button
                   onClick={handleLogout}

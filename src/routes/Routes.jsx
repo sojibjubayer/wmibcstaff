@@ -57,6 +57,11 @@ import AdminRoute from "../Pages/auth/AdminRoute";
 import WpBosnia from "../Pages/work-visa/WpBosnia";
 import International from "../Pages/work-visa/International";
 import Dashboard from "../Pages/dashboard/Dashboard";
+import WpTurkey from "../Pages/work-visa/WpTurkey";
+import WpUK from "../Pages/work-visa/WpUk";
+import WpAustralia from "../Pages/work-visa/WpAustralia";
+import WpNewZealand from "../Pages/work-visa/WpNewZeaLand";
+import WpAlbania from "../Pages/work-visa/WpAlbania";
 
 const router = createBrowserRouter([
   { 
@@ -82,6 +87,11 @@ const router = createBrowserRouter([
       { path: "work-visa/croatia", element: <PrivateRoute><WpCroatia /></PrivateRoute> },
       { path: "work-visa/bulgaria", element: <PrivateRoute><WpBulgaria /></PrivateRoute> },
       { path: "work-visa/bosnia", element: <PrivateRoute><WpBosnia /></PrivateRoute> },
+      { path: "work-visa/turkey", element: <PrivateRoute><WpTurkey /></PrivateRoute> },
+      { path: "work-visa/uk", element: <PrivateRoute><WpUK /></PrivateRoute> },
+      { path: "work-visa/australia", element: <PrivateRoute><WpAustralia /></PrivateRoute> },
+      { path: "work-visa/new-zealand", element: <PrivateRoute><WpNewZealand /></PrivateRoute> },
+      { path: "work-visa/albania", element: <PrivateRoute><WpAlbania /></PrivateRoute> },
       { path: "work-visa/international", element: <PrivateRoute><International /></PrivateRoute> },
 
       // Student Visa

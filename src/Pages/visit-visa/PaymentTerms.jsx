@@ -8,7 +8,7 @@ export default function PaymentTerms() {
         {/* Header */}
         <div className="text-center space-y-3">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800">
-            Payment Terms & Commission Structure
+            Payment Terms 
           </h1>
           <div className="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
         </div>
@@ -32,7 +32,7 @@ export default function PaymentTerms() {
                 <tr className="border-t border-slate-100 hover:bg-slate-50 transition">
                   <td className="p-4 font-semibold">Standard Processing</td>
                   <td className="p-4 text-slate-600">
-                    Standard processing (no additional services)
+                    Standard processing (no additional services) 
                   </td>
                   <td className="p-4 font-bold text-pink-600">500</td>
                 </tr>
@@ -50,7 +50,7 @@ export default function PaymentTerms() {
         </section>
 
         {/* Commission Structure */}
-        <section className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+        {/* <section className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
           <div className="bg-slate-800 text-white px-6 py-4 font-semibold text-lg">
             Commission Structure
           </div>
@@ -78,7 +78,7 @@ export default function PaymentTerms() {
               </tbody>
             </table>
           </div>
-        </section>
+        </section> */}
 
         {/* Special Cases */}
         <section className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">

@@ -583,14 +583,16 @@ export default function ClientDetails() {
           </button>
 
           <div className="flex gap-2">
-            {isAuthorized && canSeeReceipt && (
+
+            {/* RECEIPT SECTION  */}
+            {/* {isAuthorized && canSeeReceipt && (
               <button
                 onClick={handleReceiptClick}
                 className="bg-white border border-blue-100 p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-600 shadow-sm active:scale-95"
               >
                 <FaFileInvoice /> RECEIPT
               </button>
-            )}
+            )} */}
             <button
               onClick={downloadPDF}
               className="bg-white border p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm active:scale-95"

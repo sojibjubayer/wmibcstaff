@@ -68,7 +68,7 @@ export default function ClientForm() {
     fileSubmissionDate: null,
     processingTime: "",
     totalServiceCharge: "",
-    paymentTerms: "", // Restored
+    paymentTerms: "",
     amountReceived: {
       paymentType: "",
       amount: "",
@@ -76,17 +76,21 @@ export default function ClientForm() {
       paymentMethod: "",
     },
     pendingBalance: "",
-    refundTerms: "", // Restored
-    handover: "", // Restored
+    refundTerms: "",
+    handover: "",
     applicationStatus: "",
     consultant: "",
-    agreementPaper: "", // Restored
+    agreementPaper: "",
+    agreementFile: "",
     remarksHistory: [],
   };
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [isManualInput, setIsManualInput] = useState(false);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -122,31 +126,113 @@ export default function ClientForm() {
     }));
   };
 
+  const uploadFileWithProgress = (url, file) =>
+    new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.open("PUT", url, true);
+      xhr.setRequestHeader("Content-Type", file.type || "application/pdf");
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percent);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setUploadProgress(100);
+          resolve();
+        } else {
+          reject(new Error(`Failed to upload PDF: ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        reject(new Error("Network error while uploading PDF"));
+      };
+
+      xhr.send(file);
+    });
+
+  const uploadPDF = async () => {
+    if (!pdfFile) return "";
+
+    setUploadingPdf(true);
+    setUploadProgress(0);
+
+    try {
+      const safeFileName = pdfFile.name.replace(/\s+/g, "-");
+
+      const res = await fetch(
+        `https://wmibcstaff-server.vercel.app/api/upload-url?name=${encodeURIComponent(
+          safeFileName
+        )}&type=${encodeURIComponent(pdfFile.type)}`
+      );
+
+      const uploadData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          uploadData.message || uploadData.error || "Failed to get upload URL"
+        );
+      }
+
+      const { url, fileUrl } = uploadData;
+
+      await uploadFileWithProgress(url, pdfFile);
+
+      return fileUrl;
+    } catch (error) {
+      console.error("uploadPDF error:", error);
+      toast.error(error.message || "URL generate failed");
+      throw error;
+    } finally {
+      setUploadingPdf(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const dataToSend = {
-      ...formData,
-      amountReceived: [formData.amountReceived],
-    };
 
     try {
+      let uploadedPdfUrl = formData.agreementFile || "";
+
+      if (pdfFile) {
+        uploadedPdfUrl = await uploadPDF();
+      }
+
+      const dataToSend = {
+        ...formData,
+        agreementFile: uploadedPdfUrl,
+        amountReceived: [formData.amountReceived],
+      };
+
       const response = await fetch(
         "https://wmibcstaff-server.vercel.app/api/clients",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dataToSend),
-        },
+        }
       );
+
       const data = await response.json();
-      if (!response.ok)
+
+      if (!response.ok) {
         throw new Error(data.message || "Failed to save client");
+      }
+
       toast.success("Client registered successfully!", {
         style: { background: "#0f172a", color: "#fff", borderRadius: "12px" },
       });
+
       setFormData({ ...initialState, consultant: formData.consultant });
       setIsManualInput(false);
+      setPdfFile(null);
+      setUploadProgress(0);
     } catch (error) {
       toast.error(error.message || "Server error");
     } finally {
@@ -158,7 +244,6 @@ export default function ClientForm() {
     <div className="min-h-screen bg-slate-50 md:p-8 p-4">
       <Toaster position="top-right" />
       <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white overflow-hidden">
-        {/* Header */}
         <div className="bg-slate-600 px-4 py-3 flex items-center gap-3 justify-center">
           <div className="flex items-center justify-center w-10 h-10 bg-pink-200 rounded-lg">
             <FaShieldAlt className="text-slate-900 text-lg" />
@@ -178,7 +263,6 @@ export default function ClientForm() {
           onSubmit={handleSubmit}
           className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {/* SECTION 1: PERSONAL & VISA */}
           <div className="space-y-6">
             <h2 className="text-slate-900 font-bold border-l-4 border-pink-200 pl-3 text-sm">
               Identity & Location
@@ -292,7 +376,6 @@ export default function ClientForm() {
             </div>
           </div>
 
-          {/* SECTION 2: VISA & SUBMISSION */}
           <div className="space-y-6">
             <h2 className="text-slate-900 font-bold border-l-4 border-pink-200 pl-3 text-sm">
               Visa & Processing
@@ -315,6 +398,7 @@ export default function ClientForm() {
                   <option>Student</option>
                 </select>
               </div>
+
               <div>
                 <div className="flex justify-between items-center">
                   <label className={labelStyle}>
@@ -330,6 +414,7 @@ export default function ClientForm() {
                     </button>
                   )}
                 </div>
+
                 {isManualInput ? (
                   <input
                     type="text"
@@ -352,6 +437,7 @@ export default function ClientForm() {
                     required
                   >
                     <option value="">Select</option>
+
                     {formData.visaType === "Tourist" && (
                       <>
                         <optgroup label="Europe">
@@ -370,12 +456,14 @@ export default function ClientForm() {
                         </optgroup>
                       </>
                     )}
+
                     {formData.visaType === "Work Permit" &&
                       workCountries.map((c) => (
                         <option key={c} value={c}>
                           {c}
                         </option>
                       ))}
+
                     <option value="Others">Type Manually</option>
                   </select>
                 )}
@@ -457,7 +545,6 @@ export default function ClientForm() {
             </div>
           </div>
 
-          {/* SECTION 3: FINANCE & AGREEMENT */}
           <div className="space-y-6">
             <h2 className="text-slate-900 font-bold border-l-4 border-pink-200 pl-3 text-sm">
               Finance & Agreement
@@ -503,13 +590,11 @@ export default function ClientForm() {
               />
             </div>
 
-            {/* Payment Box */}
             <div className="p-4 bg-slate-50 rounded-2xl border border-pink-50 space-y-3">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-2">
                 Initial Collection
               </p>
 
-              {/* NEW: Payment Type Selection */}
               <div>
                 <label className="text-[9px] font-bold text-slate-400">
                   Transaction Type
@@ -523,11 +608,7 @@ export default function ClientForm() {
                   required
                 >
                   <option value="">Select Type</option>
-                  {[
-                    "1st Payment",
-                    "Final Payment"
-
-                  ].map((type) => (
+                  {["1st Payment", "Final Payment"].map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
@@ -552,6 +633,7 @@ export default function ClientForm() {
                     required
                   />
                 </div>
+
                 <div>
                   <label className="text-[9px] font-bold text-pink-400">
                     Pending
@@ -585,6 +667,7 @@ export default function ClientForm() {
                   <option>Bank Transfer</option>
                   <option>Cheque</option>
                 </select>
+
                 <DatePicker
                   selected={formData.amountReceived.paymentDate}
                   onChange={(date) => handleAmountChange("paymentDate", date)}
@@ -600,6 +683,7 @@ export default function ClientForm() {
               <label className={labelStyle}>
                 <FaFileSignature className="text-pink-300" /> Agreement
               </label>
+
               <select
                 className={inputStyle}
                 value={formData.agreementPaper}
@@ -611,15 +695,86 @@ export default function ClientForm() {
                 <option>Handed Over</option>
                 <option>Not Required</option>
               </select>
+
+              <div className="mt-3">
+                <label className="flex items-center gap-2 mb-2 font-bold text-[10px] uppercase tracking-widest text-slate-400">
+                  <FaFileAlt className="text-pink-300" /> Upload Agreement PDF
+                </label>
+
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  className={`${inputStyle} file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-pink-100 file:text-slate-700 file:font-semibold hover:file:bg-pink-200`}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    if (file.type !== "application/pdf") {
+                      toast.error("Only PDF files are allowed");
+                      e.target.value = "";
+                      return;
+                    }
+
+                    setPdfFile(file);
+                    setUploadProgress(0);
+                  }}
+                />
+
+                {pdfFile && (
+                  <div className="mt-2 text-[11px] text-slate-500 space-y-1">
+                    <div>
+                      Selected:{" "}
+                      <span className="font-semibold">{pdfFile.name}</span>
+                    </div>
+                    <div>
+                      Size:{" "}
+                      <span className="font-semibold">
+                        {(pdfFile.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {uploadingPdf && (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-semibold text-pink-500">
+                        Uploading PDF...
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500">
+                        {uploadProgress}%
+                      </span>
+                    </div>
+
+                    <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-pink-400 transition-all duration-200"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.agreementFile && !pdfFile && (
+                  <a
+                    href={formData.agreementFile}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-block mt-2 text-[11px] font-semibold text-pink-500 hover:text-pink-700"
+                  >
+                    View Uploaded PDF
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* FOOTER: REMARKS & SUBMIT */}
           <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 border-t border-slate-50">
             <div className="md:col-span-2">
               <label className={labelStyle}>
                 <FaFileAlt className="text-pink-300" /> Internal Remarks
               </label>
+
               <textarea
                 rows="2"
                 className={inputStyle}
@@ -636,6 +791,7 @@ export default function ClientForm() {
                 }}
               />
             </div>
+
             <div>
               <label className={labelStyle}>Consultant In Charge</label>
               <input
@@ -649,10 +805,14 @@ export default function ClientForm() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || uploadingPdf}
                 className="w-full mt-4 bg-pink-200 text-slate-900 font-black py-4 rounded-xl shadow-lg shadow-pink-100 hover:bg-pink-300 transition-all active:scale-95 disabled:opacity-50 text-sm uppercase"
               >
-                {loading ? "Processing..." : "Register Client"}
+                {uploadingPdf
+                  ? `Uploading PDF... ${uploadProgress}%`
+                  : loading
+                    ? "Saving..."
+                    : "Register Client"}
               </button>
             </div>
           </div>
