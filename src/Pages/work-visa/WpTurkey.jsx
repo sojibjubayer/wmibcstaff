@@ -20,13 +20,13 @@ const WpTurkey = () => {
   return (
     <div className="min-h-screen bg-[#fafafa] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans">
       <div className="max-w-4xl mx-auto space-y-10">
-        
         {/* Header Section */}
         <header className="bg-linear-to-br from-[#fce4ec] to-[#f8bbd0] rounded-3xl shadow-sm border border-pink-100 p-10 text-center relative overflow-hidden">
           <div className="absolute top-[-10%] right-[-5%] w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
-          
+
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-800">
-            Turkey <span className="font-light italic text-slate-700">Work Visa</span>
+            Turkey{" "}
+            <span className="font-light italic text-slate-700">Work Visa</span>
           </h1>
           <p className="mt-3 text-slate-600 text-lg font-medium tracking-wide">
             Hospitality & Service Sector Opportunities
@@ -35,7 +35,6 @@ const WpTurkey = () => {
 
         {/* Positions & Salary Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
           {/* Position Section */}
           <section className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-pink-400 mb-6">
@@ -79,7 +78,9 @@ const WpTurkey = () => {
             <h3 className="font-bold text-slate-800 text-sm uppercase tracking-widest mb-2">
               Processing Time
             </h3>
-            <p className="text-slate-600 text-2xl font-light italic">4 Months Only</p>
+            <p className="text-slate-600 text-2xl font-light italic">
+              4 Months Only
+            </p>
           </div>
         </div>
 
@@ -95,24 +96,45 @@ const WpTurkey = () => {
               </p>
             </div>
             <div className="text-3xl font-light text-pink-300">
-              18,000 <span className="text-sm text-slate-500 font-bold uppercase">QAR</span>
+              18,000{" "}
+              <span className="text-sm text-slate-500 font-bold uppercase">
+                QAR
+              </span>
             </div>
           </div>
-          
-          <div className="p-8">
-            <div className="space-y-4">
+
+          <div className="p-8"> 
+            <div className="space-y-4"> 
               {PAYMENTS.map((item, idx) => (
-                <div
+                <div 
                   key={idx}
                   className="flex justify-between items-center p-4 rounded-xl bg-[#fafafa] border-b border-slate-100 last:border-0 hover:bg-white hover:shadow-sm transition-all"
                 >
-                  <span className="text-slate-600 font-medium">{item.label}</span>
+                  <span className="text-slate-600 font-medium">
+                    {item.label}
+                  </span>
                   <div className="text-right">
-                    <span className="text-slate-900 font-bold">{item.amount}</span>
-                    <span className="ml-1 text-[10px] text-slate-400 font-bold">QAR</span>
+                    <span className="text-slate-900 font-bold">
+                      {item.amount}
+                    </span>
+                    <span className="ml-1 text-[10px] text-slate-400 font-bold">
+                      QAR
+                    </span>
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="text-center pt-6">
+              {" "}
+              <p>
+                {" "}
+                <span className="font-bold text-blue-500">Note:</span> Turkey Work
+                Visa Processing Fee from Bangladesh: BDT 28,750 (All-inclusive) - Cash Payment
+              </p>
+              <p className="text-blue-400 text-sm italic">
+                Physical submission required. Applicants must visit the office
+                to complete the process.
+              </p>
             </div>
           </div>
         </section>

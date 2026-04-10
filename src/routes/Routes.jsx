@@ -62,6 +62,10 @@ import WpUK from "../Pages/work-visa/WpUk";
 import WpAustralia from "../Pages/work-visa/WpAustralia";
 import WpNewZealand from "../Pages/work-visa/WpNewZeaLand";
 import WpAlbania from "../Pages/work-visa/WpAlbania";
+import WpMoldova from "../Pages/work-visa/WpMoldova";
+import WpItaly from "../Pages/work-visa/WpItaly";
+import WpCanada from "../Pages/work-visa/WpCanada";
+import Attendance from "../attendance/Attendance";
 
 const router = createBrowserRouter([
   { 
@@ -92,6 +96,9 @@ const router = createBrowserRouter([
       { path: "work-visa/australia", element: <PrivateRoute><WpAustralia /></PrivateRoute> },
       { path: "work-visa/new-zealand", element: <PrivateRoute><WpNewZealand /></PrivateRoute> },
       { path: "work-visa/albania", element: <PrivateRoute><WpAlbania /></PrivateRoute> },
+      { path: "work-visa/moldova", element: <PrivateRoute><WpMoldova /></PrivateRoute> },
+      { path: "work-visa/italy", element: <PrivateRoute><WpItaly /></PrivateRoute> },
+      { path: "work-visa/canada", element: <PrivateRoute><WpCanada /></PrivateRoute> },
       { path: "work-visa/international", element: <PrivateRoute><International /></PrivateRoute> },
 
       // Student Visa
@@ -148,6 +155,11 @@ const router = createBrowserRouter([
       // DASHBOARD
       { path: "dashboard", element: <AdminRoute><Dashboard /></AdminRoute> },
 
+
+      // ATTENDANCE
+
+
+      { path: "attendance", element: <PrivateRoute><Attendance /></PrivateRoute> },
 
 
 

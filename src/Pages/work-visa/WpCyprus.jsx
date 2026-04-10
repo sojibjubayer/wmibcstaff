@@ -62,7 +62,7 @@ const WpCyprus = () => {
               </div>
               <div className="pt-4 border-t border-pink-100">
                 <h4 className="font-bold text-slate-800 text-xs uppercase tracking-widest">Total Timeline</h4>
-                <p className="text-slate-600 text-sm mt-1">6 – 8 Months</p>
+                <p className="text-slate-600 text-sm mt-1">6  Months</p>
               </div>
             </section>
           </div>

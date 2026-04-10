@@ -8,6 +8,7 @@ const API_URL = "https://wmibcstaff-server.vercel.app/api/auth/consultants";
 const Consultants = ({ searchQuery }) => {
   const [consultants, setConsultants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false); // New: Prevent double clicks
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -33,7 +34,6 @@ const Consultants = ({ searchQuery }) => {
 
   useEffect(() => { fetchConsultants(); }, []);
 
-  // Live Filtering linked to the Dashboard Search bar
   const filteredConsultants = consultants.filter(user => 
     user.name?.toLowerCase().includes(searchQuery?.toLowerCase() || '') ||
     user.email?.toLowerCase().includes(searchQuery?.toLowerCase() || '') ||
@@ -66,29 +66,36 @@ const Consultants = ({ searchQuery }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Guard against multiple submissions
+
+    setIsSubmitting(true);
+
     const saveOperation = async () => {
       if (editingUser) {
-        await axios.put(`${API_URL}/${editingUser._id}`, formData);
+        const res = await axios.put(`${API_URL}/${editingUser._id}`, formData);
         return "Profile updated! ✨";
       } else {
-        await axios.post(`${API_URL}/register`, formData);
+        const res = await axios.post(`${API_URL}/register`, formData);
         return "New staff registered! 🚀";
       }
     };
 
     toast.promise(saveOperation(), {
       loading: 'Saving changes...',
-      success: (msg) => msg,
-      error: (err) => err.response?.data?.message || "Operation failed",
+      success: (msg) => {
+        // Clean up state ONLY after success
+        setIsModalOpen(false);
+        setEditingUser(null);
+        setFormData({ name: '', email: '', password: '', role: 'consultant' });
+        fetchConsultants();
+        setIsSubmitting(false);
+        return msg;
+      },
+      error: (err) => {
+        setIsSubmitting(false);
+        return err.response?.data?.message || "Operation failed";
+      },
     });
-
-    try {
-      await saveOperation();
-      setIsModalOpen(false);
-      setEditingUser(null);
-      setFormData({ name: '', email: '', password: '', role: 'consultant' });
-      fetchConsultants();
-    } catch (err) {}
   };
 
   const openEdit = (user) => {
@@ -101,7 +108,6 @@ const Consultants = ({ searchQuery }) => {
     <div className="space-y-6 font-sans">
       <Toaster position="top-right" />
 
-      {/* ACTION BAR: Heading + Add Button */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-2">
         <div>
           <h2 className="text-lg font-black text-pink-500 tracking-tight uppercase italic">
@@ -120,7 +126,6 @@ const Consultants = ({ searchQuery }) => {
         </button>
       </div>
 
-      {/* DATA TABLE */}
       <div className="bg-white rounded-[2.5rem] shadow-xl border border-white overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -173,7 +178,6 @@ const Consultants = ({ searchQuery }) => {
         </table>
       </div>
 
-      {/* MODAL: ADD/EDIT STAFF */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex justify-center items-center z-50 p-4">
           <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border border-white flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in duration-150">
@@ -185,7 +189,7 @@ const Consultants = ({ searchQuery }) => {
               <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-500 transition-colors"><FaTimes /></button>
             </div>
 
-            <div className="p-8 overflow-y-auto bg-white scrollbar-hide">
+            <div className="p-8 overflow-y-auto bg-white">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-1">
                   <label className="text-[9px] font-black text-slate-400 uppercase ml-2 flex items-center gap-2"><FaPassport size={8}/> Full Legal Name</label>
@@ -211,8 +215,12 @@ const Consultants = ({ searchQuery }) => {
                   </select>
                 </div>
 
-                <button type="submit" className="w-full py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-pink-500 transition-all active:scale-95 shadow-lg shadow-slate-200">
-                  {editingUser ? "Update Staff Profile" : "Finalize Registration"}
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`w-full py-5 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-lg ${isSubmitting ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-pink-500 shadow-slate-200'}`}
+                >
+                  {isSubmitting ? "Processing..." : editingUser ? "Update Staff Profile" : "Finalize Registration"}
                 </button>
               </form>
             </div>

@@ -6,6 +6,7 @@ import Logo from "../../assets/company-logo.jpg";
 const menuData = {
   workVisa: {
     schengen: [
+      { name: "Italy", link: "/work-visa/italy" },      
       { name: "Greece", link: "/work-visa/greece" },
       { name: "Portugal", link: "/work-visa/portugal" },
       { name: "Poland", link: "/work-visa/poland" },
@@ -18,6 +19,7 @@ const menuData = {
       { name: "Cyprus", link: "/work-visa/cyprus" },
       { name: "Montenegro", link: "/work-visa/montenegro" },
       { name: "Bosnia", link: "/work-visa/bosnia" },
+      { name: "Moldova", link: "/work-visa/moldova" },
       { name: "Albania", link: "/work-visa/albania" },
     ],
     direct: [
@@ -25,6 +27,7 @@ const menuData = {
       { name: "UK", link: "/work-visa/uk" },
       { name: "Australia", link: "/work-visa/australia" },
       { name: "New Zealand", link: "/work-visa/new-zealand" },
+      { name: "Canada", link: "/work-visa/canada" },
       { name: "International", link: "/work-visa/international" },
     ],
   },

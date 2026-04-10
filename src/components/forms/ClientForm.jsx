@@ -49,6 +49,9 @@ const workCountries = [
   "Cyprus",
 ];
 
+const MAX_FILE_SIZE_MB = 20;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export default function ClientForm() {
   const inputStyle =
     "w-full border border-slate-200 bg-slate-50 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition duration-200 text-sm";
@@ -159,6 +162,11 @@ export default function ClientForm() {
   const uploadPDF = async () => {
     if (!pdfFile) return "";
 
+    if (pdfFile.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`PDF must be ${MAX_FILE_SIZE_MB}MB or smaller`);
+      throw new Error(`PDF must be ${MAX_FILE_SIZE_MB}MB or smaller`);
+    }
+
     setUploadingPdf(true);
     setUploadProgress(0);
 
@@ -195,6 +203,12 @@ export default function ClientForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (pdfFile && pdfFile.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`PDF must be ${MAX_FILE_SIZE_MB}MB or smaller`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -242,7 +256,7 @@ export default function ClientForm() {
 
   return (
     <div className="min-h-screen bg-slate-50 md:p-8 p-4">
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
       <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white overflow-hidden">
         <div className="bg-slate-600 px-4 py-3 flex items-center gap-3 justify-center">
           <div className="flex items-center justify-center w-10 h-10 bg-pink-200 rounded-lg">
@@ -543,6 +557,91 @@ export default function ClientForm() {
                 />
               </div>
             </div>
+
+            <div className="mt-3">
+              <label className="flex items-center gap-2 mb-2 font-bold text-[10px] uppercase tracking-widest text-slate-400">
+                <FaFileAlt className="text-pink-300" /> Upload Client File
+              </label>
+
+              <input
+                type="file"
+                accept="application/pdf"
+                className={`${inputStyle} file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-pink-100 file:text-slate-700 file:font-semibold hover:file:bg-pink-200`}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+
+                  if (file.type !== "application/pdf") {
+                    toast.error("Only PDF files are allowed");
+                    e.target.value = "";
+                    setPdfFile(null);
+                    setUploadProgress(0);
+                    return;
+                  }
+
+                  if (file.size > MAX_FILE_SIZE_BYTES) {
+                    toast.error(`File size must be ${MAX_FILE_SIZE_MB}MB or less`);
+                    e.target.value = "";
+                    setPdfFile(null);
+                    setUploadProgress(0);
+                    return;
+                  }
+
+                  setPdfFile(file);
+                  setUploadProgress(0);
+                }}
+              />
+
+              <p className="mt-2 text-[11px] text-slate-400">
+                Maximum file size: {MAX_FILE_SIZE_MB}MB
+              </p>
+
+              {pdfFile && (
+                <div className="mt-2 text-[11px] text-slate-500 space-y-1">
+                  <div>
+                    Selected:{" "}
+                    <span className="font-semibold">{pdfFile.name}</span>
+                  </div>
+                  <div>
+                    Size:{" "}
+                    <span className="font-semibold">
+                      {(pdfFile.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {uploadingPdf && (
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] font-semibold text-pink-500">
+                      Uploading PDF...
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-500">
+                      {uploadProgress}%
+                    </span>
+                  </div>
+
+                  <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-pink-400 transition-all duration-200"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {formData.agreementFile && !pdfFile && (
+                <a
+                  href={formData.agreementFile}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block mt-2 text-[11px] font-semibold text-pink-500 hover:text-pink-700"
+                >
+                  View Uploaded PDF
+                </a>
+              )}
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -695,77 +794,6 @@ export default function ClientForm() {
                 <option>Handed Over</option>
                 <option>Not Required</option>
               </select>
-
-              <div className="mt-3">
-                <label className="flex items-center gap-2 mb-2 font-bold text-[10px] uppercase tracking-widest text-slate-400">
-                  <FaFileAlt className="text-pink-300" /> Upload Agreement PDF
-                </label>
-
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  className={`${inputStyle} file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-pink-100 file:text-slate-700 file:font-semibold hover:file:bg-pink-200`}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-
-                    if (file.type !== "application/pdf") {
-                      toast.error("Only PDF files are allowed");
-                      e.target.value = "";
-                      return;
-                    }
-
-                    setPdfFile(file);
-                    setUploadProgress(0);
-                  }}
-                />
-
-                {pdfFile && (
-                  <div className="mt-2 text-[11px] text-slate-500 space-y-1">
-                    <div>
-                      Selected:{" "}
-                      <span className="font-semibold">{pdfFile.name}</span>
-                    </div>
-                    <div>
-                      Size:{" "}
-                      <span className="font-semibold">
-                        {(pdfFile.size / 1024 / 1024).toFixed(2)} MB
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {uploadingPdf && (
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] font-semibold text-pink-500">
-                        Uploading PDF...
-                      </span>
-                      <span className="text-[11px] font-bold text-slate-500">
-                        {uploadProgress}%
-                      </span>
-                    </div>
-
-                    <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-pink-400 transition-all duration-200"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {formData.agreementFile && !pdfFile && (
-                  <a
-                    href={formData.agreementFile}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block mt-2 text-[11px] font-semibold text-pink-500 hover:text-pink-700"
-                  >
-                    View Uploaded PDF
-                  </a>
-                )}
-              </div>
             </div>
           </div>
 
@@ -809,10 +837,10 @@ export default function ClientForm() {
                 className="w-full mt-4 bg-pink-200 text-slate-900 font-black py-4 rounded-xl shadow-lg shadow-pink-100 hover:bg-pink-300 transition-all active:scale-95 disabled:opacity-50 text-sm uppercase"
               >
                 {uploadingPdf
-                  ? `Uploading PDF... ${uploadProgress}%`
+                  ? `Uploading File... ${uploadProgress}%`
                   : loading
-                    ? "Saving..."
-                    : "Register Client"}
+                  ? "Saving..."
+                  : "Register Client"}
               </button>
             </div>
           </div>

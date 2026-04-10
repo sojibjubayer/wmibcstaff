@@ -84,11 +84,11 @@ const WpPortugal = () => {
               <div className="space-y-6">
                 <div className="flex justify-between items-center py-1">
                   <span className="text-slate-500 text-sm font-medium">1st Payment (Docs)</span>
-                  <span className="text-lg font-bold text-slate-800">3,500 <span className="text-[10px] text-slate-400 font-bold uppercase">QAR</span></span>
+                  <span className="text-lg font-bold text-slate-800">2,000 <span className="text-[10px] text-slate-400 font-bold uppercase">QAR</span></span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-slate-500 text-sm font-medium">2nd Payment (Embassy Date)</span>
-                  <span className="text-lg font-bold text-slate-800">6,000 <span className="text-[10px] text-slate-400 font-bold uppercase">QAR</span></span>
+                  <span className="text-slate-500 text-sm font-medium">2nd Payment (After Permit)</span>
+                  <span className="text-lg font-bold text-slate-800">4,000 <span className="text-[10px] text-slate-400 font-bold uppercase">QAR</span></span>
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <span className="text-slate-500 text-sm font-medium">3rd Payment (Visa)</span>
@@ -98,7 +98,7 @@ const WpPortugal = () => {
                 <div className="mt-8 p-6 bg-pink-50/30 rounded-2xl border-2 border-dashed border-pink-100">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">Total Payable</span>
-                    <span className="text-3xl font-black text-slate-800">35,000 <span className="text-sm font-bold text-pink-400">QAR</span></span>
+                    <span className="text-3xl font-black text-slate-800">30,000 <span className="text-sm font-bold text-pink-400">QAR</span></span>
                   </div>
                 </div>
               </div>
