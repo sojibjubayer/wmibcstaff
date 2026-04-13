@@ -66,6 +66,7 @@ import WpMoldova from "../Pages/work-visa/WpMoldova";
 import WpItaly from "../Pages/work-visa/WpItaly";
 import WpCanada from "../Pages/work-visa/WpCanada";
 import Attendance from "../attendance/Attendance";
+import WpSlovakia from "../Pages/work-visa/WpSlovakia";
 
 const router = createBrowserRouter([
   { 
@@ -99,6 +100,7 @@ const router = createBrowserRouter([
       { path: "work-visa/moldova", element: <PrivateRoute><WpMoldova /></PrivateRoute> },
       { path: "work-visa/italy", element: <PrivateRoute><WpItaly /></PrivateRoute> },
       { path: "work-visa/canada", element: <PrivateRoute><WpCanada /></PrivateRoute> },
+      { path: "work-visa/slovakia", element: <PrivateRoute><WpSlovakia /></PrivateRoute> },
       { path: "work-visa/international", element: <PrivateRoute><International /></PrivateRoute> },
 
       // Student Visa
@@ -159,7 +161,7 @@ const router = createBrowserRouter([
       // ATTENDANCE
 
 
-      { path: "attendance", element: <PrivateRoute><Attendance /></PrivateRoute> },
+      { path: "qr-access/staff-attnd/v8r3k1m9", element: <PrivateRoute><Attendance /></PrivateRoute> },
 
 
 

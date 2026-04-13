@@ -12,6 +12,7 @@ const menuData = {
       { name: "Poland", link: "/work-visa/poland" },
       { name: "Croatia", link: "/work-visa/croatia" },
       { name: "Bulgaria", link: "/work-visa/bulgaria" },
+      { name: "Slovakia", link: "/work-visa/slovakia" },
     ],
     nonSchengenEurope: [
       { name: "Serbia", link: "/work-visa/serbia" },

@@ -16,16 +16,9 @@ const actionConfig = [
   { label: "Check Out", value: "check_out", icon: LogOut },
 ];
 
+const QATAR_TIMEZONE = "Asia/Qatar";
+
 export default function AttendancePage() {
-  const token = localStorage.getItem("token");
-
-  let user = null;
-  try {
-    user = JSON.parse(localStorage.getItem("user") || "null");
-  } catch (error) {
-    user = null;
-  }
-
   const [loadingAction, setLoadingAction] = useState(null);
   const [message, setMessage] = useState("");
   const [time, setTime] = useState(new Date());
@@ -33,6 +26,21 @@ export default function AttendancePage() {
   const [todayActions, setTodayActions] = useState([]);
   const [todayHistory, setTodayHistory] = useState([]);
   const [loadingToday, setLoadingToday] = useState(false);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    try {
+      const savedToken = localStorage.getItem("token") || "";
+      const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+
+      setToken(savedToken);
+      setUser(savedUser);
+    } catch (error) {
+      setToken("");
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -41,6 +49,41 @@ export default function AttendancePage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  function formatActionLabel(action) {
+    if (!action || typeof action !== "string") return "";
+    return action
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
+  function formatTime(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+
+    return d.toLocaleTimeString("en-US", {
+      timeZone: QATAR_TIMEZONE,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
+  function formatDate(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+
+    return d.toLocaleDateString("en-US", {
+      timeZone: QATAR_TIMEZONE,
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
 
   useEffect(() => {
     const fetchTodayAttendance = async () => {
@@ -55,16 +98,17 @@ export default function AttendancePage() {
       try {
         setLoadingToday(true);
         setMessage("");
-console.log("token:", token);
-console.log("action:", action);
-console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
-        const res = await fetch("https://wmibcstaff-server.vercel.app/api/attendance/today", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+
+        const res = await fetch(
+          "https://wmibcstaff-server.vercel.app/api/attendance/today",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         let data = {};
         try {
@@ -91,7 +135,7 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
           const last = history[history.length - 1];
           setStatus({
             action: last?.label || formatActionLabel(last?.action),
-            time: last?.time || formatTime(last?.createdAt || last?.timestamp),
+            time: formatTime(last?.createdAt || last?.timestamp),
           });
         } else {
           setStatus(null);
@@ -100,6 +144,7 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
         setTodayActions([]);
         setTodayHistory([]);
         setStatus(null);
+        setMessage("Failed to load today's attendance.");
       } finally {
         setLoadingToday(false);
       }
@@ -124,35 +169,50 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
         reason: !hasCheckIn
           ? "Check In first"
           : hasLunchOut
-            ? "Lunch Out already recorded"
-            : hasCheckOut
-              ? "Day already checked out"
-              : "",
+          ? "Lunch Out already recorded"
+          : hasCheckOut
+          ? "Day already checked out"
+          : "",
       },
       lunch_in: {
         disabled: !hasLunchOut || hasLunchIn || hasCheckOut,
         reason: !hasLunchOut
           ? "Lunch Out first"
           : hasLunchIn
-            ? "Lunch In already recorded"
-            : hasCheckOut
-              ? "Day already checked out"
-              : "",
+          ? "Lunch In already recorded"
+          : hasCheckOut
+          ? "Day already checked out"
+          : "",
       },
       check_out: {
         disabled: !hasCheckIn || hasCheckOut || (hasLunchOut && !hasLunchIn),
         reason: !hasCheckIn
           ? "Check In first"
           : hasCheckOut
-            ? "Already checked out today"
-            : hasLunchOut && !hasLunchIn
-              ? "Lunch In first"
-              : "",
+          ? "Already checked out today"
+          : hasLunchOut && !hasLunchIn
+          ? "Lunch In first"
+          : "",
       },
     };
   }, [todayActions]);
 
+  const qatarHour = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: QATAR_TIMEZONE,
+      hour: "2-digit",
+      hour12: false,
+    }).format(time)
+  );
+
+  const isOutsideTime = qatarHour < 9 || qatarHour >= 23;
+
   const handleAttendance = async (action) => {
+    if (isOutsideTime) {
+      setMessage("Attendance allowed only between 9 AM and 11 PM.");
+      return;
+    }
+
     if (!token) {
       setMessage("Please login again.");
       return;
@@ -161,7 +221,9 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
     const flowBlocked = actionState?.[action]?.disabled;
 
     if (flowBlocked) {
-      setMessage(actionState?.[action]?.reason || "This action is not allowed now.");
+      setMessage(
+        actionState?.[action]?.reason || "This action is not allowed now."
+      );
       return;
     }
 
@@ -169,14 +231,17 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
       setLoadingAction(action);
       setMessage("");
 
-      const res = await fetch("https://wmibcstaff-server.vercel.app/api/attendance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action }),
-      });
+      const res = await fetch(
+        "https://wmibcstaff-server.vercel.app/api/attendance",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ action }),
+        }
+      );
 
       let data = {};
       try {
@@ -195,27 +260,31 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
         actionConfig.find((a) => a.value === action)?.label ||
         formatActionLabel(action);
 
-      const actionTime =
-        data?.record?.time ||
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+      const createdAt = data?.record?.createdAt || new Date().toISOString();
+      const actionTime = formatTime(createdAt);
 
       setStatus({
         action: actionLabel,
         time: actionTime,
       });
 
-      setTodayActions((prev) => [...prev, action]);
-      setTodayHistory((prev) => [
-        ...prev,
-        {
-          action,
-          label: actionLabel,
-          time: actionTime,
-        },
-      ]);
+      setTodayActions((prev) => {
+        if (prev.includes(action)) return prev;
+        return [...prev, action];
+      });
+
+      setTodayHistory((prev) => {
+        if (prev.some((item) => item.action === action)) return prev;
+
+        return [
+          ...prev,
+          {
+            action,
+            label: actionLabel,
+            createdAt,
+          },
+        ];
+      });
 
       setMessage(data.message || `${actionLabel} recorded successfully`);
     } catch (err) {
@@ -224,24 +293,6 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
       setLoadingAction(null);
     }
   };
-
-  function formatActionLabel(action) {
-    if (!action || typeof action !== "string") return "";
-    return action
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-
-  function formatTime(value) {
-    if (!value) return "";
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return "";
-    return d.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-white flex justify-center">
@@ -255,9 +306,7 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
               <h1 className="text-xl font-semibold mt-1">
                 Hi, {user?.name || "User"} 👋
               </h1>
-              <p className="text-sm text-white/70 mt-1">
-                Mark your attendance
-              </p>
+              <p className="text-sm text-white/70 mt-1">Mark your attendance</p>
             </div>
 
             <div className="bg-white/10 p-3 rounded-xl border border-white/10">
@@ -269,24 +318,19 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
             <div className="bg-black/30 rounded-xl p-3 border border-white/5">
               <p className="text-xs text-white/60">Time</p>
               <p className="text-lg font-semibold">
-                {time.toLocaleTimeString([], {
+                {time.toLocaleTimeString("en-US", {
+                  timeZone: QATAR_TIMEZONE,
                   hour: "2-digit",
                   minute: "2-digit",
                   second: "2-digit",
+                  hour12: true,
                 })}
               </p>
             </div>
 
             <div className="bg-black/30 rounded-xl p-3 border border-white/5">
               <p className="text-xs text-white/60">Date</p>
-              <p className="text-sm">
-                {time.toLocaleDateString([], {
-                  weekday: "short",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
+              <p className="text-sm">{formatDate(time)}</p>
             </div>
           </div>
         </div>
@@ -299,7 +343,11 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
             <div>
               <p className="text-xs text-white/60">Last Status</p>
               <p className="font-semibold">
-                {loadingToday ? "Loading..." : status ? status.action : "No record yet"}
+                {loadingToday
+                  ? "Loading..."
+                  : status
+                  ? status.action
+                  : "No record yet"}
               </p>
               <p className="text-sm text-white/70">
                 {status ? `at ${status.time}` : "First action will appear here"}
@@ -313,7 +361,10 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
             const Icon = item.icon;
             const isLoading = loadingAction === item.value;
             const isDisabled =
-              !!loadingAction || loadingToday || actionState?.[item.value]?.disabled;
+              !!loadingAction ||
+              loadingToday ||
+              actionState?.[item.value]?.disabled ||
+              isOutsideTime;
             const reason = actionState?.[item.value]?.reason;
 
             return (
@@ -335,10 +386,16 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
                   )}
                 </div>
 
-                <p className="text-sm font-semibold text-center">{item.label}</p>
+                <p className="text-sm font-semibold text-center">
+                  {item.label}
+                </p>
 
                 <p className="text-[11px] text-white/60 text-center mt-1 min-h-7">
-                  {isDisabled && !loadingToday ? reason : "Available"}
+                  {isOutsideTime
+                    ? "Allowed only 9 AM – 11 PM"
+                    : isDisabled && !loadingToday
+                    ? reason
+                    : "Available"}
                 </p>
               </button>
             );
@@ -368,7 +425,7 @@ console.log("url:", `https://wmibcstaff-server.vercel.app/api/attendance`);
                     {item?.label || formatActionLabel(item?.action)}
                   </span>
                   <span className="text-xs text-white/65">
-                    {item?.time || formatTime(item?.createdAt || item?.timestamp)}
+                    {formatTime(item?.createdAt || item?.timestamp)}
                   </span>
                 </div>
               ))}

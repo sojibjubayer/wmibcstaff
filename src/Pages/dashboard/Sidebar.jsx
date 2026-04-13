@@ -6,9 +6,11 @@ import {
   FaPassport,
   FaChevronDown,
   FaPlus,
-  FaListUl
+  FaListUl,
+  FaClock,
 } from "react-icons/fa";
 import { FaUserGroup } from "react-icons/fa6";
+import AttendanceSummary from "./tabs/AttendanceSummary";
 
 const SidebarItem = ({ icon, label, active, onClick, hasSubmenu, isOpen }) => (
   <button
@@ -21,10 +23,14 @@ const SidebarItem = ({ icon, label, active, onClick, hasSubmenu, isOpen }) => (
   >
     <div className="flex items-center">
       <span className="text-lg mr-2">{icon}</span>
-      <span className="font-bold text-[10px] uppercase tracking-widest text-left">{label}</span>
+      <span className="font-bold text-[10px] uppercase tracking-widest text-left">
+        {label}
+      </span>
     </div>
     {hasSubmenu && (
-      <FaChevronDown className={`text-[10px] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+      <FaChevronDown
+        className={`text-[10px] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+      />
     )}
   </button>
 );
@@ -38,43 +44,77 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 bg-linear-to-tr from-pink-400 to-rose-300 rounded-xl rotate-3"></div>
           <div>
-            <h2 className="text-white font-black text-xl tracking-tighter">WMIBC</h2>
-            <p className="text-pink-400 text-[8px] font-black uppercase tracking-[0.3em]">Administrator</p>
+            <h2 className="text-white font-black text-xl tracking-tighter">
+              WMIBC
+            </h2>
+            <p className="text-pink-400 text-[8px] font-black uppercase tracking-[0.3em]">
+              Administrator
+            </p>
           </div>
         </div>
       </div>
 
       <nav className="flex-1 space-y-3">
-        <SidebarItem icon={<FaChartLine />} label="Overview" active={activeTab === "Overview"} onClick={() => setActiveTab("Overview")} />
-        <SidebarItem icon={<FaUsers />} label="Visitors" active={activeTab === "Visitors"} onClick={() => setActiveTab("Visitors")} />
-        <SidebarItem icon={<FaUserTie />} label="Clients" active={activeTab === "Clients"} onClick={() => setActiveTab("Clients")} />
-        <SidebarItem icon={<FaUserGroup />} label="Consultant" active={activeTab === "Consultant Management"} onClick={() => setActiveTab("Consultant Management")} />
-        
+        <SidebarItem
+          icon={<FaChartLine />}
+          label="Overview"
+          active={activeTab === "Overview"}
+          onClick={() => setActiveTab("Overview")}
+        />
+        <SidebarItem
+          icon={<FaUsers />}
+          label="Visitors"
+          active={activeTab === "Visitors"}
+          onClick={() => setActiveTab("Visitors")}
+        />
+        <SidebarItem
+          icon={<FaUserTie />}
+          label="Clients"
+          active={activeTab === "Clients"}
+          onClick={() => setActiveTab("Clients")}
+        />
+        <SidebarItem
+          icon={<FaUserGroup />}
+          label="Consultant"
+          active={activeTab === "Consultant Management"}
+          onClick={() => setActiveTab("Consultant Management")}
+        />
+        <SidebarItem
+          icon={<FaClock />}
+          label="Attendance Summary"
+          active={activeTab === "AttendanceSummary"}
+          onClick={() => setActiveTab("AttendanceSummary")}
+        />
+
         {/* Visa Management with Sub-menu */}
         <div className="space-y-1">
-          <SidebarItem 
-            icon={<FaPassport />} 
-            label="Visa Management" 
-            active={activeTab.startsWith("Visa_")} 
-            onClick={() => setVisaMenuOpen(!visaMenuOpen)} 
+          <SidebarItem
+            icon={<FaPassport />}
+            label="Visa Management"
+            active={activeTab.startsWith("Visa_")}
+            onClick={() => setVisaMenuOpen(!visaMenuOpen)}
             hasSubmenu={true}
-            isOpen={visaMenuOpen}
+            isOpen={visaMenuOpen} 
           />
-          
+
           {visaMenuOpen && (
             <div className="ml-6 space-y-1 mt-2 animate-in slide-in-from-top-2 duration-200">
-              <button 
+              <button
                 onClick={() => setActiveTab("Visa_View")}
                 className={`w-full flex items-center px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  activeTab === "Visa_View" ? "text-pink-400 bg-slate-800" : "text-slate-500 hover:text-white"
+                  activeTab === "Visa_View"
+                    ? "text-pink-400 bg-slate-800"
+                    : "text-slate-500 hover:text-white"
                 }`}
               >
                 <FaListUl className="mr-2" /> View Visa Info
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab("Visa_Add")}
                 className={`w-full flex items-center px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  activeTab === "Visa_Add" ? "text-pink-400 bg-slate-800" : "text-slate-500 hover:text-white"
+                  activeTab === "Visa_Add"
+                    ? "text-pink-400 bg-slate-800"
+                    : "text-slate-500 hover:text-white"
                 }`}
               >
                 <FaPlus className="mr-2" /> Add Visa Info

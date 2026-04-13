@@ -1,115 +1,138 @@
 import React from "react";
 
-const JOBS = ["Female Massage Therapists"];
-
-const PAYMENTS = [
-  { label: "1st Payment (With Documents)", amount: "0" },
-  { label: "2nd Payment (After Work Permit)", amount: "0" },
-  { label: "3rd Payment (After Visa Approval)", amount: "0" },
+const COMPANIES = [
+  {
+    title: "Taxi Driver / Construction Jobs",
+    subtitle: "Crane Operator / Excavator / Forklift Operator",
+    salary: "600 - 800 €",
+    benefits: "Accommodation + Food Allowance by Company",
+    processTime: "4 to 5 Months",
+    paymentTitle: "Payment Details",
+    paymentNote: "Total Payment: 30,000 Riyal including air ticket and passport DHL charge",
+    payments: [
+      { label: "Initial Payment", amount: "3000 Riyal" },
+      {
+        label: "After Permit",
+        amount: "4000 Riyal",
+        note: "Passport will be sent directly to Moldova / Romania for stamping",
+      },
+      { label: "Rest Payment", amount: "After Visa" },
+    ],
+    extraNote: "",
+  },
+  {
+    title: "Warehouse / Factory Jobs",
+    subtitle: "Tissue Factory / Agriculture / Electronics / Mechanical",
+    salary: "600 - 800 €",
+    benefits: "Moldova Work Opportunity",
+    processTime: "4 Months",
+    processSub: "3 months e-approval + 1 month e-visa",
+    paymentTitle: "Payment Details",
+    paymentNote: "Total Payment: 30,000 Riyal including embassy fees, excluding ticket",
+    payments: [
+      { label: "With File", amount: "500 Euro" },
+      { label: "After Approval", amount: "1000 Euro", note: "Moldova permit approval" },
+      { label: "Rest Payment", amount: "After Stamping" },
+    ],
+    extraNote:
+      "No need to face embassy. Authorization will be given on behalf of applicant and our agent will complete stamping from embassy.",
+  },
 ];
 
 const WpMoldova = () => {
   return (
     <div className="min-h-screen bg-[#fafafa] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans">
-      <div className="max-w-4xl mx-auto space-y-10">
-        
-        {/* Header Section */}
+      <div className="max-w-7xl mx-auto space-y-10">
+        {/* Header */}
         <header className="bg-linear-to-br from-[#fce4ec] to-[#f8bbd0] rounded-3xl shadow-sm border border-pink-100 p-10 text-center relative overflow-hidden">
           <div className="absolute bottom-[-10%] right-[-5%] w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
-          
+
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-800">
             Moldova <span className="font-light italic text-slate-700">Work Visa</span>
           </h1>
           <p className="mt-3 text-slate-600 text-lg font-medium tracking-wide">
-            Female Massage Therapist Opportunities
+            Two Different Company Opportunities
           </p>
         </header>
 
-        {/* Positions & Salary Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Position Section */}
-          <section className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-pink-400 mb-6">
-              Position Available
-            </h2>
-            <div className="grid grid-cols-1 gap-4">
-              {JOBS.map((job, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-center p-5 rounded-2xl bg-slate-50 border border-slate-100 font-semibold text-slate-700 hover:bg-[#fce4ec]/30 transition-colors"
-                >
-                  {job}
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {COMPANIES.map((company, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"
+            >
+              {/* Top */}
+              <div className="bg-slate-800 p-8 text-white">
+                <p className="text-pink-200 text-xs uppercase tracking-widest font-bold mb-2">
+                  Opportunity {index + 1}
+                </p>
+                <h2 className="text-2xl font-bold leading-snug">{company.title}</h2>
+                <p className="mt-2 text-slate-300 text-sm">{company.subtitle}</p>
+              </div>
+
+              {/* Body */}
+              <div className="p-8 space-y-6">
+                {/* Salary */}
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-center">
+                  <h3 className="text-pink-400 text-xs uppercase tracking-widest font-bold mb-2">
+                    Monthly Salary
+                  </h3>
+                  <p className="text-3xl font-light italic text-slate-800">{company.salary}</p>
+                  <p className="mt-3 text-xs uppercase tracking-wide text-slate-500">
+                    {company.benefits}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </section>
 
-          {/* Salary Section */}
-          <section className="bg-slate-700 rounded-2xl shadow-lg p-8 text-center text-white flex flex-col justify-center">
-            <h3 className="text-pink-200 text-xs uppercase tracking-widest font-bold mb-2">
-              Monthly Salary
-            </h3>
-            <p className="text-4xl font-light italic">700 €</p>
-            <p className="mt-4 text-[10px] uppercase tracking-tighter text-slate-400 leading-tight">
-              Plus Company Provided <br /> Food & Accommodation
-            </p>
-          </section>
-        </div>
-
-        {/* Logistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm">
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-widest mb-3 border-b border-pink-100 pb-2">
-              Applicant Criteria
-            </h3>
-            <div className="space-y-1">
-              <p className="text-slate-600 font-medium">Only Indian, Sri Lankan & Nepali</p>
-              <p className="text-slate-400 text-sm italic">Female applicants only</p>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm">
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-widest mb-3 border-b border-pink-100 pb-2">
-              Visa Timeline
-            </h3>
-            <div className="space-y-1">
-              <p className="text-slate-600 font-medium">3 Months or Less</p>
-              <p className="text-slate-400 text-sm italic">Fast processing timeline</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing Section */}
-        <section className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="bg-slate-800 p-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-center sm:text-left">
-              <h2 className="text-xl font-bold text-white uppercase tracking-tight">
-                Service Charge
-              </h2>
-              <p className="text-slate-400 text-sm italic">
-                Inclusive of all administrative costs
-              </p>
-            </div>
-            <div className="text-3xl font-light text-pink-300">
-               <span className="text-sm text-slate-500 font-bold">QAR</span>
-            </div>
-          </div>
-          
-          <div className="p-8">
-            <div className="space-y-4">
-              {PAYMENTS.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex justify-between items-center p-4 rounded-xl bg-[#fafafa] border-l-4 border-pink-200"
-                >
-                  <span className="text-slate-600 text-sm sm:text-base">{item.label}</span>
-                  <span className="text-slate-900 font-bold">{item.amount}</span>
+                {/* Process Time */}
+                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+                  <h3 className="font-bold text-slate-800 text-sm uppercase tracking-widest mb-3 border-b border-pink-100 pb-2">
+                    Process Time
+                  </h3>
+                  <p className="text-slate-600 font-medium">{company.processTime}</p>
+                  {company.processSub && (
+                    <p className="text-slate-400 text-sm italic mt-1">{company.processSub}</p>
+                  )}
                 </div>
-              ))}
+
+                {/* Payment */}
+                <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                  <div className="bg-slate-100 px-6 py-4 border-b border-slate-200">
+                    <h3 className="text-lg font-bold text-slate-800">{company.paymentTitle}</h3>
+                    <p className="text-sm text-slate-500 mt-1">{company.paymentNote}</p>
+                  </div>
+
+                  <div className="p-6 space-y-4">
+                    {company.payments.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-xl bg-[#fafafa] border-l-4 border-pink-200"
+                      >
+                        <div className="flex justify-between items-center gap-4">
+                          <span className="text-slate-600 text-sm sm:text-base">{item.label}</span>
+                          <span className="text-slate-900 font-bold text-right">{item.amount}</span>
+                        </div>
+                        {item.note && (
+                          <p className="text-xs text-slate-400 italic mt-2">{item.note}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Extra Note */}
+                {company.extraNote && (
+                  <div className="bg-pink-50 border border-pink-100 rounded-2xl p-5">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-800 mb-2">
+                      Important Note
+                    </h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">{company.extraNote}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
 
         <footer className="text-center text-slate-400 text-[10px] tracking-[0.3em] uppercase py-4">
           Moldova Employment Intake • 2026
