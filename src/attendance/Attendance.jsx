@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const actionConfig = [
   { label: "Check In", value: "check_in", icon: LogIn },
@@ -251,7 +252,7 @@ export default function AttendancePage() {
       }
 
       if (!res.ok) {
-        setMessage(data.message || "Failed to record attendance.");
+        toast(data.message || "Failed to record attendance.");
         return;
       }
 
@@ -296,6 +297,7 @@ export default function AttendancePage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-white flex justify-center">
+     <Toaster position="top-center" />
       <div className="w-full max-w-md px-4 py-6 flex flex-col">
         <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-xl mb-5">
           <div className="flex justify-between items-start gap-3">
