@@ -65,6 +65,97 @@ const WpCanada = () => {
             </span>
           </div>
         </header>
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
+          {/* Title */}
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">
+            LMIA Process Overview
+          </h3>
+
+          {/* Definition */}
+          <p className="text-sm text-slate-600 leading-relaxed">
+            <span className="font-semibold">LMIA</span> (Labour Market Impact
+            Assessment) is an approval from{" "}
+            <span className="font-semibold text-slate-800">
+              Employment and Social Development Canada (ESDC)
+            </span>{" "}
+            that allows Canadian employers to hire foreign workers.
+          </p>
+
+          {/* Flow */}
+          <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
+            <span className="px-3 py-1 bg-slate-100 rounded-full">
+              Employer Advertises
+            </span>
+            <span>→</span>
+            <span className="px-3 py-1 bg-slate-100 rounded-full">
+              LMIA Approved
+            </span>
+            <span>→</span>
+            <span className="px-3 py-1 bg-slate-100 rounded-full">
+              Job Offer
+            </span>
+            <span>→</span>
+            <span className="px-3 py-1 bg-slate-100 rounded-full">
+              Apply Work Permit
+            </span>
+            <span>→</span>
+            <span className="px-3 py-1 bg-slate-100 rounded-full">
+              Biometrics
+            </span>
+            <span>→</span>
+            <span className="px-3 py-1 bg-slate-100 rounded-full">PPR</span>
+            <span>→</span>
+            <span className="px-3 py-1 bg-slate-100 rounded-full">Fly</span>
+          </div>
+
+          {/* Pre-approved */}
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm">
+            <p className="font-semibold text-green-700 mb-1">
+              Pre-Approved LMIA
+            </p>
+            <p className="text-slate-600">
+              Employer already has LMIA approval — we can apply directly for
+              work permit.
+            </p>
+          </div>
+          {/* Steps */}
+          <div className="grid sm:grid-cols-2 gap-4 text-sm">
+            <div className="p-4 border rounded-xl">
+              <p className="font-semibold text-slate-800">
+                Work Permit Application
+              </p>
+              <p className="text-slate-500 text-xs mt-1">
+                Apply online through IRCC portal
+              </p>
+            </div>
+
+            <div className="p-4 border rounded-xl">
+              <p className="font-semibold text-slate-800">Biometrics (VFS)</p>
+              <p className="text-slate-500 text-xs mt-1">
+                Fingerprints + photo after instruction letter
+              </p>
+            </div>
+
+            <div className="p-4 border rounded-xl">
+              <p className="font-semibold text-slate-800">Processing</p>
+              <p className="text-slate-500 text-xs mt-1">
+                Background & eligibility checks
+              </p>
+            </div>
+
+            <div className="p-4 border rounded-xl">
+              <p className="font-semibold text-slate-800">PPR</p>
+              <p className="text-slate-500 text-xs mt-1">
+                Passport request after approval
+              </p>
+            </div>
+
+            <div className="p-4 border rounded-xl">
+              <p className="font-semibold text-slate-800">Visa Stamping</p>
+              <p className="text-slate-500 text-xs mt-1">Final visa issued</p>
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left */}
@@ -184,7 +275,9 @@ const WpCanada = () => {
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-600">After PPR</span>
+                    <span className="text-slate-600">
+                      After PPR(Passport Request)
+                    </span>
                     <span className="font-semibold">Remaining Amount Half</span>
                   </div>
 
@@ -224,6 +317,10 @@ const WpCanada = () => {
                   <div className="flex justify-between">
                     <span className="text-slate-600">Package Amount</span>
                     <span className="font-semibold">50,000 Riyal</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Payment Method</span>
+                    <span className="font-semibold">1. First payment: 5000 QAR <br /> 2. VFS Fingerprint: CAD $185 <br />3. Rest After Visa</span>
                   </div>
 
                   <div className="flex justify-between">

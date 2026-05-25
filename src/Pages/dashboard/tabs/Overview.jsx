@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import StatCard from '../components/StatCard';
 
-const CONSULTANTS = ["nizam", "sandesh", "saru", "shohag", "adil"];
+const CONSULTANTS = ["nizam", "sandesh", "tarikul", "adil", "saru"];
 
 const Overview = ({ stats, allClients, loading }) => {
   
   const consultantPerformance = useMemo(() => {
     const now = new Date();
-    return CONSULTANTS.map(name => {
+    return CONSULTANTS.map(name => { 
       let totalSales = 0;
       let monthlyClientCount = 0;
       const countedInMonth = new Set();

@@ -175,15 +175,15 @@ export default function ClientForm() {
 
       const res = await fetch(
         `https://wmibcstaff-server.vercel.app/api/upload-url?name=${encodeURIComponent(
-          safeFileName
-        )}&type=${encodeURIComponent(pdfFile.type)}`
+          safeFileName,
+        )}&type=${encodeURIComponent(pdfFile.type)}`,
       );
 
       const uploadData = await res.json();
 
       if (!res.ok) {
         throw new Error(
-          uploadData.message || uploadData.error || "Failed to get upload URL"
+          uploadData.message || uploadData.error || "Failed to get upload URL",
         );
       }
 
@@ -230,7 +230,7 @@ export default function ClientForm() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dataToSend),
-        }
+        },
       );
 
       const data = await response.json();
@@ -334,17 +334,22 @@ export default function ClientForm() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
+              {/* Nationality */}
               <div>
                 <label className={labelStyle}>
                   <FaGlobe className="text-pink-300" /> Nationality
                 </label>
-                <select
+
+                <input
+                  list="nationality-list"
                   className={inputStyle}
                   value={formData.nationality}
                   onChange={(e) => handleChange("nationality", e.target.value)}
+                  placeholder="Select or type nationality"
                   required
-                >
-                  <option value="">Select</option>
+                />
+
+                <datalist id="nationality-list">
                   {[
                     "Bangladeshi",
                     "Pakistani",
@@ -354,38 +359,43 @@ export default function ClientForm() {
                     "Moroccan",
                     "African",
                   ].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
+                    <option key={n} value={n} />
                   ))}
-                </select>
+                </datalist>
               </div>
+
+              {/* Current Location */}
               <div>
                 <label className={labelStyle}>
                   <FaGlobe className="text-pink-300" /> Current Loc
                 </label>
-                <select
+
+                <input
+                  list="current-country-list"
                   className={inputStyle}
                   value={formData.currentCountry}
                   onChange={(e) =>
                     handleChange("currentCountry", e.target.value)
                   }
+                  placeholder="Select or type country"
                   required
-                >
-                  <option value="">Select</option>
+                />
+
+                <datalist id="current-country-list">
                   {[
                     "Qatar",
+                    "UAE",
                     "Bangladesh",
                     "Saudi Arabia",
                     "Oman",
                     "Kuwait",
                     "Singapore",
+                    "Pakistan",
+                    "Nepal",
                   ].map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+                    <option key={c} value={c} />
                   ))}
-                </select>
+                </datalist>
               </div>
             </div>
           </div>
@@ -410,6 +420,7 @@ export default function ClientForm() {
                   <option>Tourist</option>
                   <option>Work Permit</option>
                   <option>Student</option>
+                  <option>Appointment</option>
                 </select>
               </div>
 
@@ -530,6 +541,7 @@ export default function ClientForm() {
                 <option>Offer Letter Received</option>
                 <option>Work Permit Received</option>
                 <option>Visa Received</option>
+                <option>Appointment Received</option>
               </select>
             </div>
 
@@ -580,7 +592,9 @@ export default function ClientForm() {
                   }
 
                   if (file.size > MAX_FILE_SIZE_BYTES) {
-                    toast.error(`File size must be ${MAX_FILE_SIZE_MB}MB or less`);
+                    toast.error(
+                      `File size must be ${MAX_FILE_SIZE_MB}MB or less`,
+                    );
                     e.target.value = "";
                     setPdfFile(null);
                     setUploadProgress(0);
@@ -590,10 +604,22 @@ export default function ClientForm() {
                   setPdfFile(file);
                   setUploadProgress(0);
                 }}
-              />
+              /> 
 
               <p className="mt-2 text-[11px] text-slate-400">
-                Maximum file size: {MAX_FILE_SIZE_MB}MB
+                Maximum file size: {MAX_FILE_SIZE_MB}MB |{" "}
+                <a
+                  href="https://tools.pdf24.org/en/compress-pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-pink-400 font-semibold hover:text-pink-300 underline"
+                >
+                  Compress File? Click Here
+                </a>{" "}
+                <br />
+                <p className="mt-2 text-[11px] text-slate-400">
+                  To compress your PDF: Set DPI to 200 for best results.
+                </p>
               </p>
 
               {pdfFile && (
@@ -839,8 +865,8 @@ export default function ClientForm() {
                 {uploadingPdf
                   ? `Uploading File... ${uploadProgress}%`
                   : loading
-                  ? "Saving..."
-                  : "Register Client"}
+                    ? "Saving..."
+                    : "Register Client"}
               </button>
             </div>
           </div>

@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [allClients, setAllClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
+ 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {

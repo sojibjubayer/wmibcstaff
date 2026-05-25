@@ -3,7 +3,7 @@ import { Globe, Briefcase, ArrowRight } from "lucide-react";
 
 const WorkVisa = () => {
   const countries = [
-    "Australia","New Zealand","Canada","Italy", "Greece", "Poland", "Portugal", "Bulgaria", "Croatia", 
+    "Australia","New Zealand","Canada", "Greece", "Poland", "Portugal", "Bulgaria","Germany", "Croatia", 
     "Cyprus", "Serbia", "North Macedonia", "Montenegro", "Bosnia","Turkey","UK",  "Albania","Moldova", "Slovakia"
   ];
 
@@ -24,9 +24,9 @@ const WorkVisa = () => {
     "New Zealand": "linear-gradient(135deg, #002395 80%, #FFFFFF 80%, #FFFFFF 85%, #FF0000 85%)",
     Albania:"linear-gradient(to bottom, #FF0000 33%, #000000 33%, #000000 66%, #FF0000 66%)",
     Moldova:"linear-gradient(to bottom, #0033A0 33%, #FFD700 33%, #FFD700 66%, #CE1126 66%)",
-    Italy: "linear-gradient(to right, #009246 33%, #FFFFFF 33%, #FFFFFF 66%, #CE2B37 66%)",
     Slovakia: "linear-gradient(to right, #FFFFFF 33%, #0B4EA2 33%, #0B4EA2 66%, #EE1C25 66%)",
     Canada: "linear-gradient(90deg, #d52b1e 0%, #d52b1e 25%, #ffffff 25%, #ffffff 75%, #d52b1e 75%, #d52b1e 100%)",
+    Germany: "linear-gradient(180deg, #000000 0%, #000000 33.33%, #dd0000 33.33%, #dd0000 66.66%, #ffce00 66.66%, #ffce00 100%)",
 
   };
 

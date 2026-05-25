@@ -4,7 +4,7 @@ import Pagination from '../components/Pagination';
 import { downloadVisitorPDF } from '../utils/pdfReports';
 import axios from 'axios';
 
-const CONSULTANTS = ["nizam", "sandesh", "saru", "shohag", "adil"];
+const CONSULTANTS = ["nizam", "sandesh", "saru", "tarikul", "adil"];
 const API_URL = "https://wmibcstaff-server.vercel.app/api/visitor";
 
 const Visitors = ({ searchQuery }) => {

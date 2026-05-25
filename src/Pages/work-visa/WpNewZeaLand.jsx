@@ -91,9 +91,7 @@ const WpNewZealand = () => {
                 <p className="flex items-center gap-2">
                   <CheckCircle2 size={14} className="text-teal-300" /> Agriculture, Seafood & Forestry
                 </p>
-                <p className="flex items-center gap-2">
-                  <BadgeCheck size={14} className="text-teal-300" /> With Air Ticket Package
-                </p>
+        
               </div>
             </section>
 
@@ -162,11 +160,6 @@ const WpNewZealand = () => {
                     <span className="text-slate-600">After Visa</span>
                     <span className="font-semibold text-slate-800">42,000 QAR</span>
                   </div>
-
-                  <div className="flex justify-between gap-4">
-                    <span className="text-slate-600">Air Ticket</span>
-                    <span className="font-semibold text-slate-800">Included</span>
-                  </div>
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-teal-200 flex justify-between items-center">
@@ -194,10 +187,7 @@ const WpNewZealand = () => {
                     <span className="font-semibold text-slate-800">35,000 QAR</span>
                   </div>
 
-                  <div className="flex justify-between gap-4">
-                    <span className="text-slate-600">Air Ticket</span>
-                    <span className="font-semibold text-slate-800">Included</span>
-                  </div>
+ 
 
                   <div className="flex justify-between gap-4">
                     <span className="text-slate-600">Category</span>

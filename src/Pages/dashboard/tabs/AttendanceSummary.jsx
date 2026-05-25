@@ -9,7 +9,24 @@ import {
   TimerReset,
   Loader2,
   BarChart3,
+  FileText,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+const monthOptions = [
+  { value: "2026-01", label: "January 2026" },
+  { value: "2026-02", label: "February 2026" },
+  { value: "2026-03", label: "March 2026" },
+  { value: "2026-04", label: "April 2026" },
+  { value: "2026-05", label: "May 2026" },
+  { value: "2026-06", label: "June 2026" },
+  { value: "2026-07", label: "July 2026" },
+  { value: "2026-08", label: "August 2026" },
+  { value: "2026-09", label: "September 2026" },
+  { value: "2026-10", label: "October 2026" },
+  { value: "2026-11", label: "November 2026" },
+  { value: "2026-12", label: "December 2026" },
+];
 
 function formatTime(value) {
   if (!value) return "-";
@@ -26,10 +43,57 @@ function formatTime(value) {
 function formatDayLabel(dateStr) {
   if (!dateStr) return "-";
 
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return dateStr;
+  const parts = String(dateStr).split("-");
+  if (parts.length === 3) return Number(parts[2]);
 
-  return d.getDate();
+  return dateStr;
+}
+
+function minutesToText(totalMinutes) {
+  if (!totalMinutes || totalMinutes <= 0) return "-";
+
+  const hrs = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+
+  if (hrs > 0 && mins > 0) return `${hrs}h ${mins}m`;
+  if (hrs > 0) return `${hrs}h`;
+  return `${mins}m`;
+}
+
+function getWorkingMinutes(item) {
+  if (!item?.checkIn || !item?.checkOut) return 0;
+
+  const checkIn = new Date(item.checkIn);
+  const checkOut = new Date(item.checkOut);
+
+  if (
+    Number.isNaN(checkIn.getTime()) ||
+    Number.isNaN(checkOut.getTime()) ||
+    checkOut <= checkIn
+  ) {
+    return 0;
+  }
+
+  let totalMinutes = Math.floor((checkOut - checkIn) / (1000 * 60));
+
+  if (item?.lunchOut && item?.lunchIn) {
+    const lunchOut = new Date(item.lunchOut);
+    const lunchIn = new Date(item.lunchIn);
+
+    if (
+      !Number.isNaN(lunchOut.getTime()) &&
+      !Number.isNaN(lunchIn.getTime()) &&
+      lunchIn > lunchOut
+    ) {
+      totalMinutes -= Math.floor((lunchIn - lunchOut) / (1000 * 60));
+    }
+  }
+
+  return Math.max(totalMinutes, 0);
+}
+
+function getWorkingHour(item) {
+  return minutesToText(getWorkingMinutes(item));
 }
 
 function getStatus(item) {
@@ -52,13 +116,14 @@ function getBreakTime(item) {
   const diff = inTime - out;
   if (diff <= 0) return "-";
 
-  const totalMinutes = Math.floor(diff / (1000 * 60));
-  const hrs = Math.floor(totalMinutes / 60);
-  const mins = totalMinutes % 60;
+  return minutesToText(Math.floor(diff / (1000 * 60)));
+}
 
-  if (hrs > 0 && mins > 0) return `${hrs}h ${mins}m`;
-  if (hrs > 0) return `${hrs}h`;
-  return `${mins}m`;
+function getSelectedMonthLabel(selectedMonth) {
+  return (
+    monthOptions.find((month) => month.value === selectedMonth)?.label ||
+    selectedMonth
+  );
 }
 
 function StatusBadge({ status }) {
@@ -113,16 +178,28 @@ function MonthlyCell({ item }) {
         <span className="font-semibold text-amber-300">Br</span>{" "}
         {getBreakTime(item)}
       </p>
+      <p>
+        <span className="font-semibold text-purple-300">Wh</span>{" "}
+        {getWorkingHour(item)}
+      </p>
     </div>
   );
 }
 
 export default function AttendanceSummary() {
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState("daily");
+
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
+
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -136,7 +213,7 @@ export default function AttendanceSummary() {
         const url =
           viewMode === "daily"
             ? `https://wmibcstaff-server.vercel.app/api/attendance?date=${selectedDate}`
-            : `https://wmibcstaff-server.vercel.app/api/attendance?monthly=true`;
+            : `https://wmibcstaff-server.vercel.app/api/attendance?monthly=true&month=${selectedMonth}`;
 
         const res = await fetch(url, {
           method: "GET",
@@ -146,10 +223,10 @@ export default function AttendanceSummary() {
         });
 
         let data = [];
+
         try {
           data = await res.json();
-          console.log("Attendance Data:", data);
-        } catch (error) {
+        } catch {
           data = [];
         }
 
@@ -170,7 +247,7 @@ export default function AttendanceSummary() {
     };
 
     fetchAttendance();
-  }, [selectedDate, viewMode]);
+  }, [selectedDate, selectedMonth, viewMode]);
 
   const filteredDailyRecords = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -216,32 +293,41 @@ export default function AttendanceSummary() {
       dateMap[date][staffName] = item;
     });
 
-    const staffNames = Array.from(staffSet).sort((a, b) => a.localeCompare(b));
-
-    const rows = Object.values(dateMap).sort(
-      (a, b) => new Date(a.date) - new Date(b.date)
+    const staffNames = Array.from(staffSet).sort((a, b) =>
+      a.localeCompare(b)
     );
 
+    const [year, month] = selectedMonth.split("-").map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const rows = Array.from({ length: daysInMonth }, (_, index) => {
+      const day = String(index + 1).padStart(2, "0");
+      const date = `${selectedMonth}-${day}`;
+
+      return dateMap[date] || { date };
+    });
+
     return { staffNames, rows };
-  }, [records, search, viewMode]);
+  }, [records, search, viewMode, selectedMonth]);
+
+  const monthlyStaffTotals = useMemo(() => {
+    const totals = {};
+
+    records.forEach((item) => {
+      const name = item.userName || "Unknown";
+      totals[name] = (totals[name] || 0) + getWorkingMinutes(item);
+    });
+
+    return totals;
+  }, [records]);
 
   const totalRecords =
     viewMode === "daily" ? filteredDailyRecords.length : monthlyTable.rows.length;
 
-  const presentCount =
-    viewMode === "daily"
-      ? filteredDailyRecords.filter((i) => i.checkIn).length
-      : records.filter((i) => i.checkIn).length;
-
-  const absentCount =
-    viewMode === "daily"
-      ? filteredDailyRecords.filter((i) => !i.checkIn).length
-      : 0;
-
-  const checkedOutCount =
-    viewMode === "daily"
-      ? filteredDailyRecords.filter((i) => i.checkOut).length
-      : records.filter((i) => i.checkOut).length;
+  const presentCount = filteredDailyRecords.filter((i) => i.checkIn).length;
+  const absentCount = filteredDailyRecords.filter((i) => !i.checkIn).length;
+  const checkedOutCount = filteredDailyRecords.filter((i) => i.checkOut).length;
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
@@ -255,7 +341,7 @@ export default function AttendanceSummary() {
               Staff Attendance
             </h1>
             <p className="mt-2 text-sm text-white/60">
-              Daily attendance and current month report
+              Daily attendance and month-wise report
             </p>
           </div>
 
@@ -269,7 +355,7 @@ export default function AttendanceSummary() {
                     month: "short",
                     day: "numeric",
                   })
-                : "Current Month Report"}
+                : getSelectedMonthLabel(selectedMonth)}
             </span>
           </div>
         </div>
@@ -296,35 +382,60 @@ export default function AttendanceSummary() {
           >
             Monthly Attendance Report
           </button>
+{user?.name?.toLowerCase() === "adil" && (
+  <button
+    onClick={() => navigate("/admin/attendance/edit")}
+    className="inline-flex items-center gap-2 rounded-xl border border-amber-400/30 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+  >
+    Edit Attendance
+  </button>
+)}
+
+          <button
+            onClick={() => navigate("/attendance/report")}
+            className="inline-flex items-center gap-2 rounded-xl border border-sky-400/30 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+          >
+            <FileText className="h-4 w-4 text-sky-300" />
+            Get Attendance Report
+          </button>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <div
+          className={`mt-5 grid grid-cols-2 gap-3 ${
+            viewMode === "daily" ? "xl:grid-cols-4" : "xl:grid-cols-2"
+          }`}
+        >
           <StatCard
             label={viewMode === "daily" ? "Total Records" : "Total Dates"}
             value={totalRecords}
             icon={<Users className="h-4 w-4" />}
           />
-          <StatCard
-            label="Present"
-            value={presentCount}
-            icon={<CheckCircle2 className="h-4 w-4" />}
-          />
-          <StatCard
-            label={viewMode === "daily" ? "Absent" : "Current Month"}
-            value={viewMode === "daily" ? absentCount : "Live"}
-            icon={
-              viewMode === "daily" ? (
-                <XCircle className="h-4 w-4" />
-              ) : (
-                <BarChart3 className="h-4 w-4" />
-              )
-            }
-          />
-          <StatCard
-            label="Checked Out"
-            value={checkedOutCount}
-            icon={<TimerReset className="h-4 w-4" />}
-          />
+
+          {viewMode === "monthly" ? (
+            <StatCard
+              label="Total Staff"
+              value={monthlyTable.staffNames.length}
+              icon={<BarChart3 className="h-4 w-4" />}
+            />
+          ) : (
+            <>
+              <StatCard
+                label="Present"
+                value={presentCount}
+                icon={<CheckCircle2 className="h-4 w-4" />}
+              />
+              <StatCard
+                label="Absent"
+                value={absentCount}
+                icon={<XCircle className="h-4 w-4" />}
+              />
+              <StatCard
+                label="Checked Out"
+                value={checkedOutCount}
+                icon={<TimerReset className="h-4 w-4" />}
+              />
+            </>
+          )}
         </div>
 
         <div className="mt-5 rounded-3xl border border-white/10 bg-white/5 p-3 shadow-inner backdrop-blur-md sm:p-4">
@@ -353,13 +464,31 @@ export default function AttendanceSummary() {
                   className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none md:w-auto"
                 />
               )}
+
+              {viewMode === "monthly" && (
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none md:w-auto"
+                >
+                  {monthOptions.map((month) => (
+                    <option
+                      key={month.value}
+                      value={month.value}
+                      className="bg-slate-900 text-white"
+                    >
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-white/60">
               <Clock3 className="h-4 w-4 text-sky-300" />
               {viewMode === "daily"
                 ? "Daily overview"
-                : "Date rows and staff columns"}
+                : "All days of selected month"}
             </div>
           </div>
 
@@ -377,6 +506,7 @@ export default function AttendanceSummary() {
                     <th className="px-4 py-2">Lunch Out</th>
                     <th className="px-4 py-2">Lunch In</th>
                     <th className="px-4 py-2">Check Out</th>
+                    <th className="px-4 py-2">Working Hour</th>
                     <th className="px-4 py-2">Status</th>
                   </tr>
                 </thead>
@@ -385,7 +515,7 @@ export default function AttendanceSummary() {
                   {filteredDailyRecords.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-10 text-center text-sm text-white/55"
                       >
                         {message || "No attendance records found for this date."}
@@ -421,6 +551,10 @@ export default function AttendanceSummary() {
                           {formatTime(item.checkOut)}
                         </td>
 
+                        <td className="border-y border-white/5 px-4 py-3.5 text-sm font-semibold text-purple-300">
+                          {getWorkingHour(item)}
+                        </td>
+
                         <td className="rounded-r-2xl border-y border-r border-white/5 px-4 py-3.5">
                           <StatusBadge status={item.status} />
                         </td>
@@ -452,35 +586,55 @@ export default function AttendanceSummary() {
                   </thead>
 
                   <tbody>
-                    {monthlyTable.rows.length === 0 ? (
+                    {monthlyTable.staffNames.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={monthlyTable.staffNames.length + 1}
+                          colSpan={2}
                           className="py-10 text-center text-sm text-white/55"
                         >
-                          {message || "No attendance records found for this month."}
+                          {message ||
+                            `No attendance records found for ${getSelectedMonthLabel(
+                              selectedMonth
+                            )}.`}
                         </td>
                       </tr>
                     ) : (
-                      monthlyTable.rows.map((row) => (
-                        <tr
-                          key={row.date}
-                          className="odd:bg-black/10 even:bg-black/20"
-                        >
-                          <td className="sticky left-0 z-10 border-r border-t border-white/10 bg-slate-950 px-3 py-3 text-sm font-semibold text-white">
-                            {formatDayLabel(row.date)}
+                      <>
+                        {monthlyTable.rows.map((row) => (
+                          <tr
+                            key={row.date}
+                            className="odd:bg-black/10 even:bg-black/20"
+                          >
+                            <td className="sticky left-0 z-10 border-r border-t border-white/10 bg-slate-950 px-3 py-3 text-sm font-semibold text-white">
+                              {formatDayLabel(row.date)}
+                            </td>
+
+                            {monthlyTable.staffNames.map((name) => (
+                              <td
+                                key={`${row.date}-${name}`}
+                                className="min-w-27.5 border-t border-white/10 px-2 py-3 align-top"
+                              >
+                                <MonthlyCell item={row[name]} />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+
+                        <tr className="bg-sky-400/10">
+                          <td className="sticky left-0 z-10 border-r border-t border-white/10 bg-slate-900 px-3 py-3 text-sm font-bold text-sky-300">
+                            Total
                           </td>
 
                           {monthlyTable.staffNames.map((name) => (
                             <td
-                              key={`${row.date}-${name}`}
-                              className="min-w-27.5 border-t border-white/10 px-2 py-3 align-top"
+                              key={`total-${name}`}
+                              className="min-w-27.5 border-t border-white/10 px-2 py-3 text-center text-xs font-bold text-sky-300"
                             >
-                              <MonthlyCell item={row[name]} />
+                              {minutesToText(monthlyStaffTotals[name] || 0)}
                             </td>
                           ))}
                         </tr>
-                      ))
+                      </>
                     )}
                   </tbody>
                 </table>

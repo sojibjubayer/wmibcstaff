@@ -7,21 +7,56 @@ import {
   Coffee,
   CheckCircle2,
   Loader2,
+  FileText,
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 const actionConfig = [
-  { label: "Check In", value: "check_in", icon: LogIn },
-  { label: "Lunch Out", value: "lunch_out", icon: UtensilsCrossed },
-  { label: "Lunch In", value: "lunch_in", icon: Coffee },
-  { label: "Check Out", value: "check_out", icon: LogOut },
+  {
+    label: "Check In",
+    bangla: "ডিউটি শুরু",
+    value: "check_in",
+    icon: LogIn,
+    cardClass:
+      "border-emerald-400/25 bg-emerald-500/15 hover:bg-emerald-500/25",
+    iconClass: "bg-emerald-400/20 text-emerald-200",
+    badgeClass: "bg-emerald-400/15 text-emerald-100",
+  },
+  {
+    label: "Lunch Out",
+    bangla: "খাইতে যাই",
+    value: "lunch_out",
+    icon: UtensilsCrossed,
+    cardClass: "border-amber-400/25 bg-amber-500/15 hover:bg-amber-500/25",
+    iconClass: "bg-amber-400/20 text-amber-200",
+    badgeClass: "bg-amber-400/15 text-amber-100",
+  },
+  {
+    label: "Lunch In",
+    bangla: "খাওয়া শেষ",
+    value: "lunch_in",
+    icon: Coffee,
+    cardClass: "border-sky-400/25 bg-sky-500/15 hover:bg-sky-500/25",
+    iconClass: "bg-sky-400/20 text-sky-200",
+    badgeClass: "bg-sky-400/15 text-sky-100",
+  },
+  {
+    label: "Check Out",
+    bangla: "ডিউটি শেষ",
+    value: "check_out",
+    icon: LogOut,
+    cardClass: "border-rose-400/25 bg-rose-500/15 hover:bg-rose-500/25",
+    iconClass: "bg-rose-400/20 text-rose-200",
+    badgeClass: "bg-rose-400/15 text-rose-100",
+  },
 ];
 
 const QATAR_TIMEZONE = "Asia/Qatar";
+const API_BASE = "https://wmibcstaff-server.vercel.app/api";
 
 export default function AttendancePage() {
   const [loadingAction, setLoadingAction] = useState(null);
-  const [message, setMessage] = useState("");
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [time, setTime] = useState(new Date());
   const [status, setStatus] = useState(null);
   const [todayActions, setTodayActions] = useState([]);
@@ -32,37 +67,36 @@ export default function AttendancePage() {
 
   useEffect(() => {
     try {
-      const savedToken = localStorage.getItem("token") || "";
-      const savedUser = JSON.parse(localStorage.getItem("user") || "null");
-
-      setToken(savedToken);
-      setUser(savedUser);
-    } catch (error) {
+      setToken(localStorage.getItem("token") || "");
+      setUser(JSON.parse(localStorage.getItem("user") || "null"));
+    } catch {
       setToken("");
       setUser(null);
     }
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
-
+    const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
   function formatActionLabel(action) {
-    if (!action || typeof action !== "string") return "";
+    if (!action) return "";
     return action
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   }
 
+  function getActionMeta(action) {
+    return actionConfig.find((item) => item.value === action);
+  }
+
   function formatTime(value) {
-    if (!value) return "";
+    if (!value) return "-";
+
     const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return "";
+    if (Number.isNaN(d.getTime())) return "-";
 
     return d.toLocaleTimeString("en-US", {
       timeZone: QATAR_TIMEZONE,
@@ -74,6 +108,7 @@ export default function AttendancePage() {
 
   function formatDate(value) {
     if (!value) return "";
+
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
 
@@ -86,43 +121,27 @@ export default function AttendancePage() {
     });
   }
 
+  const showSuccess = (text) => toast.success(text);
+  const showError = (text) => toast.error(text);
+
   useEffect(() => {
     const fetchTodayAttendance = async () => {
-      if (!token) {
-        setTodayActions([]);
-        setTodayHistory([]);
-        setStatus(null);
-        setLoadingToday(false);
-        return;
-      }
+      if (!token) return;
 
       try {
         setLoadingToday(true);
-        setMessage("");
 
-        const res = await fetch(
-          "https://wmibcstaff-server.vercel.app/api/attendance/today",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await fetch(`${API_BASE}/attendance/today`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-        let data = {};
-        try {
-          data = await res.json();
-        } catch (jsonError) {
-          data = {};
-        }
+        const data = await res.json();
 
         if (!res.ok) {
-          setTodayActions([]);
-          setTodayHistory([]);
-          setStatus(null);
-          setMessage(data.message || "");
+          showError(data.message || "Failed to load attendance");
           return;
         }
 
@@ -134,18 +153,16 @@ export default function AttendancePage() {
 
         if (history.length > 0) {
           const last = history[history.length - 1];
+          const meta = getActionMeta(last?.action);
+
           setStatus({
-            action: last?.label || formatActionLabel(last?.action),
-            time: formatTime(last?.createdAt || last?.timestamp),
+            action: last?.label || meta?.label || formatActionLabel(last?.action),
+            bangla: meta?.bangla || "",
+            time: formatTime(last?.createdAt),
           });
-        } else {
-          setStatus(null);
         }
-      } catch (err) {
-        setTodayActions([]);
-        setTodayHistory([]);
-        setStatus(null);
-        setMessage("Failed to load today's attendance.");
+      } catch {
+        showError("Failed to load today's attendance");
       } finally {
         setLoadingToday(false);
       }
@@ -172,7 +189,7 @@ export default function AttendancePage() {
           : hasLunchOut
           ? "Lunch Out already recorded"
           : hasCheckOut
-          ? "Day already checked out"
+          ? "Already checked out"
           : "",
       },
       lunch_in: {
@@ -182,7 +199,7 @@ export default function AttendancePage() {
           : hasLunchIn
           ? "Lunch In already recorded"
           : hasCheckOut
-          ? "Day already checked out"
+          ? "Already checked out"
           : "",
       },
       check_out: {
@@ -190,7 +207,7 @@ export default function AttendancePage() {
         reason: !hasCheckIn
           ? "Check In first"
           : hasCheckOut
-          ? "Already checked out today"
+          ? "Already checked out"
           : hasLunchOut && !hasLunchIn
           ? "Lunch In first"
           : "",
@@ -206,237 +223,280 @@ export default function AttendancePage() {
     }).format(time)
   );
 
-  const isOutsideTime = qatarHour < 9 || qatarHour >= 23;
+  const isOutsideTime = qatarHour < 9 || qatarHour >= 24;
 
   const handleAttendance = async (action) => {
     if (isOutsideTime) {
-      setMessage("Attendance allowed only between 9 AM and 11 PM.");
+      showError("Attendance allowed only between 9 AM and 11 PM");
       return;
     }
 
     if (!token) {
-      setMessage("Please login again.");
+      showError("Please login again");
       return;
     }
 
-    const flowBlocked = actionState?.[action]?.disabled;
-
-    if (flowBlocked) {
-      setMessage(
-        actionState?.[action]?.reason || "This action is not allowed now."
-      );
+    if (actionState?.[action]?.disabled) {
+      showError(actionState[action].reason);
       return;
     }
 
     try {
       setLoadingAction(action);
-      setMessage("");
 
-      const res = await fetch(
-        "https://wmibcstaff-server.vercel.app/api/attendance",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ action }),
-        }
-      );
+      const res = await fetch(`${API_BASE}/attendance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action }),
+      });
 
-      let data = {};
-      try {
-        data = await res.json();
-      } catch (jsonError) {
-        data = {};
-      }
+      const data = await res.json();
 
       if (!res.ok) {
-        toast(data.message || "Failed to record attendance.");
+        showError(data.message || "Failed");
         return;
       }
 
-      const actionLabel =
+      const meta = getActionMeta(action);
+
+      const label =
         data?.record?.label ||
-        actionConfig.find((a) => a.value === action)?.label ||
+        meta?.label ||
         formatActionLabel(action);
 
       const createdAt = data?.record?.createdAt || new Date().toISOString();
-      const actionTime = formatTime(createdAt);
 
       setStatus({
-        action: actionLabel,
-        time: actionTime,
+        action: label,
+        bangla: meta?.bangla || "",
+        time: formatTime(createdAt),
       });
 
-      setTodayActions((prev) => {
-        if (prev.includes(action)) return prev;
-        return [...prev, action];
-      });
+      setTodayActions((prev) =>
+        prev.includes(action) ? prev : [...prev, action]
+      );
 
-      setTodayHistory((prev) => {
-        if (prev.some((item) => item.action === action)) return prev;
+      setTodayHistory((prev) => [
+        ...prev,
+        {
+          action,
+          label,
+          createdAt,
+        },
+      ]);
 
-        return [
-          ...prev,
-          {
-            action,
-            label: actionLabel,
-            createdAt,
-          },
-        ];
-      });
-
-      setMessage(data.message || `${actionLabel} recorded successfully`);
-    } catch (err) {
-      setMessage("Server error");
+      showSuccess(`${label} recorded successfully`);
+    } catch {
+      showError("Server error");
     } finally {
       setLoadingAction(null);
     }
   };
 
+  const generateMonthlyPdf = async () => {
+    showSuccess("Monthly PDF feature connected here");
+  };
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-white flex justify-center">
-     <Toaster position="top-center" />
-      <div className="w-full max-w-md px-4 py-6 flex flex-col">
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-xl mb-5">
-          <div className="flex justify-between items-start gap-3">
-            <div>
-              <p className="text-xs text-blue-300 uppercase tracking-widest">
-                Attendance
-              </p>
-              <h1 className="text-xl font-semibold mt-1">
-                Hi, {user?.name || "User"} 👋
-              </h1>
-              <p className="text-sm text-white/70 mt-1">Mark your attendance</p>
+    <div className="min-h-screen w-full bg-linear-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-white">
+      <Toaster position="top-center" />
+
+      <div className="mx-auto w-full max-w-3xl px-3 py-5 sm:px-5 lg:px-6">
+        <div className="space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-5 shadow-xl backdrop-blur-xl">
+            <div className="flex justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-blue-300">
+                  Attendance
+                </p>
+                <h1 className="mt-1 text-xl font-semibold">
+                  Hi, {user?.name || "User"} 👋
+                </h1>
+                <p className="mt-1 text-sm text-white/70">
+                  Mark your attendance step by step
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-white/10 p-3">
+                <Clock3 className="h-5 w-5 text-blue-300" />
+              </div>
             </div>
 
-            <div className="bg-white/10 p-3 rounded-xl border border-white/10">
-              <Clock3 className="w-5 h-5 text-blue-300" />
-            </div>
-          </div>
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/5 bg-black/30 p-3">
+                <p className="text-xs text-white/60">Time</p>
+                <p className="text-lg font-semibold">
+                  {time.toLocaleTimeString("en-US", {
+                    timeZone: QATAR_TIMEZONE,
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true,
+                  })}
+                </p>
+              </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="bg-black/30 rounded-xl p-3 border border-white/5">
-              <p className="text-xs text-white/60">Time</p>
-              <p className="text-lg font-semibold">
-                {time.toLocaleTimeString("en-US", {
-                  timeZone: QATAR_TIMEZONE,
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: true,
-                })}
-              </p>
-            </div>
-
-            <div className="bg-black/30 rounded-xl p-3 border border-white/5">
-              <p className="text-xs text-white/60">Date</p>
-              <p className="text-sm">{formatDate(time)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-4 mb-5 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="bg-emerald-400/20 p-3 rounded-xl">
-              <CheckCircle2 className="w-5 h-5 text-emerald-300" />
-            </div>
-            <div>
-              <p className="text-xs text-white/60">Last Status</p>
-              <p className="font-semibold">
-                {loadingToday
-                  ? "Loading..."
-                  : status
-                  ? status.action
-                  : "No record yet"}
-              </p>
-              <p className="text-sm text-white/70">
-                {status ? `at ${status.time}` : "First action will appear here"}
-              </p>
+              <div className="rounded-xl border border-white/5 bg-black/30 p-3">
+                <p className="text-xs text-white/60">Date</p>
+                <p className="text-sm">{formatDate(time)}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          {actionConfig.map((item) => {
-            const Icon = item.icon;
-            const isLoading = loadingAction === item.value;
-            const isDisabled =
-              !!loadingAction ||
-              loadingToday ||
-              actionState?.[item.value]?.disabled ||
-              isOutsideTime;
-            const reason = actionState?.[item.value]?.reason;
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-xl backdrop-blur-xl">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-emerald-400/20 p-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-300" />
+              </div>
 
-            return (
-              <button
-                key={item.value}
-                onClick={() => handleAttendance(item.value)}
-                disabled={isDisabled}
-                className={`rounded-2xl border p-4 backdrop-blur-xl shadow-lg transition text-left ${
-                  isDisabled
-                    ? "bg-white/5 border-white/5 opacity-45 cursor-not-allowed"
-                    : "bg-white/10 border-white/10 active:scale-95 hover:bg-white/[0.14]"
-                }`}
-              >
-                <div className="mb-3 flex justify-center">
-                  {isLoading ? (
-                    <Loader2 className="animate-spin w-5 h-5 text-blue-300" />
-                  ) : (
-                    <Icon className="w-5 h-5 text-blue-300" />
-                  )}
-                </div>
-
-                <p className="text-sm font-semibold text-center">
-                  {item.label}
+              <div>
+                <p className="text-xs text-white/60">Last Status</p>
+                <p className="font-semibold">
+                  {loadingToday
+                    ? "Loading..."
+                    : status
+                    ? status.action
+                    : "No record yet"}
                 </p>
 
-                <p className="text-[11px] text-white/60 text-center mt-1 min-h-7">
-                  {isOutsideTime
-                    ? "Allowed only 9 AM – 11 PM"
-                    : isDisabled && !loadingToday
-                    ? reason
-                    : "Available"}
-                </p>
-              </button>
-            );
-          })}
-        </div>
+                {status?.bangla && (
+                  <p className="text-sm font-medium text-emerald-100">
+                    {status.bangla}
+                  </p>
+                )}
 
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-4 mt-5 shadow-lg">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold">Today Activity</h2>
-            <span className="text-xs text-white/55">
-              {todayHistory.length} record{todayHistory.length !== 1 ? "s" : ""}
-            </span>
+                <p className="text-sm text-white/70">
+                  {status
+                    ? `at ${status.time}`
+                    : "First action will appear here"}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {loadingToday ? (
-            <p className="text-sm text-white/60">Loading today’s records...</p>
-          ) : todayHistory.length === 0 ? (
-            <p className="text-sm text-white/60">No attendance recorded yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {todayHistory.map((item, index) => (
-                <div
-                  key={`${item?.action || "action"}-${index}`}
-                  className="flex items-center justify-between rounded-xl bg-black/25 border border-white/5 px-3 py-2"
+          <div className="space-y-3">
+            {actionConfig.map((item, index) => {
+              const Icon = item.icon;
+              const isLoading = loadingAction === item.value;
+              const isCompleted = todayActions.includes(item.value);
+
+              const isDisabled =
+                !!loadingAction ||
+                loadingToday ||
+                actionState?.[item.value]?.disabled ||
+                isOutsideTime;
+
+              return (
+                <button
+                  key={item.value}
+                  onClick={() => handleAttendance(item.value)}
+                  disabled={isDisabled}
+                  className={`w-full rounded-3xl border p-4 text-left shadow-xl transition ${
+                    isDisabled
+                      ? "cursor-not-allowed border-white/5 bg-white/5 opacity-45"
+                      : item.cardClass
+                  }`}
                 >
-                  <span className="text-sm font-medium">
-                    {item?.label || formatActionLabel(item?.action)}
-                  </span>
-                  <span className="text-xs text-white/65">
-                    {formatTime(item?.createdAt || item?.timestamp)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+                        isDisabled ? "bg-white/10 text-white/60" : item.iconClass
+                      }`}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Icon className="h-5 w-5" />
+                      )}
+                    </div>
 
-        <div className="mt-5 text-center text-sm text-white/80 min-h-6">
-          {message || "Tap an action to mark attendance"}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-base font-semibold text-white">
+                            {index + 1}. {item.label}
+                          </p>
+                          <p className="mt-1 text-lg font-bold leading-none text-white">
+                            {item.bangla}
+                          </p>
+                        </div>
+
+                        <span
+                          className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ${
+                            isCompleted
+                              ? "bg-emerald-400/20 text-emerald-100"
+                              : isDisabled
+                              ? "bg-white/10 text-white/55"
+                              : item.badgeClass
+                          }`}
+                        >
+                          {isCompleted ? "Done" : "Tap"}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-xs text-white/70">
+                        {isOutsideTime
+                          ? "Allowed only 9 AM – 11 PM"
+                          : isDisabled
+                          ? actionState?.[item.value]?.reason
+                          : "Available now"}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-xl backdrop-blur-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-semibold">Today Activity</h2>
+              <span className="text-xs text-white/55">
+                {todayHistory.length} record
+                {todayHistory.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+
+            {todayHistory.length === 0 ? (
+              <p className="text-sm text-white/60">
+                No attendance recorded yet.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {todayHistory.map((item, index) => {
+                  const meta = getActionMeta(item?.action);
+
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-black/25 px-3 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold">
+                          {item?.label ||
+                            meta?.label ||
+                            formatActionLabel(item?.action)}
+                        </p>
+
+                        {meta?.bangla && (
+                          <p className="text-xs text-white/60">
+                            {meta.bangla}
+                          </p>
+                        )}
+                      </div>
+
+                      <span className="shrink-0 text-xs text-white/65">
+                        {formatTime(item?.createdAt)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

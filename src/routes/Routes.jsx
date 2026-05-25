@@ -67,6 +67,17 @@ import WpItaly from "../Pages/work-visa/WpItaly";
 import WpCanada from "../Pages/work-visa/WpCanada";
 import Attendance from "../attendance/Attendance";
 import WpSlovakia from "../Pages/work-visa/WpSlovakia";
+import Meeting from "../Pages/meeting/Meeting";
+import MeetingDetails from "../Pages/meeting/MeetingDetails";
+import Leads from "../Pages/leads/Leads";
+import AttendanceEdit from "../Pages/attendance/AttendanceEdit";
+import AttendanceReport from "../Pages/attendance/AttendanceReport";
+import WpPortugalKSA from "../Pages/work-visa/WpPortugalKSA";
+import WpGermany from "../Pages/work-visa/WpGermany";
+import Refund from "../Pages/dashboard/refund/Refund";
+import Applications from "../Pages/applications/Applications";
+import QatarPortugal from "../Pages/applications/qatarportugal/QatarPortugal";
+import Agreement from "../Pages/agreement/Agreement";
 
 const router = createBrowserRouter([
   { 
@@ -102,6 +113,9 @@ const router = createBrowserRouter([
       { path: "work-visa/canada", element: <PrivateRoute><WpCanada /></PrivateRoute> },
       { path: "work-visa/slovakia", element: <PrivateRoute><WpSlovakia /></PrivateRoute> },
       { path: "work-visa/international", element: <PrivateRoute><International /></PrivateRoute> },
+      { path: "/work-visa/portugalksa", element: <PrivateRoute><WpPortugalKSA /></PrivateRoute> },
+      { path: "/work-visa/germany", element: <PrivateRoute><WpGermany /></PrivateRoute> },
+
 
       // Student Visa
       // { path: "student-visa", element: <PrivateRoute><StudentVisa /></PrivateRoute> },
@@ -126,6 +140,7 @@ const router = createBrowserRouter([
       { path: "student-visa/poland", element: <PrivateRoute><StvPoland /></PrivateRoute> },
       { path: "student-visa/romania", element: <PrivateRoute><StvRomania /></PrivateRoute> },
       { path: "student-visa/sweden", element: <PrivateRoute><StvSweden /></PrivateRoute> },
+      { path: "refund", element: <PrivateRoute><Refund /></PrivateRoute> },
 
       // Visit Visa
       { path: "visit-visa/payment-terms", element: <PrivateRoute><PaymentTerms /></PrivateRoute> },
@@ -152,10 +167,19 @@ const router = createBrowserRouter([
       { path: "edit-client/:id", element: <PrivateRoute><EditClient /></PrivateRoute> },
       { path: "add-new-visitor", element: <PrivateRoute><AddVisitor /></PrivateRoute> },
       { path: "visitor-list", element: <PrivateRoute><VisitorList /></PrivateRoute> },
+      { path: "agreement", element: <PrivateRoute><Agreement /></PrivateRoute> },
       // CHECK 
 
       // DASHBOARD
       { path: "dashboard", element: <AdminRoute><Dashboard /></AdminRoute> },
+      { path: "meeting", element: <AdminRoute><Meeting /></AdminRoute> },
+      { path: "meeting-details/:id", element: <AdminRoute><MeetingDetails /></AdminRoute> },
+      { path: "/admin/attendance/edit", element: <AdminRoute><AttendanceEdit /></AdminRoute> },
+      { path: "applications", element: <AdminRoute><Applications /></AdminRoute> },
+      { path: "applications/qatar/portugal", element: <AdminRoute><QatarPortugal /></AdminRoute> },
+      { path: "/attendance/report", element: <PrivateRoute><AttendanceReport /></PrivateRoute> },
+      { path: "leads", element: <PrivateRoute><Leads /></PrivateRoute> },
+  
 
 
       // ATTENDANCE

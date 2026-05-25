@@ -1,243 +1,188 @@
+"use client";
+
 import React from "react";
 import {
-  Briefcase,
-  Clock,
-  Wallet,
-  CheckCircle2,
-  Globe,
-  Plane,
-  ShieldCheck,
   BadgeCheck,
+  Target,
+  FileCheck,
+  ShieldCheck,
+  Zap,
+  Clock,
+  Briefcase,
+  Gem,
+  FileText,
 } from "lucide-react";
-import Lottie from "lottie-react";
-import Revenue from "../../assets/Revenue.json";
 
-const JOBS = ["Warehouse Packer", "Agriculture"];
+const ADVANTAGES = [
+  {
+    title: "Priority 408 Processing",
+    desc: "Dedicated case handling for applicants applying under the Subclass 408 pathway.",
+    icon: <Zap size={32} />,
+  },
+  {
+    title: "Precision Documentation",
+    desc: "We review and organize your file to reduce avoidable mistakes before submission.",
+    icon: <FileCheck size={32} />,
+  },
+  {
+    title: "Professional Case Support",
+    desc: "Step-by-step assistance from profile checking to application follow-up.",
+    icon: <ShieldCheck size={32} />,
+  },
+  {
+    title: "Clear Processing Roadmap",
+    desc: "Simple guidance so the customer understands every stage of the process.",
+    icon: <Clock size={32} />,
+  },
+];
 
-const WpAustralia = () => {
+const WpAustralia408 = () => {
   return (
-    <div className="min-h-screen bg-[#f8faf7] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans selection:bg-emerald-100">
-      <div className="max-w-5xl mx-auto space-y-10">
-        {/* Header Section */}
-        <header className="relative bg-linear-to-br from-[#ecfdf5] via-[#f0fdf4] to-[#fefce8] rounded-[2.5rem] shadow-sm border border-emerald-100 p-10 text-center overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/50 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-12 -left-10 w-40 h-40 bg-emerald-100/50 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-white px-6 py-16 font-sans text-slate-800">
+      <div className="mx-auto max-w-7xl">
+        {/* HERO */}
+        <section className="relative mb-16 overflow-hidden rounded-4xl bg-slate-950 px-6 py-10 text-center text-white shadow-xl sm:px-8">
+          <div className="absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-blue-500/30 blur-3xl" />
+          <div className="absolute -bottom-20 right-6 h-52 w-52 rounded-full bg-red-500/20 blur-3xl" />
 
-          <div className="flex flex-col md:flex-row justify-center items-center text-center md:text-left gap-6">
-            {/* 🔥 LOTTIE ANIMATION */}
-            <div className="flex justify-center">
-              <div className="w-40 sm:w-50">
-                <Lottie animationData={Revenue} loop={true} />
-              </div>
+          <div className="relative mx-auto max-w-4xl">
+            {/* FLAG */}
+            <div className="mx-auto mb-5 flex h-20 w-28 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/10 p-2 shadow-lg backdrop-blur">
+              <img
+                src="/australia-flag.gif"
+                alt="Australia flag"
+                className="h-full w-full rounded-xl object-cover"
+              />
             </div>
 
-            {/* TEXT */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight text-slate-800 italic">
-              Australia{" "}
-              <span className="font-extrabold not-italic bg-clip-text text-transparent bg-[linear-gradient(to_right,#059669,#f59e0b)]">
-                Work Visa
-              </span>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.25em] text-blue-100 backdrop-blur">
+              <Gem size={14} /> Premium Service Tier
+            </div>
+
+            <h1 className="text-4xl font-black tracking-tighter sm:text-5xl md:text-6xl">
+              Subclass <span className="text-blue-400">408</span>
             </h1>
-          </div>
 
-          <p className="mt-4 text-slate-500 text-lg font-medium tracking-wide">
-            Warehouse Recruitment & Documentation
-          </p>
+            <p className="mx-auto mt-5 max-w-2xl text-sm font-medium leading-7 text-slate-300 sm:text-base">
+              Australia visa processing support with premium documentation,
+              profile assessment, application guidance, and professional
+              follow-up.
+            </p>
 
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs font-bold uppercase tracking-wider text-amber-700">
-              Visitor-Subclass 600
-            </span>
-            <span className="px-4 py-2 rounded-full bg-white/80 border border-emerald-200 text-xs font-bold uppercase tracking-wider text-emerald-700">
-              Australia PR Pathway
-            </span>
-            <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs font-bold uppercase tracking-wider text-amber-700">
-              Sure Shot
-            </span>
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: Positions */}
-          <section className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-emerald-100 p-8">
-            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
-              <Briefcase size={16} className="text-emerald-500" /> Available
-              Positions
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {JOBS.map((job, index) => (
-                <div
-                  key={index}
-                  className="group flex items-center p-4 rounded-xl border border-emerald-50 bg-emerald-50/40 hover:bg-white hover:border-emerald-200 transition-all duration-300"
-                >
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-4"></div>
-                  <span className="font-semibold text-slate-700">{job}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Right: Sidebar Info */}
-          <aside className="space-y-6">
-            <section className="bg-linear-to-br from-emerald-700 to-emerald-900 text-white rounded-3xl shadow-lg p-8">
-              <div className="flex items-center gap-2 text-emerald-100 mb-2 font-bold text-xs uppercase tracking-widest">
-                <Wallet size={16} /> Salary Package
-              </div>
-
-              <p className="text-3xl font-light italic">26 AUD / Hour</p>
-
-              <div className="mt-6 space-y-3 text-sm text-emerald-50 border-t border-emerald-600 pt-5">
-                <p className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-amber-400" /> Food &
-                  Accommodation
-                </p>
-                <p className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-amber-400" />{" "}
-                  Warehouse Sector
-                </p>
-                <p className="flex items-center gap-2">
-                  <BadgeCheck size={14} className="text-amber-400" /> Sure Shot
-                </p>
-              </div>
-            </section>
-
-            <section className="bg-white border border-emerald-100 rounded-3xl p-8 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
-                  <Clock size={18} />
-                </div>
-                <div>
-                  <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">
-                    Processing Time
-                  </h4>
-                  <p className="text-slate-800 font-medium text-sm">
-                    3-5 Months
-                  </p>
-                </div>
-              </div>
-            </section>
-          </aside>
-        </div>
-
-        {/* SERVICE CHARGE */}
-        <section className="bg-white rounded-[2.5rem] border border-emerald-100 shadow-sm overflow-hidden">
-          <div className="bg-linear-to-r from-emerald-50 to-amber-50 px-10 py-8 border-b border-emerald-100 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-center md:text-left">
-              <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
-                Service Charge Breakdown
-              </h2>
-              <p className="text-slate-500 text-xs mt-1 uppercase tracking-[0.2em] font-bold">
-                Payment Plan for Qatar Applicants
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <div className="px-4 py-1.5 bg-white rounded-full border border-emerald-200 text-[10px] font-bold text-emerald-700 uppercase flex items-center gap-2">
-                <ShieldCheck size={12} className="text-amber-500" /> Verified
-                Process
-              </div>
-            </div>
-          </div>
-
-          <div className="p-10 bg-white group">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="p-2 bg-emerald-50 rounded-xl group-hover:bg-amber-50 transition-colors">
-                <Globe
-                  size={20}
-                  className="text-emerald-600 group-hover:text-amber-600"
-                />
-              </div>
-              <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
-                Qatar Applicants
-              </span>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* WITH JOB */}
-              <div className="p-6 rounded-2xl border border-emerald-200 bg-emerald-50/40">
-                <h3 className="text-lg font-bold text-emerald-700 mb-4 uppercase tracking-wider">
-                  With Job
-                </h3>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">1st Payment</span>
-                    <span className="font-semibold">5,000 QAR</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Final Payment</span>
-                    <span className="font-semibold">50,000 QAR</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-emerald-200 flex justify-between items-center">
-                  <span className="text-xs font-bold text-emerald-600 uppercase">
-                    Total
-                  </span>
-                  <span className="text-2xl font-black text-slate-800">
-                    55,000 <span className="text-sm text-emerald-600">QAR</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* WITHOUT JOB */}
-              <div className="p-6 rounded-2xl border border-amber-200 bg-amber-50/40">
-                <h3 className="text-lg font-bold text-amber-700 mb-4 uppercase tracking-wider">
-                  Without Job - (MCV)
-                </h3>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">1st Payment</span>
-                    <span className="font-semibold">5,000 QAR</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Final Payment</span>
-                    <span className="font-semibold">30,000 QAR</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-amber-200 flex justify-between items-center">
-                  <span className="text-xs font-bold text-amber-600 uppercase">
-                    Total
-                  </span>
-                  <span className="text-2xl font-black text-slate-800">
-                    35,000 <span className="text-sm text-amber-600">QAR</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-            {/* 🔥 OFFER HIGHLIGHTS (BOTTOM) */}
-            <div className="mt-10 border border-emerald-200 rounded-xl bg-emerald-50/40 p-6 text-center">
-              <p className="text-sm font-bold uppercase tracking-widest text-emerald-700 mb-3">
-                Australia Sub Class 600 - Visitor Visa
+            <div className="mx-auto mt-7 max-w-md rounded-4xl border border-white/10 bg-white p-5 text-slate-950 shadow-xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-600">
+                Total Service Charge
               </p>
 
-              <div className="flex justify-center items-center gap-6 text-sm font-bold uppercase tracking-wider">
-                <span className="text-amber-600">35K Without Ticket</span>
-
-                <span className="text-emerald-700">Sure Shot</span>
+              <div className="mt-2 flex items-baseline justify-center gap-2">
+                <span className="text-4xl font-black sm:text-5xl">
+                  45,000
+                </span>
+                <span className="text-base font-bold text-slate-400">
+                  QAR
+                </span>
               </div>
             </div>
           </div>
         </section>
 
-        <footer className="text-center py-8">
-          <div className="flex justify-center items-center gap-4 text-emerald-300 mb-4">
-            <Plane size={16} />
-            <div className="h-px w-12 bg-emerald-100"></div>
-            <ShieldCheck size={16} />
+        {/* ADVANTAGES */}
+        <section className="mb-24">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-600">
+              Advantages
+            </p>
+
+            <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">
+              Why Choose This Program
+            </h2>
           </div>
-          <p className="text-slate-400 text-[10px] tracking-[0.4em] uppercase">
-            © 2026 Australia Career Transitions
-          </p>
+
+          <div className="grid gap-8 md:grid-cols-2">
+            {ADVANTAGES.map((item, index) => (
+              <div
+                key={index}
+                className="group rounded-[3rem] border border-slate-100 bg-slate-50 p-10 transition-all duration-500 hover:-translate-y-2 hover:bg-white hover:shadow-[0_35px_80px_-20px_rgba(0,0,0,0.12)]"
+              >
+                <div className="mb-8 flex h-18 w-18 items-center justify-center rounded-3xl bg-white text-blue-600 shadow-sm transition duration-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white">
+                  {item.icon}
+                </div>
+
+                <h3 className="text-2xl font-black text-slate-950">
+                  {item.title}
+                </h3>
+
+                <p className="mt-5 text-lg leading-relaxed text-slate-500">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="overflow-hidden rounded-[3rem] bg-linear-to-br from-[#012169] via-[#0b4ea2] to-[#e4002b] p-10 text-white shadow-2xl">
+          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-100">
+                Australia Subclass 408
+              </p>
+
+              <h2 className="mt-4 text-4xl font-black tracking-tight">
+                Premium Visa Processing Support
+              </h2>
+
+              <p className="mt-5 max-w-2xl text-base leading-8 text-blue-50">
+                Complete support for profile assessment, document preparation,
+                application guidance, and professional follow-up.
+              </p>
+            </div>
+
+            <div className="rounded-4xl bg-white p-8 text-center text-slate-950 shadow-xl">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-500">
+                Total Charge
+              </p>
+
+              <p className="mt-4 text-5xl font-black">45,000</p>
+
+              <p className="mt-1 text-lg font-bold text-slate-400">QAR</p>
+            </div>
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="mt-20 border-t border-slate-100 pt-10">
+          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
+                <BadgeCheck size={18} className="text-blue-600" />
+                Verified Process
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
+                <Target size={18} className="text-blue-600" />
+                Profile Based
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
+                <Briefcase size={18} className="text-blue-600" />
+                Professional Support
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
+                <FileText size={18} className="text-blue-600" />
+                Document Ready
+              </div>
+            </div>
+
+            <p className="text-sm font-bold uppercase tracking-tight text-slate-300">
+              Australia Subclass 408
+            </p>
+          </div>
         </footer>
       </div>
     </div>
   );
 };
 
-export default WpAustralia;
+export default WpAustralia408;
