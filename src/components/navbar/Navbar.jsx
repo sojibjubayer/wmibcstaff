@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  FaChevronRight,
-  FaChevronDown,
-  FaBars,
-  FaTimes,
-} from "react-icons/fa";
+import { FaChevronRight, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
 import Logo from "../../assets/company-logo.jpg";
 
 const API_BASE_URL = "https://wmibcstaff-server.vercel.app";
@@ -14,10 +9,11 @@ const menuData = {
   workVisa: {
     schengen: [
       { name: "Greece", link: "/work-visa/greece" },
-      { name: "Portugal", link: "/work-visa/portugal" },
-      { name: "Portugal <- KSA", link: "/work-visa/portugalksa" },
+      { name: "Qatar ➜ Portugal", link: "/work-visa/qatar-portugal" },
+      { name: "Saudi ➜ Portugal", link: "/work-visa/saudi-portugal" },
+      { name: "Singapore ➜ Portugal", link: "/work-visa/singapore-portugal" },
       { name: "Germany", link: "/work-visa/germany" },
-      { name: "Poland", link: "/work-visa/poland" },
+      { name: "Poland", link: "/work-visa/poland" }, 
       { name: "Croatia", link: "/work-visa/croatia" },
       { name: "Bulgaria", link: "/work-visa/bulgaria" },
       { name: "Slovakia", link: "/work-visa/slovakia" },
@@ -79,11 +75,14 @@ const Navbar = () => {
   const isAdmin = user?.role === "admin";
 
   const canSeeLeads = ["adil", "saru", "sumaiya", "saiful"].includes(
-    normalizedUserName
+    normalizedUserName,
   );
 
   const canSeeRefund =
-    isAdmin || ["saiful", "tarikul", "nizam"].includes(normalizedUserName);
+    isAdmin ||
+    ["saiful", "tarikul", "nizam", "nisha", "imtiyaj","neshat"].includes(
+      normalizedUserName,
+    );
 
   const canViewAttendanceReport =
     token && user?.name?.trim().toLowerCase() === "mohammed";
@@ -226,7 +225,7 @@ const Navbar = () => {
           />
           <span className="hidden text-xl font-black tracking-tighter text-slate-800 lg:block">
             WMIBC
-          </span> 
+          </span>
         </Link>
 
         {/* Desktop Menu */}
@@ -254,7 +253,6 @@ const Navbar = () => {
                 <li className="group/schengen relative flex cursor-pointer items-center justify-between border-b border-white px-4 py-3 text-sm font-medium text-slate-800 hover:bg-white">
                   Schengen
                   <FaChevronRight className="text-[10px] opacity-40" />
-
                   <div className="absolute left-full top-0 z-999 hidden w-56 pl-2 group-hover/schengen:block">
                     <ul className="overflow-hidden rounded-xl border border-slate-100 bg-pink-100 shadow-xl">
                       {menuData.workVisa.schengen.map((item, idx) => (
@@ -277,7 +275,6 @@ const Navbar = () => {
                 <li className="group/nonSchengen relative flex cursor-pointer items-center justify-between border-b border-white px-4 py-3 text-sm font-medium text-slate-800 hover:bg-white">
                   Non Schengen
                   <FaChevronRight className="text-[10px] opacity-40" />
-
                   <div className="absolute left-full top-0 z-999 hidden w-60 pl-2 group-hover/nonSchengen:block">
                     <ul className="overflow-hidden rounded-xl border border-slate-100 bg-pink-100 shadow-xl">
                       {menuData.workVisa.nonSchengenEurope.map((item, idx) => (
@@ -446,6 +443,14 @@ const Navbar = () => {
               </Link>
             </li>
           )}
+          <li>
+            <Link
+              to="/flyer"
+              className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+            >
+              Flyer
+            </Link>
+          </li>
         </ul>
 
         <div className="flex items-center gap-4">

@@ -18,15 +18,23 @@ const monthOptions = [
 ];
 
 const employeeDayOff = {
-  Adil: "Sat",
-  Saiful: "Sat",
-  Sumaiya: "Sat",
-  Nizam: "Mon",
-  Neshat: "Tue",
-  Sandesh: "Tue",
-  Imtiaz: "Sun",
-  Razzak: "Thu",
-  Tarikul: "Wed",
+  Adil: "Sat", 
+  Saiful: "Sat", 
+  Sumaiya: "Sun", 
+  Nizam: "Mon", 
+  Neshat: "Tue", 
+  Sandesh: "Tue", 
+  Imtiaz: "Sun", 
+  Razzak: "Thu", 
+  Tarikul: "Wed", 
+  Ibrahim: "Fri", 
+  Shapna: "Fri", 
+  Nusrat: "Fri", 
+  Jasmin: "Fri", 
+  Israt: "Sun", 
+  Siam: "Mon", 
+  Mushfiqur: "Tue", 
+  Raju: "Thu", 
 };
 
 const SHIFT_START = "12:00";

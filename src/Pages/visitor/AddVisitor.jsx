@@ -25,7 +25,6 @@ const nationalities = [
   "Filipino",
   "Moroccan",
   "African",
-  "Others",
 ];
 
 const interestedCountries = [
@@ -89,11 +88,11 @@ export default function AddVisitor() {
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [isManualCountry, setIsManualCountry] = useState(false);
-  const [isManualNationality, setIsManualNationality] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const now = new Date();
+
     const timeString = now.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -124,16 +123,6 @@ export default function AddVisitor() {
       return;
     }
 
-    if (name === "nationality") {
-      if (value === "Others") {
-        setIsManualNationality(true);
-        setFormData((prev) => ({ ...prev, nationality: "" }));
-        return;
-      } else {
-        setIsManualNationality(false);
-      }
-    }
-
     if (name === "interestedCountry" && value === "Others") {
       setIsManualCountry(true);
       setFormData((prev) => ({ ...prev, interestedCountry: "" }));
@@ -155,57 +144,56 @@ export default function AddVisitor() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  const now = new Date();
-  const submissionTime = now.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+    const now = new Date();
 
-  try {
-    const payload = {
-      ...formData,
-      time: submissionTime,
-      visaType:
-        formData.visaType === "Others"
-          ? formData.visaTypeManual || "Others"
-          : formData.visaType,
-    };
-
-    delete payload.visaTypeManual;
-
-    const response = await fetch(
-      "https://wmibcstaff-server.vercel.app/api/visitor",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to save visitor lead");
-
-    toast.success("Visitor Lead Created!");
-
-    setIsManualCountry(false);
-    setIsManualNationality(false);
-
-    setFormData({
-      ...initialState,
-      consultant: formData.consultant,
-      date: now.toISOString().split("T")[0],
-      time: submissionTime,
+    const submissionTime = now.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
 
-  } catch (error) {
-    toast.error(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const payload = {
+        ...formData,
+        time: submissionTime,
+        visaType:
+          formData.visaType === "Others"
+            ? formData.visaTypeManual || "Others"
+            : formData.visaType,
+      };
+
+      delete payload.visaTypeManual;
+
+      const response = await fetch(
+        "https://wmibcstaff-server.vercel.app/api/visitor",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to save visitor lead");
+
+      toast.success("Visitor Lead Created!");
+
+      setIsManualCountry(false);
+
+      setFormData({
+        ...initialState,
+        consultant: formData.consultant,
+        date: now.toISOString().split("T")[0],
+        time: submissionTime,
+      });
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const inputStyle =
     "w-full border border-slate-200 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-700 focus:outline-none focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition duration-200";
@@ -223,6 +211,7 @@ export default function AddVisitor() {
             <div className="w-10 h-10 bg-pink-200 rounded-lg flex items-center justify-center shadow-lg shadow-pink-500/20">
               <FaUserPlus className="text-slate-900 text-lg" />
             </div>
+
             <div>
               <h1 className="text-white text-lg font-black tracking-tight uppercase leading-none">
                 Visitor Entry
@@ -281,7 +270,7 @@ export default function AddVisitor() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2 flex items-center gap-2 mb-1">
-              <div className="h-4 w-1 bg-pink-300 rounded-full"></div>
+              <div className="h-4 w-1 bg-pink-300 rounded-full" />
               <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">
                 Visitor Identity
               </h2>
@@ -313,8 +302,8 @@ export default function AddVisitor() {
               placeholder="Age"
               value={formData.age}
               onChange={handleChange}
-              className={inputStyle}
               required
+              className={inputStyle}
             />
 
             {formData.type === "Client" ? (
@@ -329,6 +318,7 @@ export default function AddVisitor() {
                   required
                   autoFocus
                 />
+
                 <button
                   type="button"
                   onClick={() =>
@@ -367,7 +357,7 @@ export default function AddVisitor() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2 flex items-center gap-2 mb-1">
-              <div className="h-4 w-1 bg-pink-300 rounded-full"></div>
+              <div className="h-4 w-1 bg-pink-300 rounded-full" />
               <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">
                 Service Requirements
               </h2>
@@ -384,46 +374,23 @@ export default function AddVisitor() {
             />
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="relative">
-                {isManualNationality ? (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="nationality"
-                      placeholder="Nationality..."
-                      value={formData.nationality}
-                      onChange={handleChange}
-                      autoFocus
-                      required
-                      className={`${inputStyle} border-pink-100 bg-pink-50/30 font-bold text-pink-700`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsManualNationality(false);
-                        setFormData((p) => ({ ...p, nationality: "" }));
-                      }}
-                      className="absolute right-2 top-2.5 text-pink-400 hover:text-pink-600"
-                    >
-                      <FaUndo size={10} />
-                    </button>
-                  </div>
-                ) : (
-                  <select
-                    name="nationality"
-                    value={formData.nationality}
-                    onChange={handleChange}
-                    className={inputStyle}
-                    required
-                  >
-                    <option value="">Select Nationality</option>
-                    {nationalities.map((nat) => (
-                      <option key={nat} value={nat}>
-                        {nat}
-                      </option>
-                    ))}
-                  </select>
-                )}
+              <div>
+                <input
+                  list="nationalityOptions"
+                  type="text"
+                  name="nationality"
+                  placeholder="Select or type nationality"
+                  value={formData.nationality}
+                  onChange={handleChange}
+                  required
+                  className={inputStyle}
+                />
+
+                <datalist id="nationalityOptions">
+                  {nationalities.map((nat) => (
+                    <option key={nat} value={nat} />
+                  ))}
+                </datalist>
               </div>
 
               <input
@@ -449,6 +416,7 @@ export default function AddVisitor() {
                     required
                     className={`${inputStyle} border-pink-100 bg-pink-50/30 font-bold text-pink-700`}
                   />
+
                   <button
                     type="button"
                     onClick={() =>
@@ -456,6 +424,7 @@ export default function AddVisitor() {
                         ...p,
                         visaType: "",
                         visaTypeManual: "",
+                        interestedCountry: "",
                       }))
                     }
                     className="absolute right-3 top-2.5 text-pink-400 hover:text-pink-600"
@@ -494,12 +463,16 @@ export default function AddVisitor() {
                     required
                     className={`${inputStyle} border-pink-100 bg-pink-50/30 font-bold text-pink-700`}
                   />
+
                   {isManualCountry && (
                     <button
                       type="button"
                       onClick={() => {
                         setIsManualCountry(false);
-                        setFormData((p) => ({ ...p, interestedCountry: "" }));
+                        setFormData((p) => ({
+                          ...p,
+                          interestedCountry: "",
+                        }));
                       }}
                       className="absolute right-3 top-2.5 text-pink-400 hover:text-pink-600"
                     >
@@ -526,6 +499,7 @@ export default function AddVisitor() {
                           </option>
                         ))}
                       </optgroup>
+
                       <optgroup label="Other">
                         {visitVisaCountries.other.map((c) => (
                           <option key={c.name} value={c.name}>
@@ -544,9 +518,7 @@ export default function AddVisitor() {
                       </option>
                     ))}
 
-                  <option value="Others" className="font-bold text-pink-500">
-                    -- Others (Manual Entry) --
-                  </option>
+                  <option value="Others">-- Others Manual Entry --</option>
                 </select>
               )}
             </div>
@@ -554,7 +526,7 @@ export default function AddVisitor() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2 flex items-center gap-2 mb-1">
-              <div className="h-4 w-1 bg-pink-300 rounded-full"></div>
+              <div className="h-4 w-1 bg-pink-300 rounded-full" />
               <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">
                 Assessment & Remarks
               </h2>
@@ -590,8 +562,8 @@ export default function AddVisitor() {
               value={formData.visitorEnquiry}
               onChange={handleChange}
               rows="1"
-              className={inputStyle}
               required
+              className={inputStyle}
             />
 
             <textarea
@@ -600,8 +572,8 @@ export default function AddVisitor() {
               value={formData.remarks}
               onChange={handleChange}
               rows="1"
-              className={inputStyle}
               required
+              className={inputStyle}
             />
           </div>
 

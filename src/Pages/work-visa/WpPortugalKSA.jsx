@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Briefcase,
@@ -41,8 +42,9 @@ const WpPortugalKSA = () => {
           </h1>
 
           <p className="mt-4 text-slate-600 text-lg font-medium tracking-wide">
-            For Saudi Arabia Applicants • Full-Time Opportunity
+            For Saudi Arabia, Bahrain, Yemen & Oman Applicants • Full-Time Opportunity
           </p>
+
         </header>
 
         {/* MAIN GRID */}
@@ -51,7 +53,8 @@ const WpPortugalKSA = () => {
           {/* LEFT */}
           <section className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
             <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-              <Briefcase size={16} className="text-green-600" /> Current Opening
+              <Briefcase size={16} className="text-green-600" />
+              Current Opening
             </h2>
 
             <div className="rounded-2xl border border-green-100 bg-green-50/50 p-8 text-center space-y-4">
@@ -60,8 +63,68 @@ const WpPortugalKSA = () => {
               </p>
 
               <span className="inline-block mt-2 text-green-600 text-xs font-bold uppercase tracking-widest">
-                Saudi Client Program
+                GCC Client Program
               </span>
+            </div>
+
+            <div className="mt-8 grid md:grid-cols-2 gap-5">
+
+              <div className="border border-slate-200 rounded-2xl p-5">
+                <h4 className="font-bold text-slate-800 mb-2">
+                  Benefits
+                </h4>
+
+                <div className="space-y-3 text-sm">
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Legal Portugal Employment
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Renewable Residence Permit
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Pathway to Long-Term Residence
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Family Reunification Opportunity
+                  </p>
+                </div>
+              </div>
+
+              <div className="border border-slate-200 rounded-2xl p-5">
+                <h4 className="font-bold text-slate-800 mb-2">
+                  Requirements
+                </h4>
+
+                <div className="space-y-3 text-sm">
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Valid Passport
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Basic Supporting Documents
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Medical & Visa Eligibility
+                  </p>
+
+                  <p className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Ready for Overseas Employment
+                  </p>
+                </div>
+              </div>
+
             </div>
           </section>
 
@@ -71,7 +134,8 @@ const WpPortugalKSA = () => {
             {/* Salary */}
             <section className="bg-slate-900 text-white rounded-3xl shadow-lg p-8">
               <div className="flex items-center gap-2 text-green-300 mb-2 font-bold text-xs uppercase tracking-widest">
-                <Wallet size={16} /> Salary Package
+                <Wallet size={16} />
+                Salary Package
               </div>
 
               <p className="text-3xl font-light italic text-white">
@@ -83,9 +147,15 @@ const WpPortugalKSA = () => {
                   <CheckCircle2 size={14} className="text-green-400" />
                   Company Food & Housing
                 </p>
+
                 <p className="flex items-center gap-2">
                   <CheckCircle2 size={14} className="text-green-400" />
                   8 Hrs + OT | 5-6 Days
+                </p>
+
+                <p className="flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-green-400" />
+                  Legal Employment Contract
                 </p>
               </div>
             </section>
@@ -96,12 +166,14 @@ const WpPortugalKSA = () => {
                 <div className="bg-green-50 p-2 rounded-lg text-green-600">
                   <Clock size={18} />
                 </div>
+
                 <div>
                   <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">
                     Processing Time
                   </h4>
+
                   <p className="text-slate-800 font-medium text-sm">
-                    2-3 Months 
+                    5 - 6 Months
                   </p>
                 </div>
               </div>
@@ -118,8 +190,9 @@ const WpPortugalKSA = () => {
               <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
                 Service Charge Breakdown
               </h2>
+
               <p className="text-slate-400 text-xs mt-1 uppercase tracking-[0.2em] font-bold">
-                Saudi Arabia Applicant Payment Plan
+                Saudi Arabia, Bahrain, Yemen & Oman Applicant Payment Plan
               </p>
             </div>
 
@@ -137,36 +210,40 @@ const WpPortugalKSA = () => {
               </div>
 
               <span className="font-bold text-slate-800 uppercase text-xs tracking-wider">
-                Saudi Arabia Applicants
+                Saudi Arabia, Bahrain, Yemen & Oman Applicants
               </span>
             </div>
 
+
             <div className="space-y-6">
 
-              <div className="flex justify-between items-center border-b pb-2">
+              <div className="flex justify-between items-center border-b pb-3">
                 <span className="text-slate-500 text-sm">
-                  1st Payment
+                  First Payment (Advance Payment)
                 </span>
-                <span className="font-bold text-lg">
-                  2,000 SAR
+
+                <span className="font-bold text-lg text-slate-800">
+                  3,000 SAR / 1,00,000 BDT
                 </span>
               </div>
 
-              <div className="flex justify-between items-center border-b pb-2">
+              <div className="flex justify-between items-center border-b pb-3">
                 <span className="text-slate-500 text-sm">
-                  After Work Permit & Appointment
+                  After Appointment Confirmation
                 </span>
-                <span className="font-bold text-lg">
-                  6,000 SAR
+
+                <span className="font-bold text-lg text-slate-800">
+                  6,000 SAR / 2,00,000 BDT
                 </span>
               </div>
 
-              <div className="flex justify-between items-center border-b pb-2">
+              <div className="flex justify-between items-center border-b pb-3">
                 <span className="text-slate-500 text-sm">
-                  After Visa
+                  Final Payment
                 </span>
-                <span className="font-bold text-lg">
-                  24,000 SAR
+
+                <span className="font-bold text-lg text-slate-800">
+                  After Visa Approval & Issuance
                 </span>
               </div>
 
@@ -174,13 +251,114 @@ const WpPortugalKSA = () => {
               <div className="mt-8 p-6 bg-green-50/60 rounded-2xl border-2 border-dashed border-green-100">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black text-green-600 uppercase tracking-widest">
-                    Total Charge
+                    Total Service Fee
                   </span>
 
-                  <span className="text-3xl font-black text-slate-800">
-                    32,000 <span className="text-green-600 text-lg">SAR</span>
-                  </span>
+                  <div className="text-right">
+                    <span className="text-3xl font-black text-slate-800">
+                      36,000
+                      <span className="text-green-600 text-lg ml-1">
+                        SAR
+                      </span>
+                    </span>
+
+                    <div className="text-base font-semibold text-slate-600 mt-1">
+                      12,00,000 BDT
+                    </div>
+                  </div>
                 </div>
+              </div>
+
+
+
+              {/* REFUND POLICY */}
+              <div className="bg-slate-50 rounded-3xl border border-slate-200 p-6">
+
+                <h3 className="font-bold text-slate-800 text-lg mb-4">
+                  Visa Rejection & Refund Policy
+                </h3>
+
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  In the event of a visa rejection, we will submit an appeal
+                  and make every reasonable effort to obtain approval.
+                  If the appeal is also unsuccessful and the visa remains
+                  rejected, 50% of the total amount paid by the client
+                  will be refunded.
+                </p>
+
+                <p className="text-sm text-slate-600 leading-relaxed mt-4">
+                  The remaining 50% will be retained to cover third-party
+                  and administrative expenses already incurred.
+                </p>
+
+                <div className="mt-5 grid md:grid-cols-2 gap-3 text-sm">
+
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Work Permit Processing Fees
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Legal & Lawyer Fees
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Accommodation Booking Charges
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Appointment Booking Fees
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Courier & Delivery Costs
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Insurance Fees
+                  </div>
+
+                  <div className="flex items-center gap-2 md:col-span-2">
+                    <CheckCircle2
+                      size={14}
+                      className="text-green-600 shrink-0"
+                    />
+                    Document Preparation & Processing Costs
+                  </div>
+
+                </div>
+
+                <div className="mt-5 p-4 bg-white rounded-xl border border-slate-200">
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    By proceeding with the application, the client
+                    acknowledges and agrees to the above payment and
+                    refund terms and conditions.
+                  </p>
+                </div>
+
               </div>
 
             </div>
@@ -206,3 +384,4 @@ const WpPortugalKSA = () => {
 };
 
 export default WpPortugalKSA;
+

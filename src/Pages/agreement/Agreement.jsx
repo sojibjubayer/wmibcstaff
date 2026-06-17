@@ -53,7 +53,7 @@ export default function Agreement() {
 
   return (
     <main className="min-h-screen bg-gray-200 p-4 text-black">
-      <div className="mx-auto max-w-[900px] bg-white p-8 shadow-lg print:shadow-none">
+      <div className="mx-auto max-w-225 bg-white p-8 shadow-lg print:shadow-none">
         <h1 className="mb-8 text-center text-xl font-bold uppercase">
           RETAINER SERVICE AGREEMENT
         </h1>

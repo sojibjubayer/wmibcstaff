@@ -7,56 +7,67 @@ import {
   Coffee,
   CheckCircle2,
   Loader2,
-  FileText,
+  Calendar,
+  Activity,
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 const actionConfig = [
   {
     label: "Check In",
-    bangla: "ডিউটি শুরু",
     value: "check_in",
     icon: LogIn,
     cardClass:
-      "border-emerald-400/25 bg-emerald-500/15 hover:bg-emerald-500/25",
-    iconClass: "bg-emerald-400/20 text-emerald-200",
-    badgeClass: "bg-emerald-400/15 text-emerald-100",
+      "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 focus-visible:ring-emerald-500/50",
+    iconClass: "bg-emerald-500/20 text-emerald-400",
+    badgeClass: "bg-emerald-500/20 text-emerald-300",
   },
   {
-    label: "Lunch Out",
-    bangla: "খাইতে যাই",
+    label: "Break",
     value: "lunch_out",
     icon: UtensilsCrossed,
-    cardClass: "border-amber-400/25 bg-amber-500/15 hover:bg-amber-500/25",
-    iconClass: "bg-amber-400/20 text-amber-200",
-    badgeClass: "bg-amber-400/15 text-amber-100",
+    cardClass:
+      "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 focus-visible:ring-amber-500/50",
+    iconClass: "bg-amber-500/20 text-amber-400",
+    badgeClass: "bg-amber-500/20 text-amber-300",
   },
   {
-    label: "Lunch In",
-    bangla: "খাওয়া শেষ",
+    label: "Break End",
     value: "lunch_in",
     icon: Coffee,
-    cardClass: "border-sky-400/25 bg-sky-500/15 hover:bg-sky-500/25",
-    iconClass: "bg-sky-400/20 text-sky-200",
-    badgeClass: "bg-sky-400/15 text-sky-100",
+    cardClass:
+      "border-sky-500/20 bg-sky-500/5 hover:bg-sky-500/10 focus-visible:ring-sky-500/50",
+    iconClass: "bg-sky-500/20 text-sky-400",
+    badgeClass: "bg-sky-500/20 text-sky-300",
   },
   {
     label: "Check Out",
-    bangla: "ডিউটি শেষ",
     value: "check_out",
     icon: LogOut,
-    cardClass: "border-rose-400/25 bg-rose-500/15 hover:bg-rose-500/25",
-    iconClass: "bg-rose-400/20 text-rose-200",
-    badgeClass: "bg-rose-400/15 text-rose-100",
+    cardClass:
+      "border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 focus-visible:ring-rose-500/50",
+    iconClass: "bg-rose-500/20 text-rose-400",
+    badgeClass: "bg-rose-500/20 text-rose-300",
   },
 ];
 
-const QATAR_TIMEZONE = "Asia/Qatar";
+// TIME SETTING ZONEWISE
+const DEFAULT_TIMEZONE = "Asia/Qatar";
+
+function getUserTimezone(user) {
+  if (user?.country === "Bangladesh") return "Asia/Dhaka";
+  return DEFAULT_TIMEZONE;
+}
+
+function getTimezoneLabel(user) {
+  if (user?.country === "Bangladesh") return "Bangladesh Time";
+  return "Qatar Time"; 
+}
+
 const API_BASE = "https://wmibcstaff-server.vercel.app/api";
 
 export default function AttendancePage() {
   const [loadingAction, setLoadingAction] = useState(null);
-  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [time, setTime] = useState(new Date());
   const [status, setStatus] = useState(null);
   const [todayActions, setTodayActions] = useState([]);
@@ -64,6 +75,8 @@ export default function AttendancePage() {
   const [loadingToday, setLoadingToday] = useState(false);
   const [user, setUser] = useState(null);
   const [token, setToken] = useState("");
+  const userTimezone = getUserTimezone(user);
+  const timezoneLabel = getTimezoneLabel(user);
 
   useEffect(() => {
     try {
@@ -94,12 +107,10 @@ export default function AttendancePage() {
 
   function formatTime(value) {
     if (!value) return "-";
-
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "-";
-
     return d.toLocaleTimeString("en-US", {
-      timeZone: QATAR_TIMEZONE,
+      timeZone: userTimezone,
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
@@ -108,12 +119,10 @@ export default function AttendancePage() {
 
   function formatDate(value) {
     if (!value) return "";
-
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
-
     return d.toLocaleDateString("en-US", {
-      timeZone: QATAR_TIMEZONE,
+      timeZone: userTimezone,
       weekday: "short",
       year: "numeric",
       month: "short",
@@ -156,9 +165,10 @@ export default function AttendancePage() {
           const meta = getActionMeta(last?.action);
 
           setStatus({
-            action: last?.label || meta?.label || formatActionLabel(last?.action),
-            bangla: meta?.bangla || "",
+            action:
+              last?.label || meta?.label || formatActionLabel(last?.action),
             time: formatTime(last?.createdAt),
+            value: last?.action,
           });
         }
       } catch {
@@ -173,8 +183,8 @@ export default function AttendancePage() {
 
   const actionState = useMemo(() => {
     const hasCheckIn = todayActions.includes("check_in");
-    const hasLunchOut = todayActions.includes("lunch_out");
-    const hasLunchIn = todayActions.includes("lunch_in");
+    const hasBreak = todayActions.includes("lunch_out");
+    const hasBreakEnd = todayActions.includes("lunch_in");
     const hasCheckOut = todayActions.includes("check_out");
 
     return {
@@ -183,54 +193,37 @@ export default function AttendancePage() {
         reason: hasCheckIn ? "Already checked in today" : "",
       },
       lunch_out: {
-        disabled: !hasCheckIn || hasLunchOut || hasCheckOut,
+        disabled: !hasCheckIn || hasBreak || hasCheckOut,
         reason: !hasCheckIn
           ? "Check In first"
-          : hasLunchOut
-          ? "Lunch Out already recorded"
-          : hasCheckOut
-          ? "Already checked out"
-          : "",
+          : hasBreak
+            ? "Break already started"
+            : hasCheckOut
+              ? "Already checked out"
+              : "",
       },
       lunch_in: {
-        disabled: !hasLunchOut || hasLunchIn || hasCheckOut,
-        reason: !hasLunchOut
-          ? "Lunch Out first"
-          : hasLunchIn
-          ? "Lunch In already recorded"
-          : hasCheckOut
-          ? "Already checked out"
-          : "",
+        disabled: !hasBreak || hasBreakEnd || hasCheckOut,
+        reason: !hasBreak
+          ? "Break first"
+          : hasBreakEnd
+            ? "Break already ended"
+            : hasCheckOut
+              ? "Already checked out"
+              : "",
       },
       check_out: {
-        disabled: !hasCheckIn || hasCheckOut || (hasLunchOut && !hasLunchIn),
+        disabled: !hasCheckIn || hasCheckOut,
         reason: !hasCheckIn
           ? "Check In first"
           : hasCheckOut
-          ? "Already checked out"
-          : hasLunchOut && !hasLunchIn
-          ? "Lunch In first"
-          : "",
+            ? "Already checked out"
+            : "",
       },
     };
   }, [todayActions]);
 
-  const qatarHour = Number(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: QATAR_TIMEZONE,
-      hour: "2-digit",
-      hour12: false,
-    }).format(time)
-  );
-
-  const isOutsideTime = qatarHour < 9 || qatarHour >= 24;
-
   const handleAttendance = async (action) => {
-    if (isOutsideTime) {
-      showError("Attendance allowed only between 9 AM and 11 PM");
-      return;
-    }
-
     if (!token) {
       showError("Please login again");
       return;
@@ -261,32 +254,21 @@ export default function AttendancePage() {
       }
 
       const meta = getActionMeta(action);
-
       const label =
-        data?.record?.label ||
-        meta?.label ||
-        formatActionLabel(action);
-
+        data?.record?.label || meta?.label || formatActionLabel(action);
       const createdAt = data?.record?.createdAt || new Date().toISOString();
 
       setStatus({
         action: label,
-        bangla: meta?.bangla || "",
         time: formatTime(createdAt),
+        value: action,
       });
 
       setTodayActions((prev) =>
-        prev.includes(action) ? prev : [...prev, action]
+        prev.includes(action) ? prev : [...prev, action],
       );
 
-      setTodayHistory((prev) => [
-        ...prev,
-        {
-          action,
-          label,
-          createdAt,
-        },
-      ]);
+      setTodayHistory((prev) => [...prev, { action, label, createdAt }]);
 
       showSuccess(`${label} recorded successfully`);
     } catch {
@@ -296,41 +278,44 @@ export default function AttendancePage() {
     }
   };
 
-  const generateMonthlyPdf = async () => {
-    showSuccess("Monthly PDF feature connected here");
-  };
+  const lastMeta = status?.value ? getActionMeta(status.value) : null;
+  const LastIcon = lastMeta?.icon || CheckCircle2;
 
   return (
-    <div className="min-h-screen w-full bg-linear-to-br from-[#0f172a] via-[#0b1120] to-[#020617] text-white">
+    <div className="min-h-screen w-full bg-slate-950 text-slate-100 antialiased selection:bg-blue-500/30">
       <Toaster position="top-center" />
 
-      <div className="mx-auto w-full max-w-3xl px-3 py-5 sm:px-5 lg:px-6">
-        <div className="space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-5 shadow-xl backdrop-blur-xl">
-            <div className="flex justify-between gap-3">
+      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-widest text-blue-300">
-                  Attendance
-                </p>
-                <h1 className="mt-1 text-xl font-semibold">
+                <span className="text-xs font-bold uppercase tracking-widest text-blue-400">
+                  Workforce Portal
+                </span>
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-white">
                   Hi, {user?.name || "User"} 👋
                 </h1>
-                <p className="mt-1 text-sm text-white/70">
-                  Mark your attendance step by step
+                <p className="mt-1 text-sm text-slate-400">
+                  Mark your shift attendance milestones.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/10 p-3">
-                <Clock3 className="h-5 w-5 text-blue-300" />
+              <div className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-blue-400 shadow-inner">
+                <Clock3 className="h-5 w-5" />
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/5 bg-black/30 p-3">
-                <p className="text-xs text-white/60">Time</p>
-                <p className="text-lg font-semibold">
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                  <Clock3 className="h-3.5 w-3.5 text-slate-500" />
+                  {timezoneLabel}
+                </span>
+
+                <p className="mt-1.5 text-xl font-bold tracking-wide text-white tabular-nums">
                   {time.toLocaleTimeString("en-US", {
-                    timeZone: QATAR_TIMEZONE,
+                    timeZone: userTimezone,
                     hour: "2-digit",
                     minute: "2-digit",
                     second: "2-digit",
@@ -339,45 +324,61 @@ export default function AttendancePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/5 bg-black/30 p-3">
-                <p className="text-xs text-white/60">Date</p>
-                <p className="text-sm">{formatDate(time)}</p>
+              <div className="rounded-xl border border-slate-800/60 bg-slate-950/40 p-4">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                  Today
+                </span>
+
+                <p className="mt-1.5 text-base font-semibold text-slate-200">
+                  {formatDate(time) || "Loading..."}
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-xl backdrop-blur-xl">
-            <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-emerald-400/20 p-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-300" />
-              </div>
+          <div className="relative overflow-hidden rounded-3xl border border-yellow-400/40 bg-linear-to-br from-[#3b2a00] via-[#1c1505] to-[#0f0c05] p-6 text-center shadow-[0_0_50px_rgba(250,204,21,0.15)]">
+            <div className="absolute inset-0 bg-linear-to-r from-yellow-400/10 via-transparent to-amber-400/10" />
+            <div className="absolute -top-16 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-yellow-400/20 blur-3xl" />
 
-              <div>
-                <p className="text-xs text-white/60">Last Status</p>
-                <p className="font-semibold">
-                  {loadingToday
-                    ? "Loading..."
-                    : status
-                    ? status.action
-                    : "No record yet"}
-                </p>
-
-                {status?.bangla && (
-                  <p className="text-sm font-medium text-emerald-100">
-                    {status.bangla}
-                  </p>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-yellow-300/40 bg-yellow-400/15 text-yellow-300 shadow-[0_0_30px_rgba(250,204,21,0.25)]">
+                {loadingToday ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : (
+                  <LastIcon className="h-8 w-8" />
                 )}
-
-                <p className="text-sm text-white/70">
-                  {status
-                    ? `at ${status.time}`
-                    : "First action will appear here"}
-                </p>
               </div>
+
+              <span className="text-[11px] font-black uppercase tracking-[0.35em] text-yellow-200">
+                LAST STATUS
+              </span>
+
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-white">
+                {loadingToday ? (
+                  <span className="text-2xl text-yellow-200">Updating...</span>
+                ) : status ? (
+                  status.action
+                ) : (
+                  "No Action Logged"
+                )}
+              </h2>
+
+              {status?.action && (
+                <span className="mt-3 rounded-full border border-yellow-300/20 bg-yellow-400/10 px-4 py-1 text-sm font-bold text-yellow-100">
+                  {status.action}
+                </span>
+              )}
+
+              <p className="mt-4 text-sm font-medium text-yellow-100/70">
+                {status
+                  ? `Recorded at ${status.time}`
+                  : "Waiting for first attendance"}
+              </p>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-5">
             {actionConfig.map((item, index) => {
               const Icon = item.icon;
               const isLoading = loadingAction === item.value;
@@ -386,24 +387,29 @@ export default function AttendancePage() {
               const isDisabled =
                 !!loadingAction ||
                 loadingToday ||
-                actionState?.[item.value]?.disabled ||
-                isOutsideTime;
+                actionState?.[item.value]?.disabled;
 
               return (
                 <button
                   key={item.value}
                   onClick={() => handleAttendance(item.value)}
                   disabled={isDisabled}
-                  className={`w-full rounded-3xl border p-4 text-left shadow-xl transition ${
-                    isDisabled
-                      ? "cursor-not-allowed border-white/5 bg-white/5 opacity-45"
-                      : item.cardClass
+                  className={`group relative flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-left outline-none transition-all duration-200 focus-visible:ring-2 active:scale-[0.99] ${
+                    isCompleted
+                      ? "cursor-not-allowed opacity-45 border-slate-800 bg-slate-900/30"
+                      : isDisabled
+                        ? "cursor-not-allowed border-slate-900 bg-slate-900/20 opacity-40"
+                        : `${item.cardClass} shadow-xs hover:translate-x-0.5`
                   }`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex min-w-0 items-center gap-4">
                     <div
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                        isDisabled ? "bg-white/10 text-white/60" : item.iconClass
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                        isCompleted
+                          ? "bg-slate-800 text-slate-500"
+                          : isDisabled
+                            ? "bg-slate-900 text-slate-600"
+                            : item.iconClass
                       }`}
                     >
                       {isLoading ? (
@@ -413,82 +419,97 @@ export default function AttendancePage() {
                       )}
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-base font-semibold text-white">
-                            {index + 1}. {item.label}
-                          </p>
-                          <p className="mt-1 text-lg font-bold leading-none text-white">
-                            {item.bangla}
-                          </p>
-                        </div>
-
-                        <span
-                          className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ${
-                            isCompleted
-                              ? "bg-emerald-400/20 text-emerald-100"
-                              : isDisabled
-                              ? "bg-white/10 text-white/55"
-                              : item.badgeClass
-                          }`}
-                        >
-                          {isCompleted ? "Done" : "Tap"}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-slate-400">
+                          0{index + 1}
                         </span>
+
+                        <p className="text-sm font-semibold tracking-tight text-slate-200">
+                          Attendance Action
+                        </p>
                       </div>
 
-                      <p className="mt-3 text-xs text-white/70">
-                        {isOutsideTime
-                          ? "Allowed only 9 AM – 11 PM"
-                          : isDisabled
-                          ? actionState?.[item.value]?.reason
-                          : "Available now"}
+                      <p
+                        className={`mt-0.5 text-xl font-bold tracking-wide ${
+                          isCompleted ? "text-slate-500" : "text-white"
+                        }`}
+                      >
+                        {item.label}
                       </p>
                     </div>
+                  </div>
+
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span
+                      className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        isCompleted
+                          ? "border-slate-700 bg-slate-800 text-slate-400"
+                          : isDisabled
+                            ? "border-slate-800 bg-slate-950 text-slate-500"
+                            : `${item.badgeClass} border-current/10`
+                      }`}
+                    >
+                      {isCompleted ? "Done" : "Tap"}
+                    </span>
+
+                    {!isCompleted &&
+                      isDisabled &&
+                      actionState?.[item.value]?.reason && (
+                        <span className="max-w-30 truncate text-right text-[10px] text-slate-500">
+                          {actionState[item.value].reason}
+                        </span>
+                      )}
+
+                    {!isDisabled && (
+                      <span className="text-[10px] font-medium text-slate-400 transition-colors group-hover:text-current">
+                        Ready
+                      </span>
+                    )}
                   </div>
                 </button>
               );
             })}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-xl backdrop-blur-xl">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold">Today Activity</h2>
-              <span className="text-xs text-white/55">
-                {todayHistory.length} record
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-5 backdrop-blur-md">
+            <div className="mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                <Activity className="h-3.5 w-3.5 text-slate-500" />
+                Today's Timeline
+              </h3>
+
+              <span className="rounded-md bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-400">
+                {todayHistory.length} Record
                 {todayHistory.length !== 1 ? "s" : ""}
               </span>
             </div>
 
             {todayHistory.length === 0 ? (
-              <p className="text-sm text-white/60">
-                No attendance recorded yet.
-              </p>
+              <div className="py-6 text-center">
+                <p className="text-sm text-slate-500">
+                  No events logged for this schedule window.
+                </p>
+              </div>
             ) : (
-              <div className="space-y-2">
+              <div className="subtle-scrollbar max-h-60 space-y-2 overflow-y-auto pr-1">
                 {todayHistory.map((item, index) => {
                   const meta = getActionMeta(item?.action);
 
                   return (
                     <div
                       key={index}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-black/25 px-3 py-3"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-slate-800/50 bg-slate-950/50 px-4 py-3 transition-colors hover:border-slate-800"
                     >
-                      <div>
-                        <p className="text-sm font-semibold">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-200">
                           {item?.label ||
                             meta?.label ||
                             formatActionLabel(item?.action)}
                         </p>
-
-                        {meta?.bangla && (
-                          <p className="text-xs text-white/60">
-                            {meta.bangla}
-                          </p>
-                        )}
                       </div>
 
-                      <span className="shrink-0 text-xs text-white/65">
+                      <span className="shrink-0 rounded-md border border-slate-800 bg-slate-900 px-2 py-0.5 text-xs font-medium tabular-nums text-slate-400">
                         {formatTime(item?.createdAt)}
                       </span>
                     </div>

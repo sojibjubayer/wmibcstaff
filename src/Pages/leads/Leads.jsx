@@ -1,513 +1,322 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const today = new Date().toISOString().slice(0, 10);
-const API_URL = "https://wmibcstaff-server.vercel.app/api/leads";
+const API_URL = "http://localhost:5000/api/leads";
 
-const getWeekRangeTillSaturday = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.getDay(); // Sunday = 0, Saturday = 6
-
-  const start = new Date(date);
-  start.setDate(date.getDate() - day);
-
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-
-  return {
-    startDate: start.toISOString().slice(0, 10),
-    endDate: end.toISOString().slice(0, 10),
-  };
-};
+const consultants = ["Siam", "Rafi", "Hasan", "Karim"];
 
 export default function Leads() {
-  const getUser = () => {
+  const [user, setUser] = useState("Siam");
+  const [leads, setLeads] = useState([]);
+  const [file, setFile] = useState(null);
+  const [assignTo, setAssignTo] = useState("Rafi");
+  const [quantity, setQuantity] = useState("");
+
+  const isAdmin = user === "Siam";
+
+  const fetchLeads = async () => {
     try {
-      return JSON.parse(localStorage.getItem("user")) || {};
-    } catch {
-      return {};
-    }
-  };
-
-  const loggedInUser = getUser();
-
-  const userName =
-    loggedInUser?.name ||
-    loggedInUser?.userName ||
-    loggedInUser?.fullName ||
-    "Unknown User";
-
-  const [entries, setEntries] = useState([]);
-  const [weeklyEntries, setWeeklyEntries] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const [form, setForm] = useState({
-    date: today,
-    totalLeads: "",
-    notInterested: "",
-    notReachable: "",
-    expectedVisitorBySaturday: "",
-  });
-
-  const interested = Math.max(
-    Number(form.totalLeads || 0) -
-      Number(form.notInterested || 0) -
-      Number(form.notReachable || 0),
-    0
-  );
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      // Important: no date query here.
-      // This will fetch all previous saved data.
-      const res = await fetch(API_URL);
+      const res = await fetch(`${API_URL}?user=${user}`);
       const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Failed to fetch data");
-
-      const sortedData = Array.isArray(data)
-        ? [...data].sort((a, b) => new Date(b.date) - new Date(a.date))
-        : [];
-
-      setEntries(sortedData);
+      setLeads(data);
     } catch (err) {
-      console.error("Failed to fetch lead summary", err);
-      setEntries([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchWeeklyData = async () => {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Failed to fetch weekly data");
-
-      const { startDate, endDate } = getWeekRangeTillSaturday(form.date);
-
-      const filtered = Array.isArray(data)
-        ? data.filter((item) => item.date >= startDate && item.date <= endDate)
-        : [];
-
-      setWeeklyEntries(filtered);
-    } catch (err) {
-      console.error("Failed to fetch weekly visitor data", err);
-      setWeeklyEntries([]);
+      console.error(err);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchLeads();
+  }, [user]);
 
-  useEffect(() => {
-    fetchWeeklyData();
-  }, [form.date]);
+  const uploadExcel = async () => {
+    if (!file) return alert("Please select Excel file");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!form.totalLeads) {
-      alert("Please enter total leads");
-      return;
-    }
-
-    const payload = {
-      date: form.date,
-      userName,
-      totalLeads: Number(form.totalLeads || 0),
-      notInterested: Number(form.notInterested || 0),
-      notReachable: Number(form.notReachable || 0),
-      interested,
-      expectedVisitorBySaturday: Number(form.expectedVisitorBySaturday || 0),
-    };
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("uploadedBy", "Siam");
 
     try {
-      setSaving(true);
+      const res = await fetch(`${API_URL}/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
-      const res = await fetch(API_URL, {
+      const data = await res.json();
+      alert(data.message || "Uploaded successfully");
+      setFile(null);
+      fetchLeads();
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    }
+  };
+
+  const distributeLeads = async () => {
+    if (!assignTo || !quantity) return alert("Select consultant and quantity");
+
+    try {
+      const res = await fetch(`${API_URL}/distribute`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          consultant: assignTo,
+          quantity: Number(quantity),
+        }),
       });
 
-      const savedData = await res.json();
-
-      if (!res.ok) throw new Error(savedData.message || "Failed to save data");
-
-      await fetchData();
-      await fetchWeeklyData();
-
-      setForm((prev) => ({
-        ...prev,
-        totalLeads: "",
-        notInterested: "",
-        notReachable: "",
-        expectedVisitorBySaturday: "",
-      }));
+      const data = await res.json();
+      alert(data.message || "Distributed successfully");
+      setQuantity("");
+      fetchLeads();
     } catch (err) {
-      console.error("Failed to save lead summary", err);
-      alert("Failed to save data");
-    } finally {
-      setSaving(false);
+      console.error(err);
+      alert("Distribution failed");
     }
   };
 
-  const totals = useMemo(() => {
-    const allDataTotals = entries.reduce(
-      (acc, item) => {
-        const totalLeads = Number(item.totalLeads || 0);
-        const notInterested = Number(item.notInterested || 0);
-        const notReachable = Number(item.notReachable || 0);
+  const updateLead = async (id, status, note) => {
+    try {
+      await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status,
+          note,
+        }),
+      });
 
-        acc.totalLeads += totalLeads;
-        acc.notInterested += notInterested;
-        acc.notReachable += notReachable;
+      fetchLeads();
+    } catch (err) {
+      console.error(err);
+      alert("Update failed");
+    }
+  };
 
-        acc.interested += Math.max(
-          Number(item.interested ?? totalLeads - notInterested - notReachable),
-          0
-        );
-
-        return acc;
-      },
-      {
-        totalLeads: 0,
-        notInterested: 0,
-        notReachable: 0,
-        interested: 0,
-      }
-    );
-
-    const weeklyVisitorBySaturday = weeklyEntries.reduce((acc, item) => {
-      return acc + Number(item.expectedVisitorBySaturday || 0);
-    }, 0);
-
-    return {
-      ...allDataTotals,
-      expectedVisitorBySaturday: weeklyVisitorBySaturday,
-    };
-  }, [entries, weeklyEntries]);
-
-  const weekRange = getWeekRangeTillSaturday(form.date);
+  const totalLeads = leads.length;
+  const unassignedLeads = leads.filter((lead) => !lead.assignedTo).length;
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-100 p-4 sm:p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 overflow-hidden rounded-3xl bg-slate-950 shadow-xl">
-          <div className="bg-linear-to-r from-slate-950 via-blue-950 to-slate-900 p-6 sm:p-8">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-blue-300">
-              WMIBC Leads
-            </p>
+        <div className="mb-6 rounded-2xl bg-white p-5 shadow">
+          <h1 className="text-2xl font-bold text-slate-900">Leads Management</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Upload, distribute, and update lead status.
+          </p>
 
-            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h1 className="text-3xl font-black text-white sm:text-4xl">
-                  Daily Visitor Query
-                </h1>
-                <p className="mt-2 text-sm text-slate-300">
-                  Track daily leads, interested clients, not reachable clients,
-                  and expected visitors by Saturday.
-                </p>
-              </div>
+          <div className="mt-4 max-w-xs">
+            <label className="mb-1 block text-sm font-medium text-slate-700">
+              Login As
+            </label>
+            <select
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-blue-500"
+            >
+              {consultants.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {isAdmin && (
+          <div className="mb-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl bg-white p-5 shadow">
+              <p className="text-sm text-slate-500">Total Leads</p>
+              <h2 className="mt-2 text-3xl font-bold">{totalLeads}</h2>
+            </div>
+
+            <div className="rounded-2xl bg-white p-5 shadow">
+              <p className="text-sm text-slate-500">Unassigned Leads</p>
+              <h2 className="mt-2 text-3xl font-bold">{unassignedLeads}</h2>
+            </div>
+
+            <div className="rounded-2xl bg-white p-5 shadow">
+              <p className="text-sm text-slate-500">Current User</p>
+              <h2 className="mt-2 text-3xl font-bold">{user}</h2>
             </div>
           </div>
-        </div>
+        )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
-        >
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-7">
-            <InputBox label="Date">
-              <input
-                type="date"
-                name="date"
-                value={form.date}
-                onChange={handleChange}
-                className="input-style"
-              />
-            </InputBox>
+        {isAdmin && (
+          <div className="mb-6 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl bg-white p-5 shadow">
+              <h2 className="mb-4 text-lg font-semibold">Upload Excel</h2>
 
-            <InputBox label="User">
               <input
-                value={userName}
-                readOnly
-                className="input-style bg-slate-100 font-bold text-slate-700"
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="w-full rounded-xl border border-slate-300 p-3"
               />
-            </InputBox>
 
-            <InputBox label="Total Leads">
-              <input
-                type="number"
-                name="totalLeads"
-                min="0"
-                value={form.totalLeads}
-                onChange={handleChange}
-                placeholder="0"
-                className="input-style"
-              />
-            </InputBox>
+              <button
+                onClick={uploadExcel}
+                className="mt-4 rounded-xl bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700"
+              >
+                Upload Numbers
+              </button>
+            </div>
 
-            <InputBox label="Not Interested">
-              <input
-                type="number"
-                name="notInterested"
-                min="0"
-                value={form.notInterested}
-                onChange={handleChange}
-                placeholder="0"
-                className="input-style"
-              />
-            </InputBox>
+            <div className="rounded-2xl bg-white p-5 shadow">
+              <h2 className="mb-4 text-lg font-semibold">Distribute Leads</h2>
 
-            <InputBox label="Not Reachable">
-              <input
-                type="number"
-                name="notReachable"
-                min="0"
-                value={form.notReachable}
-                onChange={handleChange}
-                placeholder="0"
-                className="input-style"
-              />
-            </InputBox>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <select
+                  value={assignTo}
+                  onChange={(e) => setAssignTo(e.target.value)}
+                  className="rounded-xl border border-slate-300 px-4 py-2"
+                >
+                  {consultants
+                    .filter((name) => name !== "Siam")
+                    .map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                </select>
 
-            <InputBox label="Interested">
-              <input
-                value={interested}
-                readOnly
-                className="input-style border-emerald-200 bg-emerald-50 font-black text-emerald-700"
-              />
-            </InputBox>
+                <input
+                  type="number"
+                  placeholder="Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="rounded-xl border border-slate-300 px-4 py-2"
+                />
+              </div>
 
-            <InputBox label="Visitor by Saturday">
-              <input
-                type="number"
-                name="expectedVisitorBySaturday"
-                min="0"
-                value={form.expectedVisitorBySaturday}
-                onChange={handleChange}
-                placeholder="0"
-                className="input-style"
-              />
-            </InputBox>
+              <button
+                onClick={distributeLeads}
+                className="mt-4 rounded-xl bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700"
+              >
+                Distribute
+              </button>
+            </div>
           </div>
+        )}
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="mt-5 rounded-2xl bg-blue-900 px-6 py-3 font-black text-white shadow-lg shadow-blue-900/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {saving ? "Saving..." : "Save Daily Query"}
-          </button>
-        </form>
-
-        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
-          <StatCard title="Total Leads" value={totals.totalLeads} />
-          <StatCard title="Not Interested" value={totals.notInterested} />
-          <StatCard title="Not Reachable" value={totals.notReachable} orange />
-          <StatCard title="Interested" value={totals.interested} green />
-          <StatCard
-            title="Visitor by Saturday"
-            value={totals.expectedVisitorBySaturday}
-            blue
-            note={`${weekRange.startDate} to ${weekRange.endDate}`}
-          />
-        </div>
-
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-5 py-4">
-            <h2 className="font-black text-slate-900">All Previous Records</h2>
-            <p className="text-sm text-slate-500">
-              Showing all saved lead data. Visitor by Saturday total is weekly:{" "}
-              {weekRange.startDate} to {weekRange.endDate}
-            </p>
+        <div className="overflow-hidden rounded-2xl bg-white shadow">
+          <div className="border-b border-slate-200 p-5">
+            <h2 className="text-lg font-semibold">
+              {isAdmin ? "All Leads" : `${user}'s Leads`}
+            </h2>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-250 text-left">
-              <thead className="bg-slate-900 text-white">
+            <table className="w-full min-w-[800px] text-left text-sm">
+              <thead className="bg-slate-50 text-slate-600">
                 <tr>
-                  <th className="px-4 py-4 text-sm">Date</th>
-                  <th className="px-4 py-4 text-sm">User</th>
-                  <th className="px-4 py-4 text-sm">Total Leads</th>
-                  <th className="px-4 py-4 text-sm">Not Interested</th>
-                  <th className="px-4 py-4 text-sm">Not Reachable</th>
-                  <th className="px-4 py-4 text-sm">Interested</th>
-                  <th className="px-4 py-4 text-sm">Visitor by Saturday</th>
+                  <th className="px-4 py-3">Phone</th>
+                  <th className="px-4 py-3">Assigned To</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Note</th>
+                  <th className="px-4 py-3">Action</th>
                 </tr>
               </thead>
 
               <tbody>
-                {loading ? (
+                {leads.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan="7"
-                      className="px-4 py-10 text-center text-sm font-bold text-slate-400"
-                    >
-                      Loading data...
-                    </td>
-                  </tr>
-                ) : entries.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="px-4 py-10 text-center text-sm font-bold text-slate-400"
-                    >
-                      No previous data found.
+                    <td colSpan="5" className="px-4 py-8 text-center text-slate-500">
+                      No leads found
                     </td>
                   </tr>
                 ) : (
-                  entries.map((item) => {
-                    const itemTotalLeads = Number(item.totalLeads || 0);
-                    const itemNotInterested = Number(item.notInterested || 0);
-                    const itemNotReachable = Number(item.notReachable || 0);
-
-                    const itemInterested = Math.max(
-                      Number(
-                        item.interested ??
-                          itemTotalLeads - itemNotInterested - itemNotReachable
-                      ),
-                      0
-                    );
-
-                    return (
-                      <tr
-                        key={item._id}
-                        className="border-b border-slate-100 transition hover:bg-slate-50"
-                      >
-                        <td className="px-4 py-4 text-sm font-bold text-slate-700">
-                          {item.date}
-                        </td>
-
-                        <td className="px-4 py-4 text-sm font-semibold text-slate-700">
-                          {item.userName}
-                        </td>
-
-                        <td className="px-4 py-4 text-sm">
-                          {itemTotalLeads}
-                        </td>
-
-                        <td className="px-4 py-4 text-sm">
-                          {itemNotInterested}
-                        </td>
-
-                        <td className="px-4 py-4 text-sm font-bold text-orange-600">
-                          {itemNotReachable}
-                        </td>
-
-                        <td className="px-4 py-4 text-sm font-black text-emerald-600">
-                          {itemInterested}
-                        </td>
-
-                        <td className="px-4 py-4 text-sm font-black text-blue-700">
-                          {item.expectedVisitorBySaturday || 0}
-                        </td>
-                      </tr>
-                    );
-                  })
+                  leads.map((lead) => (
+                    <LeadRow
+                      key={lead._id}
+                      lead={lead}
+                      isAdmin={isAdmin}
+                      onUpdate={updateLead}
+                    />
+                  ))
                 )}
               </tbody>
-
-              <tfoot className="bg-blue-50">
-                <tr>
-                  <td className="px-4 py-4 text-sm font-black" colSpan="2">
-                    Total All Previous Data
-                  </td>
-
-                  <td className="px-4 py-4 text-sm font-black">
-                    {totals.totalLeads}
-                  </td>
-
-                  <td className="px-4 py-4 text-sm font-black">
-                    {totals.notInterested}
-                  </td>
-
-                  <td className="px-4 py-4 text-sm font-black text-orange-700">
-                    {totals.notReachable}
-                  </td>
-
-                  <td className="px-4 py-4 text-sm font-black text-emerald-700">
-                    {totals.interested}
-                  </td>
-
-                  <td className="px-4 py-4 text-sm font-black text-blue-700">
-                    {totals.expectedVisitorBySaturday}
-                  </td>
-                </tr>
-              </tfoot>
             </table>
           </div>
         </div>
       </div>
-
-      <style>{`
-        .input-style {
-          width: 100%;
-          border-radius: 1rem;
-          border: 1px solid #e2e8f0;
-          padding: 0.65rem 0.85rem;
-          outline: none;
-        }
-
-        .input-style:focus {
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
-        }
-      `}</style>
     </div>
   );
 }
 
-function InputBox({ label, children }) {
+function LeadRow({ lead, isAdmin, onUpdate }) {
+  const [status, setStatus] = useState(lead.status || "new");
+  const [note, setNote] = useState(lead.note || "");
+
+  const phone = lead.phone;
+
   return (
-    <div>
-      <label className="mb-1 block text-sm font-black text-slate-700">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
+    <tr className="border-b border-slate-100">
+      <td className="px-4 py-3 font-medium text-slate-900">
+        <div>{phone}</div>
 
-function StatCard({ title, value, green, blue, orange, note }) {
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-sm font-bold text-slate-500">{title}</p>
+        <div className="mt-2 flex gap-2">
+          <a
+            href={`tel:${phone}`}
+            className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+          >
+            Call
+          </a>
 
-      <p
-        className={`mt-2 text-3xl font-black ${
-          green
-            ? "text-emerald-600"
-            : blue
-            ? "text-blue-700"
-            : orange
-            ? "text-orange-600"
-            : "text-slate-900"
-        }`}
-      >
-        {value}
-      </p>
+          <a
+            href={`https://wa.me/${phone}`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700"
+          >
+            WhatsApp
+          </a>
+        </div>
+      </td>
 
-      {note && (
-        <p className="mt-1 text-xs font-semibold text-slate-400">{note}</p>
-      )}
-    </div>
+      <td className="px-4 py-3">{lead.assignedTo || "Unassigned"}</td>
+
+      <td className="px-4 py-3">
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          disabled={isAdmin}
+          className="rounded-lg border border-slate-300 px-3 py-2"
+        >
+          <option value="new">New</option>
+          <option value="interested">Interested</option>
+          <option value="not_interested">Not Interested</option>
+          <option value="not_reachable">Not Reachable</option>
+          <option value="follow_up">Follow Up</option>
+          <option value="converted">Converted</option>
+          <option value="wrong_number">Wrong Number</option>
+        </select>
+      </td>
+
+      <td className="px-4 py-3">
+        <input
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          disabled={isAdmin}
+          placeholder="Write note..."
+          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+        />
+      </td>
+
+      <td className="px-4 py-3">
+        {!isAdmin ? (
+          <button
+            onClick={() => onUpdate(lead._id, status, note)}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+          >
+            Save
+          </button>
+        ) : (
+          <span className="text-xs text-slate-400">Admin view</span>
+        )}
+      </td>
+    </tr>
   );
 }

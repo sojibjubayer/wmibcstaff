@@ -78,6 +78,8 @@ import Refund from "../Pages/dashboard/refund/Refund";
 import Applications from "../Pages/applications/Applications";
 import QatarPortugal from "../Pages/applications/qatarportugal/QatarPortugal";
 import Agreement from "../Pages/agreement/Agreement";
+import Flyer from "../Pages/Flyer";
+import WpPortugalSingapore from "../Pages/work-visa/WpPortugalSingapore";
 
 const router = createBrowserRouter([
   { 
@@ -94,7 +96,7 @@ const router = createBrowserRouter([
       // Work Visa
       { path: "work-visa", element: <PrivateRoute><WorkVisa /></PrivateRoute> },
       { path: "work-visa/greece", element: <PrivateRoute><WpGreece /></PrivateRoute> },
-      { path: "work-visa/portugal", element: <PrivateRoute><WpPortugal /></PrivateRoute> },
+      { path: "work-visa/qatar-portugal", element: <PrivateRoute><WpPortugal /></PrivateRoute> },
       { path: "work-visa/poland", element: <PrivateRoute><WpPoland /></PrivateRoute> },
       { path: "work-visa/cyprus", element: <PrivateRoute><WpCyprus /></PrivateRoute> },
       { path: "work-visa/serbia", element: <PrivateRoute><WpSerbia /></PrivateRoute> },
@@ -113,8 +115,9 @@ const router = createBrowserRouter([
       { path: "work-visa/canada", element: <PrivateRoute><WpCanada /></PrivateRoute> },
       { path: "work-visa/slovakia", element: <PrivateRoute><WpSlovakia /></PrivateRoute> },
       { path: "work-visa/international", element: <PrivateRoute><International /></PrivateRoute> },
-      { path: "/work-visa/portugalksa", element: <PrivateRoute><WpPortugalKSA /></PrivateRoute> },
-      { path: "/work-visa/germany", element: <PrivateRoute><WpGermany /></PrivateRoute> },
+      { path: "work-visa/saudi-portugal", element: <PrivateRoute><WpPortugalKSA /></PrivateRoute> },
+      { path: "work-visa/germany", element: <PrivateRoute><WpGermany /></PrivateRoute> },
+      { path: "work-visa/singapore-portugal", element: <PrivateRoute><WpPortugalSingapore /></PrivateRoute> },
 
 
       // Student Visa
@@ -141,6 +144,7 @@ const router = createBrowserRouter([
       { path: "student-visa/romania", element: <PrivateRoute><StvRomania /></PrivateRoute> },
       { path: "student-visa/sweden", element: <PrivateRoute><StvSweden /></PrivateRoute> },
       { path: "refund", element: <PrivateRoute><Refund /></PrivateRoute> },
+      { path: "flyer", element: <PrivateRoute><Flyer /></PrivateRoute> },
 
       // Visit Visa
       { path: "visit-visa/payment-terms", element: <PrivateRoute><PaymentTerms /></PrivateRoute> },

@@ -286,7 +286,7 @@ const NotesHistory = ({ latestNote, history = [], latestUpdatedAt }) => {
               </p>
             </div>
 
-            <p className="whitespace-pre-wrap break-words text-sm text-slate-700">
+            <p className="whitespace-pre-wrap wrap-break-word text-sm text-slate-700">
               {item.note || "-"}
             </p>
           </div>
@@ -690,7 +690,7 @@ const Refund = () => {
                   <p className="text-xs font-black uppercase text-slate-400">
                     {label}
                   </p>
-                  <p className="mt-1 break-words text-sm font-bold text-slate-800">
+                  <p className="mt-1 wrap-break-word text-sm font-bold text-slate-800">
                     {value || "-"}
                   </p>
                 </div>
@@ -723,7 +723,7 @@ const Refund = () => {
         </div>
       )}
 
-      <div className="mx-auto w-full max-w-[1700px]">
+      <div className="mx-auto w-full max-w-425">
         <section className="mb-6 overflow-hidden rounded-3xl bg-linear-to-br from-orange-500 via-orange-500 to-slate-950 p-5 text-white shadow-xl sm:p-8">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
             <div>
@@ -1097,7 +1097,7 @@ const Refund = () => {
 
           <div className="rounded-2xl border border-slate-100">
             <div className="w-full overflow-x-auto">
-              <table className="min-w-[2550px] divide-y divide-slate-100">
+              <table className="min-w-637.5 divide-y divide-slate-100">
                 <thead className="bg-slate-50">
                   <tr>
                     {[
@@ -1154,23 +1154,23 @@ const Refund = () => {
                   ) : (
                     refunds.map((item) => (
                       <tr key={item._id} className="hover:bg-orange-50/50">
-                        <td className="max-w-42.5 break-words px-4 py-4 text-sm font-black text-slate-900">
+                        <td className="max-w-42.5 wrap-break-word px-4 py-4 text-sm font-black text-slate-900">
                           {item.clientName || "-"}
                         </td>
 
-                        <td className="max-w-35 break-words px-4 py-4 text-sm text-slate-700">
+                        <td className="max-w-35 wrap-break-word px-4 py-4 text-sm text-slate-700">
                           {item.mobile || "-"}
                         </td>
 
-                        <td className="max-w-35 break-words px-4 py-4 text-sm text-slate-700">
+                        <td className="max-w-35 wrap-break-word px-4 py-4 text-sm text-slate-700">
                           {item.qid || "-"}
                         </td>
 
-                        <td className="max-w-35 break-words px-4 py-4 text-sm text-slate-700">
+                        <td className="max-w-35 wrap-break-word px-4 py-4 text-sm text-slate-700">
                           {item.passport || "-"}
                         </td>
 
-                        <td className="max-w-35 break-words px-4 py-4 text-sm text-slate-700">
+                        <td className="max-w-35 wrap-break-word px-4 py-4 text-sm text-slate-700">
                           {item.processingCountry || "-"}
                         </td>
 
@@ -1196,7 +1196,7 @@ const Refund = () => {
                           {formatDate(item.startDate)}
                         </td>
 
-                        <td className="max-w-37.5 break-words px-4 py-4 text-sm font-black text-orange-600">
+                        <td className="max-w-37.5 wrap-break-word px-4 py-4 text-sm font-black text-orange-600">
                           {calculateSpentTime(item.startDate)}
                         </td>
 
@@ -1231,11 +1231,11 @@ const Refund = () => {
                           {formatAmount(item.dueAmount)}
                         </td>
 
-                        <td className="max-w-42.5 break-words px-4 py-4 text-sm text-slate-700">
+                        <td className="max-w-42.5 wrap-break-word px-4 py-4 text-sm text-slate-700">
                           {item.clientConsultantName || "-"}
                         </td>
 
-                        <td className="max-w-42.5 break-words px-4 py-4 text-sm text-slate-700">
+                        <td className="max-w-42.5 wrap-break-word px-4 py-4 text-sm text-slate-700">
                           {item.refundConsultantName || "-"}
                         </td>
 
