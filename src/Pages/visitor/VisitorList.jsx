@@ -181,39 +181,41 @@ export default function VisitorList() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-2 md:p-6 text-slate-700 font-sans">
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 p-3 font-sans text-blue-50 md:p-6">
       <Toaster position="top-right" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-linear(circle_at_top_left,rgba(37,99,235,0.34),transparent_32%),radial-linear(circle_at_bottom_right,rgba(14,165,233,0.22),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-linear(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-linear(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[44px_44px] opacity-20" />
 
-      <div className="max-w-5xl mx-auto space-y-4">
+      <div className="relative mx-auto max-w-5xl space-y-4">
         {/* Header */}
-        <div className="flex justify-between items-center bg-white px-5 py-3 rounded-2xl border border-white shadow-sm">
+        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.07] px-5 py-3 shadow-2xl shadow-blue-950/40 backdrop-blur-2xl">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-pink-200 rounded-lg flex items-center justify-center text-slate-900 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-sky-300/30 bg-white/10 text-sky-200 shadow-lg shadow-blue-500/20">
               <FaPassport size={16} />
             </div>
-            <h1 className="text-base font-black text-slate-900 tracking-tight uppercase">
+            <h1 className="text-base font-black uppercase tracking-tight text-white">
               Visitor Log
             </h1>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-right">
-              <p className="text-[10px] font-bold text-slate-400 uppercase leading-none">
+              <p className="text-[10px] font-black uppercase leading-none tracking-wider text-blue-100/60">
                 {consultantName}
               </p>
             </div>
-            <FaUserCircle size={20} className="text-slate-300" />
+            <FaUserCircle size={22} className="text-sky-200/70" />
           </div>
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-slate-900 p-4 rounded-2xl shadow-lg">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 shadow-2xl shadow-blue-950/40 backdrop-blur-2xl">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-6">
             <div className="relative">
-              <FaSearch className="absolute left-3 top-2.5 text-slate-500 text-[10px]" />
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-blue-100/35" />
               <input
                 type="text"
                 placeholder="Mobile"
-                className="w-full pl-8 pr-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/45 py-2.5 pl-8 pr-2 text-[11px] font-bold text-white outline-none transition-all placeholder:text-blue-100/35 focus:border-sky-300/70 focus:ring-4 focus:ring-sky-400/20"
                 value={searchMobile}
                 onChange={(e) => {
                   setSearchMobile(e.target.value);
@@ -223,7 +225,7 @@ export default function VisitorList() {
             </div>
             <input
               type="date"
-              className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/45 px-2 py-2.5 text-[11px] font-bold text-white outline-none transition-all focus:border-sky-300/70 focus:ring-4 focus:ring-sky-400/20"
               value={filterDate}
               onChange={(e) => {
                 setFilterDate(e.target.value);
@@ -232,7 +234,7 @@ export default function VisitorList() {
             />
 
             <select
-              className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/45 px-2 py-2.5 text-[11px] font-bold text-white outline-none transition-all focus:border-sky-300/70 focus:ring-4 focus:ring-sky-400/20"
               value={filterVisa}
               onChange={(e) => {
                 setFilterVisa(e.target.value);
@@ -248,7 +250,7 @@ export default function VisitorList() {
             </select>
 
             <select
-              className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/45 px-2 py-2.5 text-[11px] font-bold text-white outline-none transition-all focus:border-sky-300/70 focus:ring-4 focus:ring-sky-400/20"
               value={filterCountry}
               onChange={(e) => {
                 setFilterCountry(e.target.value);
@@ -264,7 +266,7 @@ export default function VisitorList() {
             </select>
 
             <select
-              className="w-full px-2 py-2 bg-slate-800 border-none rounded-lg text-[11px] text-white outline-none"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/45 px-2 py-2.5 text-[11px] font-bold text-white outline-none transition-all focus:border-sky-300/70 focus:ring-4 focus:ring-sky-400/20"
               value={filterStatus}
               onChange={(e) => {
                 setFilterStatus(e.target.value);
@@ -288,7 +290,7 @@ export default function VisitorList() {
                 setFilterDate("");
                 setCurrentPage(1);
               }}
-              className="w-full py-2 bg-pink-200 text-slate-900 font-bold rounded-lg text-[10px] uppercase tracking-widest hover:bg-pink-300 transition-all"
+              className="w-full rounded-xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-400/45 active:scale-95"
             >
               Reset
             </button>
@@ -296,33 +298,34 @@ export default function VisitorList() {
         </div>
 
         {/* Table Content */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
-          <table className="w-full text-left border-collapse table-fixed">
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.07] shadow-2xl shadow-blue-950/50 backdrop-blur-2xl">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-190 table-fixed border-collapse text-left">
             <thead>
-              <tr className="bg-slate-50">
-                <th className="w-1/3 p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+              <tr className="bg-slate-950/80">
+                <th className="w-1/3 border-b border-white/10 p-3 text-[10px] font-black uppercase tracking-widest text-blue-100/45">
                   Visitor
                 </th>
-                <th className="hidden md:table-cell p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                <th className="hidden border-b border-white/10 p-3 text-[10px] font-black uppercase tracking-widest text-blue-100/45 md:table-cell">
                   Contact
                 </th>
-                <th className="p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                <th className="border-b border-white/10 p-3 text-[10px] font-black uppercase tracking-widest text-blue-100/45">
                   Service
                 </th>
-                <th className="p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-center">
+                <th className="border-b border-white/10 p-3 text-center text-[10px] font-black uppercase tracking-widest text-blue-100/45">
                   Status
                 </th>
-                <th className="w-20 p-3 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b text-right">
+                <th className="w-20 border-b border-white/10 p-3 text-right text-[10px] font-black uppercase tracking-widest text-blue-100/45">
                   View
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-white/10">
               {loading ? (
                 <tr>
                   <td
                     colSpan="5"
-                    className="p-10 text-center text-slate-400 text-xs"
+                    className="p-10 text-center text-xs font-bold text-blue-100/50"
                   >
                     Loading...
                   </td>
@@ -331,7 +334,7 @@ export default function VisitorList() {
                 <tr>
                   <td
                     colSpan="5"
-                    className="p-10 text-center text-slate-300 text-xs uppercase font-bold"
+                    className="p-10 text-center text-xs font-black uppercase text-blue-100/45"
                   >
                     No Records Found
                   </td>
@@ -340,24 +343,24 @@ export default function VisitorList() {
                 visitors.map((v) => (
                   <tr
                     key={v._id}
-                    className="hover:bg-slate-50 transition-all group"
+                    className="group transition-all hover:bg-sky-400/10"
                   >
                     <td className="p-3">
-                      <p className="font-bold text-slate-900 text-xs truncate capitalize">
+                      <p className="truncate text-xs font-black capitalize text-white">
                         {v.name}
                       </p>
-                      <p className="text-[9px] text-slate-400">
+                      <p className="text-[9px] text-blue-100/45">
                         {v.date ? new Date(v.date).toLocaleDateString() : "N/A"}
                       </p>
                     </td>
-                    <td className="hidden md:table-cell p-3 text-xs text-slate-600 font-medium">
+                    <td className="hidden p-3 text-xs font-medium text-blue-100/65 md:table-cell">
                       {v.mobile}
                     </td>
                     <td className="p-3 truncate">
-                      <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-bold uppercase mr-1">
+                      <span className="mr-1 rounded border border-sky-300/20 bg-sky-400/10 px-1.5 py-0.5 text-[9px] font-black uppercase text-sky-100">
                         {v.visaType}
                       </span>
-                      <span className="text-[11px] font-bold text-slate-800">
+                      <span className="text-[11px] font-black text-blue-50">
                         {v.interestedCountry}
                       </span>
                     </td>
@@ -365,8 +368,8 @@ export default function VisitorList() {
                       <span
                         className={`px-2 py-1 text-[8px] font-black rounded-full uppercase tracking-tighter ${
                           v.consultationStatus === "Highly Interested"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-pink-100 text-pink-600"
+                            ? "border border-sky-300/25 bg-sky-400/15 text-sky-100"
+                            : "border border-blue-300/20 bg-blue-500/10 text-blue-100"
                         }`}
                       >
                         {v.consultationStatus?.split(" ")[0]}
@@ -375,7 +378,7 @@ export default function VisitorList() {
                     <td className="p-3 text-right">
                       <button
                         onClick={() => handleOpenDetails(v)}
-                        className="p-1.5 bg-slate-900 text-white rounded-lg hover:bg-pink-300 hover:text-slate-900 transition-all"
+                        className="rounded-lg bg-sky-400/15 p-1.5 text-sky-100 transition-all hover:bg-sky-400/25 hover:text-white"
                       >
                         <FaPassport size={12} />
                       </button>
@@ -385,23 +388,24 @@ export default function VisitorList() {
               )}
             </tbody>
           </table>
-
           {/* Pagination */}
-          <div className="p-3 bg-slate-50 border-t flex justify-between items-center">
+          </div>
+
+          <div className="flex items-center justify-between border-t border-white/10 bg-slate-950/45 p-3">
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => p - 1)}
-              className="p-1.5 rounded-lg border bg-white disabled:opacity-30"
+              className="rounded-lg border border-white/10 bg-white/[0.07] p-1.5 text-blue-50 disabled:opacity-30"
             >
               <FaChevronLeft size={10} />
             </button>
-            <span className="text-[9px] font-black text-slate-400 uppercase">
+            <span className="text-[9px] font-black uppercase tracking-widest text-blue-100/50">
               Page {currentPage} of {totalPages}
             </span>
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
-              className="p-1.5 rounded-lg border bg-white disabled:opacity-30"
+              className="rounded-lg border border-white/10 bg-white/[0.07] p-1.5 text-blue-50 disabled:opacity-30"
             >
               <FaChevronRight size={10} />
             </button>
@@ -411,9 +415,9 @@ export default function VisitorList() {
 
       {/* Editable Detail Modal */}
       {selectedVisitor && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
-            <div className="p-5 bg-slate-900 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md">
+          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 shadow-2xl shadow-blue-950/70">
+            <div className="flex items-center justify-between border-b border-white/10 bg-linear-to-r from-blue-950 via-blue-900 to-sky-900 p-5">
               <h2 className="text-sm font-black text-white uppercase tracking-widest">
                 {isEditing ? "Editing Visitor" : "Visitor Detail"}
               </h2>
@@ -422,33 +426,33 @@ export default function VisitorList() {
                   setSelectedVisitor(null);
                   setIsEditing(false);
                 }}
-                className="text-slate-400 hover:text-white"
+                className="text-blue-100/50 transition-all hover:text-white"
               >
                 <FaTimes />
               </button>
             </div>
 
-            <div className="p-5 grid grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto">
+            <div className="grid max-h-[50vh] grid-cols-1 gap-4 overflow-y-auto p-5 sm:grid-cols-2">
               {Object.entries(editData)
                 .filter(
                   ([key]) =>
                     !["_id", "__v", "createdAt", "consultant"].includes(key),
                 )
                 .map(([key, value]) => (
-                  <div key={key} className="border-b border-slate-50 pb-2">
-                    <label className="text-[8px] font-black text-slate-400 uppercase block mb-1">
+                  <div key={key} className="border-b border-white/10 pb-2">
+                    <label className="mb-1 block text-[8px] font-black uppercase tracking-widest text-blue-100/45">
                       {formatLabel(key)}
                     </label>
                     {isEditing ? (
                       <input
-                        className="w-full text-[11px] font-bold text-slate-800 bg-slate-50 border-none rounded p-1 outline-pink-300"
+                        className="w-full rounded-lg border border-white/10 bg-slate-900/70 p-2 text-[11px] font-bold text-white outline-none transition-all focus:border-sky-300/70 focus:ring-4 focus:ring-sky-400/20"
                         value={value || ""}
                         onChange={(e) =>
                           setEditData({ ...editData, [key]: e.target.value })
                         }
                       />
                     ) : (
-                      <span className="text-[11px] font-bold text-slate-800 block truncate">
+                      <span className="block truncate text-[11px] font-bold text-blue-50">
                         {formatValue(key, value)}
                       </span>
                     )}
@@ -456,18 +460,18 @@ export default function VisitorList() {
                 ))}
             </div>
 
-            <div className="p-5 bg-slate-50 flex gap-2">
+            <div className="flex gap-2 border-t border-white/10 bg-slate-950/70 p-5">
               {!isEditing ? (
                 <>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] py-3 text-[10px] font-black uppercase tracking-widest text-blue-50 transition-all hover:border-sky-300/30 hover:bg-sky-400/10"
                   >
                     <FaEdit /> Edit Profile
                   </button>
                   <button
                     onClick={() => downloadPDF(selectedVisitor)}
-                    className="flex-1 py-3 bg-pink-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-pink-300 transition-all"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-400/45"
                   >
                     <FaFilePdf /> PDF Report
                   </button>
@@ -476,7 +480,7 @@ export default function VisitorList() {
                 <>
                   <button
                     onClick={handleUpdate}
-                    className="flex-1 py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-400/45"
                   >
                     <FaSave /> Save Changes
                   </button>
@@ -485,7 +489,7 @@ export default function VisitorList() {
                       setIsEditing(false);
                       setEditData(selectedVisitor);
                     }}
-                    className="flex-1 py-3 bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-300 transition-all"
+                    className="flex-1 rounded-xl border border-white/10 bg-white/[0.07] py-3 text-[10px] font-black uppercase tracking-widest text-blue-100/65 transition-all hover:bg-white/10 hover:text-white"
                   >
                     Cancel
                   </button>

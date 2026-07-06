@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  FaSave,
   FaTrash,
   FaPlus,
   FaCalendarAlt,
@@ -26,7 +25,9 @@ const COUNTRIES = [
   "Canada",
   "Other",
 ];
+
 const AGREEMENT_OPTIONS = ["Pending", "Not Required", "Handed over to Client"];
+
 const PAYMENT_TYPES = [
   "1st Payment",
   "2nd Payment",
@@ -34,7 +35,10 @@ const PAYMENT_TYPES = [
   "Pending Balance",
   "Refund",
 ];
+
 const PAYMENT_METHODS = ["Cash", "Bank Transfer", "Card Payment", "Cheque"];
+
+const CURRENCY_OPTIONS = ["Riyal", "BDT"];
 
 export default function EditClient() {
   const { id } = useParams();
@@ -55,9 +59,6 @@ export default function EditClient() {
     }
   }, []);
 
-  // LOGGED IN USER: Replace "Current Staff" with logic from your Auth Provider (e.g., user.displayName)
-  // const [currentUser, setCurrentUser] = useState("Staff Member");
-
   const [newPayment, setNewPayment] = useState({
     paymentType: "",
     amount: "",
@@ -67,6 +68,7 @@ export default function EditClient() {
 
   useEffect(() => {
     setLoading(true);
+
     fetch(`https://wmibcstaff-server.vercel.app/api/clients/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Client not found");
@@ -75,6 +77,7 @@ export default function EditClient() {
       .then((data) => {
         setFormData({
           ...data,
+          currency: data.currency || "Riyal",
           amountReceived: Array.isArray(data.amountReceived)
             ? data.amountReceived
             : [],
@@ -91,17 +94,12 @@ export default function EditClient() {
       });
   }, [id]);
 
-  // ... (handleUpdate and addPayment functions remain the same)
-
-  // --- MODERN LOADING UI (Matching ClientDetails) ---
-
   const handleUpdate = async () => {
-    // 1. Correctly extract user.name from localStorage
     let currentStaffName = "Unknown Staff";
+
     try {
       const userData = localStorage.getItem("user");
       if (userData) {
-        // Parse the JSON object and target the .name property
         const parsedUser = JSON.parse(userData);
         currentStaffName = parsedUser.name || "Unknown Staff";
       }
@@ -109,19 +107,16 @@ export default function EditClient() {
       console.error("Auth parsing error:", err);
     }
 
-    // 2. Prepare the new log entry object
     const newLogEntry = {
       name: currentStaffName,
       date: new Date().toISOString(),
     };
 
-    // 3. Prepare final data (RemarksHistory is NOT updated/added to)
     const finalData = {
       ...formData,
       updatedBy: [...(formData.updatedBy || []), newLogEntry],
     };
 
-    // 4. Send to Database
     try {
       const res = await fetch(
         `https://wmibcstaff-server.vercel.app/api/clients/${id}`,
@@ -173,6 +168,7 @@ export default function EditClient() {
 
     toast.success("Payment added to list");
   };
+
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
@@ -187,13 +183,14 @@ export default function EditClient() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <Toaster />
+
       <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-xl border border-amber-100 overflow-hidden">
-        {/* Header Section */}
         <div className="bg-amber-200 p-8 text-gray-700 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold uppercase tracking-tight">
               Edit Client
             </h1>
+
             <div className="flex items-center gap-2 mt-1">
               <FaUserEdit className="text-amber-600" />
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
@@ -202,6 +199,7 @@ export default function EditClient() {
               </p>
             </div>
           </div>
+
           <div className="flex gap-3">
             <button
               onClick={() => navigate(-1)}
@@ -209,6 +207,7 @@ export default function EditClient() {
             >
               Cancel
             </button>
+
             <button
               onClick={handleUpdate}
               className="bg-slate-900 text-white p-2 px-6 rounded-xl text-xs font-black uppercase shadow-lg hover:scale-105 transition-all"
@@ -220,36 +219,41 @@ export default function EditClient() {
 
         <div className="p-8 md:p-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* COLUMN 1: IDENTITY */}
             <div className="space-y-5">
               <h3 className="text-amber-600 font-black text-[10px] uppercase border-b pb-2 tracking-widest">
                 Identity
               </h3>
+
               <EditField
                 label="Full Name"
                 value={formData.clientName}
                 onChange={(v) => setFormData({ ...formData, clientName: v })}
               />
+
               <EditField
                 label="Contact No"
                 value={formData.contactNo}
                 onChange={(v) => setFormData({ ...formData, contactNo: v })}
               />
+
               <EditField
                 label="Current Passport"
                 value={formData.passport}
                 onChange={(v) => setFormData({ ...formData, passport: v })}
               />
+
               <EditField
                 label="New Passport"
                 value={formData.newPassport}
                 onChange={(v) => setFormData({ ...formData, newPassport: v })}
               />
+
               <EditField
                 label="Nationality"
                 value={formData.nationality}
                 onChange={(v) => setFormData({ ...formData, nationality: v })}
               />
+
               <EditField
                 label="QID Number"
                 value={formData.QID}
@@ -257,11 +261,11 @@ export default function EditClient() {
               />
             </div>
 
-            {/* COLUMN 2: JOURNEY TRACKING */}
             <div className="space-y-5">
               <h3 className="text-amber-600 font-black text-[10px] uppercase border-b pb-2 tracking-widest">
                 Journey Tracking
               </h3>
+
               <EditSelect
                 label="Current Country"
                 value={formData.currentCountry}
@@ -270,6 +274,7 @@ export default function EditClient() {
                   setFormData({ ...formData, currentCountry: v })
                 }
               />
+
               <EditField
                 label="Original Destination"
                 value={formData.destinationCountry}
@@ -277,6 +282,7 @@ export default function EditClient() {
                   setFormData({ ...formData, destinationCountry: v })
                 }
               />
+
               <EditField
                 label="Changed Destination"
                 value={formData.changedDestination}
@@ -284,20 +290,24 @@ export default function EditClient() {
                   setFormData({ ...formData, changedDestination: v })
                 }
               />
+
               <EditField
                 label="Visa Type"
                 value={formData.visaType}
                 onChange={(v) => setFormData({ ...formData, visaType: v })}
               />
+
               <EditField
                 label="Trade / Job"
                 value={formData.trade}
                 onChange={(v) => setFormData({ ...formData, trade: v })}
               />
+
               <div className="p-2 border-b border-gray-100">
                 <p className="text-[9px] font-black text-gray-400 uppercase mb-1">
                   File Submission Date
                 </p>
+
                 <DatePicker
                   selected={formData.fileSubmissionDate}
                   onChange={(d) =>
@@ -309,28 +319,34 @@ export default function EditClient() {
               </div>
             </div>
 
-            {/* COLUMN 3: ACCOUNTS */}
             <div className="bg-slate-50 p-6 rounded-4xl border border-amber-100 shadow-inner">
               <h3 className="text-slate-800 font-black text-[10px] uppercase border-b pb-3 mb-5 tracking-widest">
                 Accounts Ledger
               </h3>
 
+              <EditSelect
+                label="Currency"
+                value={formData.currency}
+                options={CURRENCY_OPTIONS}
+                onChange={(v) => setFormData({ ...formData, currency: v })}
+              />
+
               <EditField
-                label="Total Service Charge"
+                label={`Total Service Charge (${formData.currency || "Riyal"})`}
                 value={formData.totalServiceCharge}
                 onChange={(v) =>
                   setFormData({ ...formData, totalServiceCharge: v })
                 }
               />
+
               <EditField
-                label="Pending Balance"
+                label={`Pending Balance (${formData.currency || "Riyal"})`}
                 value={formData.pendingBalance}
                 onChange={(v) =>
                   setFormData({ ...formData, pendingBalance: v })
                 }
               />
 
-              {/* History List */}
               <div className="space-y-2 mt-6 max-h-40 overflow-y-auto pr-2">
                 {formData.amountReceived.map((pay, i) => (
                   <div
@@ -345,10 +361,12 @@ export default function EditClient() {
                         {new Date(pay.paymentDate).toLocaleDateString()}
                       </p>
                     </div>
+
                     <div className="flex items-center gap-3">
                       <span className="font-black text-emerald-600">
-                        {pay.amount} QAR
+                        {pay.amount} {formData.currency || "Riyal"}
                       </span>
+
                       <button
                         onClick={() => {
                           const up = formData.amountReceived.filter(
@@ -365,7 +383,6 @@ export default function EditClient() {
                 ))}
               </div>
 
-              {/* PAYMENT ADDER */}
               <div className="mt-6 p-4 bg-white rounded-2xl border-2 border-dashed border-amber-200 space-y-3">
                 <div className="flex gap-2">
                   <select
@@ -385,6 +402,7 @@ export default function EditClient() {
                       </option>
                     ))}
                   </select>
+
                   <select
                     className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50 outline-none"
                     value={newPayment.paymentMethod}
@@ -406,6 +424,7 @@ export default function EditClient() {
 
                 <div className="flex items-center gap-2 bg-slate-50 border rounded-lg p-2">
                   <FaCalendarAlt className="text-amber-500 text-xs" />
+
                   <DatePicker
                     selected={newPayment.paymentDate}
                     onChange={(date) =>
@@ -418,7 +437,7 @@ export default function EditClient() {
 
                 <input
                   type="number"
-                  placeholder="Amount (QAR)"
+                  placeholder={`Amount (${formData.currency || "Riyal"})`}
                   className="w-full text-[10px] font-bold p-2 border rounded-lg outline-none"
                   value={newPayment.amount}
                   onChange={(e) =>
@@ -436,7 +455,6 @@ export default function EditClient() {
             </div>
           </div>
 
-          {/* BOTTOM GRID: STATUS */}
           <div className="mt-12 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-6">
             <EditSelect
               label="Agreement"
@@ -444,16 +462,19 @@ export default function EditClient() {
               options={AGREEMENT_OPTIONS}
               onChange={(v) => setFormData({ ...formData, agreementPaper: v })}
             />
+
             <EditField
               label="Handover Status"
               value={formData.handover}
               onChange={(v) => setFormData({ ...formData, handover: v })}
             />
+
             <EditField
               label="Refund Policy"
               value={formData.refundTerms}
               onChange={(v) => setFormData({ ...formData, refundTerms: v })}
             />
+
             <EditField
               label="Application Status"
               value={formData.applicationStatus}

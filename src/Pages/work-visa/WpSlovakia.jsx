@@ -49,16 +49,13 @@ const WpSlovakia = () => {
               <div className="flex items-center gap-2 text-blue-200 mb-2 font-bold text-xs uppercase tracking-widest">
                 <Wallet size={16} /> Full Process Cost
               </div>
-              <p className="text-3xl font-light italic">9,000 €</p>
+              <p className="text-3xl font-light italic">25,000 QAR</p>
               <div className="mt-6 space-y-3 text-sm text-slate-300 border-t border-slate-600 pt-5">
                 <p className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-blue-400" /> Including TRC
+                  <CheckCircle2 size={14} className="text-blue-400" /> Excluding Ticket
                 </p>
                 <p className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-blue-400" /> Flight Included
-                </p>
-                <p className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-blue-400" /> Insurance Included
+                  <CheckCircle2 size={14} className="text-blue-400" /> Excluding Embassy Fees
                 </p>
               </div>
             </section>
@@ -70,15 +67,15 @@ const WpSlovakia = () => {
                 </div>
                 <div>
                   <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">
-                    Applicant Eligibility
+                    Note
                   </h4>
                   <p className="text-slate-800 font-medium text-sm">
-                    Only for Saudi & Kuwait Applicants
+                    Applicants from Qatar have to submit in Kuwait. 
                   </p>
-                </div>
-              </div>
-            </section>
-          </aside>
+                </div> 
+              </div> 
+            </section> 
+          </aside> 
         </div>
 
         {/* SERVICE CHARGE */}
@@ -87,7 +84,7 @@ const WpSlovakia = () => {
             <div className="text-center md:text-left">
               <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Service Charge Breakdown</h2>
               <p className="text-slate-400 text-xs mt-1 uppercase tracking-[0.2em] font-bold">
-                Includes TRC, Flight & Insurance
+                Ticket & Embassy Fees Excluded
               </p>
             </div>
             <div className="flex gap-2">
@@ -110,18 +107,24 @@ const WpSlovakia = () => {
               
               <div className="space-y-6">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-500 text-sm font-medium">1st Payment (With File)</span>
-                  <span className="text-lg font-bold text-slate-800">1,800 <span className="text-[10px] text-slate-400">EURO</span></span>
+                  <span className="text-slate-500 text-sm font-medium">1st Payment</span>
+                  <span className="text-lg font-bold text-slate-800">
+                    2,500 <span className="text-[10px] text-slate-400">QAR</span>
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-500 text-sm font-medium">2nd Payment (After Permit)</span>
-                  <span className="text-lg font-bold text-slate-800">1,800 <span className="text-[10px] text-slate-400">EURO</span></span>
+                  <span className="text-slate-500 text-sm font-medium">2nd Payment</span>
+                  <span className="text-lg font-bold text-slate-800">
+                    5,000 <span className="text-[10px] text-slate-400">QAR</span>
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-500 text-sm font-medium">3rd Payment (Rest After Visa)</span>
-                  <span className="text-lg font-bold text-slate-800">5,400 <span className="text-[10px] text-slate-400">EURO</span></span>
+                  <span className="text-slate-500 text-sm font-medium">Rest After Visa</span>
+                  <span className="text-lg font-bold text-slate-800">
+                    17,500 <span className="text-[10px] text-slate-400">QAR</span>
+                  </span>
                 </div>
                 
                 <div className="mt-8 p-6 bg-blue-50/40 rounded-2xl border-2 border-dashed border-blue-100">
@@ -130,7 +133,7 @@ const WpSlovakia = () => {
                       Total Payable
                     </span>
                     <span className="text-3xl font-black text-slate-800">
-                      9,000 <span className="text-sm font-bold text-blue-600">EURO</span>
+                      25,000 <span className="text-sm font-bold text-blue-600">QAR</span>
                     </span>
                   </div>
                 </div>

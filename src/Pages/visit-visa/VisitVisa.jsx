@@ -8,10 +8,11 @@ import {
   X,
   CheckCircle2,
   Info,
+  Sparkles,
 } from "lucide-react";
 
 /**
- * VisitVisa Component - 2026 Edition
+ * VisitVisa Component - 2026 Blue Premium Edition
  * Optimized: Slim Header, No Footer, Scrollable Body
  */
 const VisitVisa = () => {
@@ -376,7 +377,7 @@ const VisitVisa = () => {
         "Passport - 6 months validity",
         "Qatar ID (QID) - 3 months validity",
         "Passport Size Photo",
-        "Valid visa from the US/UK/Schengen countries (if any)"
+        "Valid visa from the US/UK/Schengen countries (if any)",
       ],
     },
   };
@@ -403,39 +404,43 @@ const VisitVisa = () => {
     "Japan",
     "India",
     "Malaysia",
-    "Saudi Arabia"
+    "Saudi Arabia",
   ];
 
   const closeModal = () => setSelectedCountry(null);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-10 font-sans text-slate-900 relative">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[#071a3d] p-4 md:p-10 font-sans text-white relative overflow-hidden">
+      {/* --- Premium Radial Blue Ambience --- */}
+      <div className="pointer-events-none absolute left-1/3 -top-40 h-120 w-120 rounded-full bg-blue-600/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 top-1/4 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* --- Header Section --- */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
           <div className="flex items-center gap-4">
-            <div className="bg-slate-900 p-3 rounded-2xl shadow-xl shadow-slate-200">
-              <Plane className="text-pink-500 w-7 h-7" />
+            <div className="bg-white/10 p-3 rounded-2xl shadow-2xl border border-white/15 backdrop-blur-md">
+              <Plane className="text-cyan-400 w-7 h-7" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
+              <div className="mb-1 inline-flex items-center gap-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-cyan-300">
+                <Sparkles size={10} /> Global Tourism 2026
+              </div>
+              <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
                 Visit Visa
               </h1>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                Tourism 2026
-              </p>
             </div>
           </div>
 
           <Link
             to="/visit-visa/payment-terms"
-            className="group flex items-center gap-3 bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:border-pink-500 hover:text-pink-600 shadow-sm active:scale-95"
+            className="group flex items-center gap-3 bg-white/5 border border-white/10 text-blue-100 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:border-cyan-400/50 hover:bg-white/10 shadow-xl backdrop-blur-sm active:scale-95"
           >
-            <CreditCard size={16} className="text-pink-500" />
+            <CreditCard size={16} className="text-cyan-400" />
             Payment Terms
             <ChevronRight
               size={14}
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-cyan-400"
             />
           </Link>
         </div>
@@ -446,87 +451,87 @@ const VisitVisa = () => {
             <button
               key={index}
               onClick={() => setSelectedCountry(country)}
-              className="relative group bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:border-pink-100 transition-all duration-300 h-28 md:h-32 flex flex-col justify-between overflow-hidden text-left"
+              className="relative group bg-white/6 rounded-3xl p-6 border border-white/10 shadow-2xl backdrop-blur-md hover:border-cyan-400/40 hover:bg-white/12 transition-all duration-300 h-28 md:h-32 flex flex-col justify-between overflow-hidden text-left"
             >
-              <Map className="absolute -right-2 -bottom-2 w-16 h-16 text-slate-50 group-hover:text-pink-50 transition-colors duration-300" />
+              <Map className="absolute -right-2 -bottom-2 w-16 h-16 text-white/2 group-hover:text-cyan-400/5 transition-colors duration-300" />
               <div className="z-10">
-                <p className="text-[9px] font-black text-pink-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity mb-1">
-                  Check Documents
+                <p className="text-[9px] font-black text-cyan-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity mb-1">
+                  View Requirements
                 </p>
-                <span className="text-sm md:text-base font-black text-slate-800 uppercase tracking-tight group-hover:text-slate-900 transition-colors">
+                <span className="text-sm md:text-base font-black text-blue-50 uppercase tracking-tight group-hover:text-white transition-colors">
                   {country}
                 </span>
               </div>
-              <div className="w-8 h-1 bg-slate-100 group-hover:bg-pink-500 group-hover:w-full transition-all duration-500 rounded-full" />
+              <div className="w-8 h-1 bg-white/10 group-hover:bg-cyan-400 group-hover:w-full transition-all duration-500 rounded-full" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* --- Dynamic Modal Overlay --- */}
+      {/* --- Dynamic Premium Modal Overlay --- */}
       {selectedCountry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300"
             onClick={closeModal}
           ></div>
 
-          <div className="relative bg-white w-full max-w-lg rounded-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100 flex flex-col max-h-[85vh]">
-            {/* REDUCED HEADER */}
-            <div className="bg-slate-900 px-6 py-4 text-white shrink-0 flex items-center justify-between">
+          <div className="relative bg-[#0b224e] w-full max-w-lg rounded-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10 flex flex-col max-h-[85vh]">
+            {/* MODAL HEADER */}
+            <div className="bg-linear-to-r from-[#0d2a63] to-[#081d45] px-6 py-5 text-white shrink-0 flex items-center justify-between border-b border-white/5">
               <div>
-                <h2 className="text-xl font-black uppercase tracking-tight">
+                <h2 className="text-xl font-black uppercase tracking-tight text-white">
                   {selectedCountry}
                 </h2>
-                <p className="text-pink-400 text-[8px] font-black uppercase tracking-widest">
-                  Entry Requirements
+                <p className="text-cyan-400 text-[8px] font-black uppercase tracking-widest mt-0.5">
+                  Official Entry Requirements
                 </p>
               </div>
               <button
                 onClick={closeModal}
-                className="p-2 rounded-xl bg-white/10 hover:bg-pink-500 transition-colors"
+                className="p-2 rounded-xl bg-white/5 hover:bg-cyan-500 hover:text-slate-950 transition-colors border border-white/10"
               >
                 <X size={16} />
               </button>
             </div>
 
             {/* SCROLLABLE BODY */}
-            <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar bg-[#091e46]">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  <p className="text-[9px] font-black text-blue-200/50 uppercase tracking-widest">
                     Visa Category
                   </p>
-                  <p className="text-sm font-bold text-slate-800">
+                  <p className="text-sm font-bold text-white">
                     {visaData[selectedCountry]?.name || "Tourist Visa"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  <p className="text-[9px] font-black text-blue-200/50 uppercase tracking-widest">
                     Validity
                   </p>
-                  <p className="text-sm font-bold text-slate-800">
+                  <p className="text-sm font-bold text-white">
                     {visaData[selectedCountry]?.validity || "Varies"}
                   </p>
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+              <div className="bg-white/4 rounded-2xl p-4 border border-white/5 flex items-center justify-between shadow-inner">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="text-pink-500" size={16} />
-                  <p className="text-[10px] font-black uppercase text-slate-500 tracking-tight">
+                  <CreditCard className="text-cyan-400" size={16} />
+                  <p className="text-[10px] font-black uppercase text-blue-200 tracking-tight">
                     Embassy / VFS Fee
                   </p>
                 </div>
-                <p className="text-base font-black text-slate-900">
+                <p className="text-base font-black text-cyan-300">
                   {visaData[selectedCountry]?.fee || "Quote on Request"}
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-pink-500" />
-                  Required Documents
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-white flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-cyan-400" />
+                  Required Documentation
                 </h3>
                 <div className="grid grid-cols-1 gap-1.5">
                   {(
@@ -535,14 +540,15 @@ const VisitVisa = () => {
                       "QID Copy",
                       "NOC Letter",
                       "Bank Statement",
+                      "Medical Insurance",
                     ]
                   ).map((doc, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-pink-50/50 transition-colors group"
+                      className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/3 border border-transparent hover:border-white/5 transition-all group"
                     >
-                      <div className="w-1 h-1 rounded-full bg-pink-300 mt-1.5 shrink-0" />
-                      <p className="text-xs font-semibold text-slate-600">
+                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400/70 mt-1.5 shrink-0 shadow-glow" />
+                      <p className="text-xs font-semibold text-blue-100/80 group-hover:text-white transition-colors">
                         {doc}
                       </p>
                     </div>
@@ -550,11 +556,11 @@ const VisitVisa = () => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
-                <p className="text-[9px] leading-relaxed text-blue-700 font-medium italic">
+              <div className="flex items-start gap-3 p-4 bg-cyan-500/5 rounded-xl border border-cyan-400/10">
+                <Info size={14} className="text-cyan-400 shrink-0 mt-0.5" />
+                <p className="text-[9px] leading-relaxed text-blue-200/70 font-medium italic">
                   Fees are approximate for Qatar residents in 2026. Embassy
-                  rules may change without notice.
+                  regulatory conditions and paperwork channels may evolve without explicit notice.
                 </p>
               </div>
             </div>
@@ -562,12 +568,13 @@ const VisitVisa = () => {
         </div>
       )}
 
+      {/* --- Smooth Premium Custom Scrollbar --- */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 10px; }
       `,
         }}
       />

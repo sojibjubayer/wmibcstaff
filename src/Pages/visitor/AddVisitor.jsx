@@ -173,12 +173,19 @@ export default function AddVisitor() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Failed to save visitor lead");
 
-      toast.success("Visitor Lead Created!");
+      toast.success("Visitor Lead Created!", {
+        style: {
+          background: "#0f172a",
+          border: "1px solid rgba(56, 189, 248, 0.28)",
+          borderRadius: "14px",
+          color: "#fff",
+        },
+      });
 
       setIsManualCountry(false);
 
@@ -196,85 +203,92 @@ export default function AddVisitor() {
   };
 
   const inputStyle =
-    "w-full border border-slate-200 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-700 focus:outline-none focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition duration-200";
+    "w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-sm text-white placeholder:text-blue-100/35 shadow-inner shadow-blue-950/20 outline-none transition duration-200 focus:border-sky-300/70 focus:bg-slate-950/65 focus:ring-4 focus:ring-sky-400/20";
 
   const labelStyle =
-    "flex items-center gap-2 mb-1 font-bold text-[10px] uppercase tracking-widest text-slate-400";
+    "mb-1.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-100/60";
+
+  const sectionTitle = (title) => (
+    <div className="flex items-center gap-2 md:col-span-2">
+      <div className="h-5 w-1 rounded-full bg-linear-to-b from-sky-300 to-cyan-400" />
+      <h2 className="text-[11px] font-black uppercase tracking-wider text-white">
+        {title}
+      </h2>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 p-4 md:p-6">
       <Toaster position="top-right" />
 
-      <div className="max-w-4xl mx-auto bg-white rounded-4xl shadow-2xl shadow-slate-200 border border-white overflow-hidden">
-        <div className="bg-slate-700 py-4 px-8 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-pink-200 rounded-lg flex items-center justify-center shadow-lg shadow-pink-500/20">
-              <FaUserPlus className="text-slate-900 text-lg" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-linear(circle_at_top_left,rgba(37,99,235,0.34),transparent_32%),radial-linear(circle_at_bottom_right,rgba(14,165,233,0.22),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-linear(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-linear(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[44px_44px] opacity-20" />
+
+      <div className="relative mx-auto max-w-4xl overflow-hidden rounded-4xl border border-white/10 bg-white/[0.07] shadow-2xl shadow-blue-950/60 backdrop-blur-2xl md:rounded-[2.5rem]">
+        <div className="flex items-center justify-between gap-4 border-b border-white/10 bg-linear-to-r from-blue-950 via-blue-900 to-sky-900 px-5 py-4 sm:px-8">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-sky-300/30 bg-white/10 shadow-lg shadow-blue-500/20">
+              <FaUserPlus className="text-lg text-sky-200" />
             </div>
 
-            <div>
-              <h1 className="text-white text-lg font-black tracking-tight uppercase leading-none">
+            <div className="min-w-0">
+              <h1 className="text-lg font-black uppercase leading-none tracking-tight text-white">
                 Visitor Entry
               </h1>
-              <p className="text-slate-400 text-[9px] tracking-widest uppercase font-bold mt-1">
+              <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-blue-100/60">
                 Consultation Lead
               </p>
             </div>
           </div>
 
-          <div className="hidden sm:block bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-            <span className="text-pink-200 text-[9px] font-black tracking-widest uppercase">
+          <div className="hidden rounded-full border border-sky-300/15 bg-slate-950/45 px-3 py-1 sm:block">
+            <span className="text-[9px] font-black uppercase tracking-widest text-sky-200">
               Lead Gen v2.3
             </span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+        <form onSubmit={handleSubmit} className="space-y-6 p-5 sm:p-6">
+          <div className="grid grid-cols-1 gap-4 rounded-2xl border border-sky-300/15 bg-slate-950/35 p-4 shadow-inner shadow-blue-950/20 md:grid-cols-3">
             <div>
               <label className={labelStyle}>
-                <FaUserTie className="text-pink-300" /> Consultant
+                <FaUserTie className="text-sky-300" /> Consultant
               </label>
               <input
                 type="text"
                 value={formData.consultant}
                 readOnly
-                className={`${inputStyle} bg-white font-bold text-slate-400 cursor-not-allowed`}
+                className={`${inputStyle} cursor-not-allowed bg-slate-900/70 font-black text-blue-100/50`}
               />
             </div>
 
             <div>
               <label className={labelStyle}>
-                <FaCalendarAlt className="text-pink-300" /> Date
+                <FaCalendarAlt className="text-sky-300" /> Date
               </label>
               <input
                 type="date"
                 value={formData.date}
                 readOnly
-                className={`${inputStyle} bg-white cursor-not-allowed`}
+                className={`${inputStyle} cursor-not-allowed bg-slate-900/70 text-blue-100/70`}
               />
             </div>
 
             <div>
               <label className={labelStyle}>
-                <FaClock className="text-pink-300" /> Time
+                <FaClock className="text-sky-300" /> Time
               </label>
               <input
                 type="text"
                 value={formData.time}
                 readOnly
-                className={`${inputStyle} bg-white cursor-not-allowed`}
+                className={`${inputStyle} cursor-not-allowed bg-slate-900/70 text-blue-100/70`}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2 flex items-center gap-2 mb-1">
-              <div className="h-4 w-1 bg-pink-300 rounded-full" />
-              <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">
-                Visitor Identity
-              </h2>
-            </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {sectionTitle("Visitor Identity")}
 
             <input
               type="text"
@@ -314,7 +328,7 @@ export default function AddVisitor() {
                   placeholder="Client Of?"
                   value={formData.clientOf}
                   onChange={handleChange}
-                  className={`${inputStyle} border-pink-100 bg-pink-50/30 font-bold text-pink-700 pr-10`}
+                  className={`${inputStyle} border-sky-300/25 bg-sky-400/10 pr-10 font-black text-sky-100`}
                   required
                   autoFocus
                 />
@@ -328,7 +342,7 @@ export default function AddVisitor() {
                       clientOf: "",
                     }))
                   }
-                  className="absolute right-3 top-2.5 text-pink-400 hover:text-pink-600"
+                  className="absolute right-3 top-3 text-sky-300 hover:text-cyan-200"
                 >
                   <FaUndo size={11} />
                 </button>
@@ -338,7 +352,7 @@ export default function AddVisitor() {
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className={`${inputStyle} font-bold text-pink-600`}
+                className={`${inputStyle} font-black text-sky-200`}
               >
                 <option value="New Visitor">New Visitor</option>
                 <option value="Client">Client</option>
@@ -355,13 +369,8 @@ export default function AddVisitor() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2 flex items-center gap-2 mb-1">
-              <div className="h-4 w-1 bg-pink-300 rounded-full" />
-              <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">
-                Service Requirements
-              </h2>
-            </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {sectionTitle("Service Requirements")}
 
             <input
               type="text"
@@ -373,7 +382,7 @@ export default function AddVisitor() {
               required
             />
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
                 <input
                   list="nationalityOptions"
@@ -414,7 +423,7 @@ export default function AddVisitor() {
                     onChange={handleChange}
                     autoFocus
                     required
-                    className={`${inputStyle} border-pink-100 bg-pink-50/30 font-bold text-pink-700`}
+                    className={`${inputStyle} border-sky-300/25 bg-sky-400/10 pr-10 font-black text-sky-100`}
                   />
 
                   <button
@@ -427,7 +436,7 @@ export default function AddVisitor() {
                         interestedCountry: "",
                       }))
                     }
-                    className="absolute right-3 top-2.5 text-pink-400 hover:text-pink-600"
+                    className="absolute right-3 top-3 text-sky-300 hover:text-cyan-200"
                   >
                     <FaUndo size={11} />
                   </button>
@@ -461,7 +470,7 @@ export default function AddVisitor() {
                     onChange={handleChange}
                     autoFocus
                     required
-                    className={`${inputStyle} border-pink-100 bg-pink-50/30 font-bold text-pink-700`}
+                    className={`${inputStyle} border-sky-300/25 bg-sky-400/10 pr-10 font-black text-sky-100`}
                   />
 
                   {isManualCountry && (
@@ -474,7 +483,7 @@ export default function AddVisitor() {
                           interestedCountry: "",
                         }));
                       }}
-                      className="absolute right-3 top-2.5 text-pink-400 hover:text-pink-600"
+                      className="absolute right-3 top-3 text-sky-300 hover:text-cyan-200"
                     >
                       <FaUndo size={11} />
                     </button>
@@ -524,13 +533,8 @@ export default function AddVisitor() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2 flex items-center gap-2 mb-1">
-              <div className="h-4 w-1 bg-pink-300 rounded-full" />
-              <h2 className="text-slate-900 font-bold text-[11px] uppercase tracking-wider">
-                Assessment & Remarks
-              </h2>
-            </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {sectionTitle("Assessment & Remarks")}
 
             <input
               type="text"
@@ -546,7 +550,7 @@ export default function AddVisitor() {
               value={formData.consultationStatus}
               onChange={handleChange}
               required
-              className={`${inputStyle} font-bold text-pink-600`}
+              className={`${inputStyle} font-black text-sky-200`}
             >
               <option value="">Consultation Status</option>
               {consultationStatuses.map((status) => (
@@ -580,7 +584,7 @@ export default function AddVisitor() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-pink-200 text-slate-900 font-black py-4 rounded-xl shadow-xl hover:bg-pink-300 transform transition-all active:scale-[0.98] disabled:opacity-50 tracking-[0.2em] text-[11px] uppercase"
+            className="w-full rounded-2xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-blue-500/25 transition-all hover:shadow-blue-400/45 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Processing Database..." : "Create Visitor Record"}
           </button>

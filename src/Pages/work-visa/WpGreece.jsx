@@ -36,6 +36,31 @@ const JOBS = [
   "General Labor",
 ];
 
+const SERVICE_CHARGES = [
+  {
+    title: "Bangladeshi & Pakistani Applicants",
+    icon: Globe,
+    payments: [
+      ["1st Payment (With Docs)", "2,500", "QAR"],
+      ["2nd Payment (After Permit)", "5,000", "QAR"],
+      ["3rd Payment (After Visa)", "22,500", "QAR"],
+    ],
+    total: "30,000",
+    currency: "QAR",
+  },
+  {
+    title: "Nepali, Indian & Sri Lankan Applicants",
+    icon: MapPin,
+    payments: [
+      ["1st Payment (With Docs)", "2,000", "QAR"],
+      ["2nd Payment (After Permit)", "4,000", "QAR"],
+      ["3rd Payment (After Visa)", "11,000", "QAR"],
+    ],
+    total: "17,000",
+    currency: "QAR",
+  },
+];
+
 const WpGreece = () => {
   return (
     <div className="min-h-screen bg-[#fcfcfd] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans selection:bg-pink-100">
@@ -135,80 +160,47 @@ const WpGreece = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-            {/* Qatar */}
-            <div className="p-10 bg-white group">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-pink-50 transition-colors">
-                  <Globe size={20} className="text-slate-400 group-hover:text-pink-500" />
-                </div>
-                <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
-                  Qatar Applicants
-                </span>
-              </div>
-
-              {[
-                ["1st Payment (With Docs)", "2,500", "QAR"],
-                ["2nd Payment (After Permit)", "5,000", "QAR"],
-                ["3rd Payment (After Visa)", "22,500", "QAR"],
-              ].map(([label, amount, currency]) => (
-                <div key={label} className="flex justify-between items-center py-2">
-                  <span className="text-slate-500 text-sm font-medium">{label}</span>
-                  <span className="text-lg font-bold text-slate-800">
-                    {amount} <span className="text-[10px] text-slate-400">{currency}</span>
-                  </span>
-                </div> 
-              ))}
-
-              <div className="mt-8 p-6 bg-pink-50/30 rounded-2xl border-2 border-dashed border-pink-100">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">
-                    Total Payable
-                  </span>
-                  <span className="text-3xl font-black text-slate-800">
-                    30,000 <span className="text-sm font-bold text-pink-400">QAR</span>
+            {SERVICE_CHARGES.map(({ title, icon: Icon, payments, total, currency }) => (
+              <div key={title} className="p-10 bg-white group">
+                <div className="flex items-center gap-3 mb-10">
+                  <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-pink-50 transition-colors">
+                    <Icon size={20} className="text-slate-400 group-hover:text-pink-500" />
+                  </div>
+                  <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
+                    {title}
                   </span>
                 </div>
-              </div>
-            </div>
 
-            {/* Bangladesh */}
-            <div className="p-10 bg-white group">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-pink-50 transition-colors">
-                  <MapPin size={20} className="text-slate-400 group-hover:text-pink-500" />
-                </div>
-                <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
-                  Bangladesh Applicants
-                </span>
-              </div>
+                {payments.map(([label, amount, paymentCurrency]) => (
+                  <div key={label} className="flex justify-between items-center py-2">
+                    <span className="text-slate-500 text-sm font-medium">{label}</span>
+                    <span className="text-lg font-bold text-slate-800">
+                      {amount}{" "}
+                      <span className="text-[10px] text-slate-400">
+                        {paymentCurrency}
+                      </span>
+                    </span>
+                  </div>
+                ))}
 
-              {[
-                ["1st Payment (With Docs)", "150,000", "BDT"],
-                ["2nd Payment (After Permit)", "200,000", "BDT"],
-                ["3rd Payment (After Visa)", "800,000", "BDT"],
-              ].map(([label, amount, currency]) => (
-                <div key={label} className="flex justify-between items-center py-2">
-                  <span className="text-slate-500 text-sm font-medium">{label}</span>
-                  <span className="text-lg font-bold text-slate-800">
-                    {amount} <span className="text-[10px] text-slate-400">{currency}</span>
-                  </span>
-                </div>
-              ))}
-
-              <div className="mt-8 p-6 bg-pink-50/30 rounded-2xl border-2 border-dashed border-pink-100">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">
-                    Total Payable
-                  </span>
-                  <span className="text-3xl font-black text-slate-800">
-                    1,150,000 <span className="text-sm font-bold text-pink-400">BDT</span>
-                  </span>
+                <div className="mt-8 p-6 bg-pink-50/30 rounded-2xl border-2 border-dashed border-pink-100">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">
+                      Total Payable
+                    </span>
+                    <span className="text-3xl font-black text-slate-800">
+                      {total}{" "}
+                      <span className="text-sm font-bold text-pink-400">
+                        {currency}
+                      </span>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
 
             <p className="md:col-span-2 p-6 font-bold text-sm text-center text-slate-600">
-              Bangladeshi, Pakistani: 30k | Nepali, Indian, Sri Lankan: 15k
+              Bangladeshi, Pakistani: 30k | Nepali, Indian, Sri Lankan: 17k
             </p>
           </div>
         </section>

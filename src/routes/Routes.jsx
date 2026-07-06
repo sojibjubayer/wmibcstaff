@@ -80,6 +80,9 @@ import QatarPortugal from "../Pages/applications/qatarportugal/QatarPortugal";
 import Agreement from "../Pages/agreement/Agreement";
 import Flyer from "../Pages/Flyer";
 import WpPortugalSingapore from "../Pages/work-visa/WpPortugalSingapore";
+import EmployeeStatus from "../Pages/status/EmployeeStatus";
+import Todo from "../Pages/todo/Todo";
+import BusinessVisa from "../Pages/business-visa/BusinessVisa";
 
 const router = createBrowserRouter([
   { 
@@ -118,6 +121,7 @@ const router = createBrowserRouter([
       { path: "work-visa/saudi-portugal", element: <PrivateRoute><WpPortugalKSA /></PrivateRoute> },
       { path: "work-visa/germany", element: <PrivateRoute><WpGermany /></PrivateRoute> },
       { path: "work-visa/singapore-portugal", element: <PrivateRoute><WpPortugalSingapore /></PrivateRoute> },
+      { path: "current-status", element: <PrivateRoute><EmployeeStatus /></PrivateRoute> },
 
 
       // Student Visa
@@ -164,6 +168,10 @@ const router = createBrowserRouter([
       // { path: "visit-visa/turkey", element: <PrivateRoute><VisitTurkey /></PrivateRoute> },
       // { path: "visit-visa/uk", element: <PrivateRoute><VisitUK /></PrivateRoute> },
 
+      // BUSINESS VISA
+      { path: "business-visa", element: <PrivateRoute><BusinessVisa /></PrivateRoute> },
+
+
       // // FORMS
       { path: "client-form", element: <PrivateRoute><ClientForm /></PrivateRoute> },
       { path: "client-info", element: <PrivateRoute> <ClientInfo /></PrivateRoute> },
@@ -172,6 +180,8 @@ const router = createBrowserRouter([
       { path: "add-new-visitor", element: <PrivateRoute><AddVisitor /></PrivateRoute> },
       { path: "visitor-list", element: <PrivateRoute><VisitorList /></PrivateRoute> },
       { path: "agreement", element: <PrivateRoute><Agreement /></PrivateRoute> },
+      { path: "todo", element: <PrivateRoute><Todo /></PrivateRoute> },
+
       // CHECK 
 
       // DASHBOARD

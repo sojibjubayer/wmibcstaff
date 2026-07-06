@@ -11,6 +11,33 @@ import {
   Milestone,
 } from "lucide-react";
 
+const SERVICE_CHARGES = [
+  {
+    country: "Bangladeshi Applicants",
+    process: "Normal Process",
+    amount: "34,000",
+    icon: Globe,
+  },
+  {
+    country: "Bangladeshi Applicants",
+    process: "VIP Process",
+    amount: "40,000",
+    icon: ShieldCheck,
+  },
+  {
+    country: "Indian Applicants",
+    process: "Normal Process",
+    amount: "20,000",
+    icon: MapPin,
+  },
+  {
+    country: "Pakistani Applicants",
+    process: "Normal Process",
+    amount: "28,000",
+    icon: MapPin,
+  },
+];
+
 const WpPortugal = () => {
   return (
     <div className="min-h-screen bg-[#fff8fb] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans selection:bg-[#8A1538]/20">
@@ -97,11 +124,11 @@ const WpPortugal = () => {
           <div className="bg-[#8A1538]/5 px-10 py-8 border-b border-[#8A1538]/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-center md:text-left">
               <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
-                Service Charge Breakdown
+                Service Charge Options
               </h2>
 
               <p className="text-slate-400 text-xs mt-1 uppercase tracking-[0.2em] font-bold">
-                Complete Legal & Documentation Fees
+                Valid Only For Qatar Residents
               </p>
             </div>
 
@@ -112,149 +139,52 @@ const WpPortugal = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#8A1538]/10">
-            <div className="p-10 bg-white group">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="p-2 bg-[#8A1538]/5 rounded-xl group-hover:bg-[#8A1538]/10 transition-colors">
-                  <Globe size={20} className="text-[#8A1538]" />
-                </div>
+            {SERVICE_CHARGES.map(({ country, process, amount, icon: Icon }) => (
+              <div key={`${country}-${process}`} className="p-10 bg-white group">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="p-2 bg-[#8A1538]/5 rounded-xl group-hover:bg-[#8A1538]/10 transition-colors">
+                    <Icon size={20} className="text-[#8A1538]" />
+                  </div>
 
-                <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
-                  Qatar Applicants
-                </span>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-slate-500 text-sm font-medium">
-                    1st Payment (Docs)
-                  </span>
-
-                  <span className="text-lg font-bold text-slate-800">
-                    3,000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      QAR
-                    </span>
+                  <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
+                    {country}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-slate-500 text-sm font-medium">
-                    2nd Payment (After Appointment)
-                  </span>
-
-                  <span className="text-lg font-bold text-slate-800">
-                    5,000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      QAR
-                    </span>
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-slate-500 text-sm font-medium">
-                    Final Payment (After Visa Approval)
-                  </span>
-
-                  <span className="text-lg font-bold text-slate-800">
-                    24,000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      QAR
-                    </span>
-                  </span>
-                </div>
-
-                <div className="mt-8 p-6 bg-[#8A1538]/5 rounded-2xl border-2 border-dashed border-[#8A1538]/20">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-[#8A1538] uppercase tracking-widest">
-                      Total Payable
+                <div className="space-y-5">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500 text-sm font-medium">
+                      Process Type
                     </span>
 
-                    <span className="text-3xl font-black text-slate-800">
-                      32,000{" "}
-                      <span className="text-sm font-bold text-[#8A1538]">
-                        QAR
+                    <span className="text-lg font-bold text-slate-800">
+                      {process}
+                    </span>
+                  </div>
+
+                  <div className="mt-8 p-6 bg-[#8A1538]/5 rounded-2xl border-2 border-dashed border-[#8A1538]/20">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-[#8A1538] uppercase tracking-widest">
+                        Total Payable
                       </span>
-                    </span>
+
+                      <span className="text-3xl font-black text-slate-800">
+                        {amount}{" "}
+                        <span className="text-sm font-bold text-[#8A1538]">
+                          QAR
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
 
-            <div className="p-10 bg-white group">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="p-2 bg-[#8A1538]/5 rounded-xl group-hover:bg-[#8A1538]/10 transition-colors">
-                  <MapPin size={20} className="text-[#8A1538]" />
-                </div>
-
-                <span className="font-bold text-slate-800 tracking-wider uppercase text-xs">
-                  Bangladesh Applicants
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm font-medium">
-                    1st (Docs)
-                  </span>
-                  <span className="text-base font-bold text-slate-800">
-                    150000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      BDT
-                    </span>
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm font-medium">
-                    2nd (After Appointment)
-                  </span>
-                  <span className="text-base font-bold text-slate-800">
-                    200000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      BDT
-                    </span>
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm font-medium">
-                    3rd (After WP)
-                  </span>
-                  <span className="text-base font-bold text-slate-800">
-                    350000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      BDT
-                    </span>
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm font-medium">
-                    4th (After Visa)
-                  </span>
-                  <span className="text-base font-bold text-slate-800">
-                    1500000{" "}
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                      BDT
-                    </span>
-                  </span>
-                </div>
-
-                <div className="mt-8 p-6 bg-[#8A1538]/5 rounded-2xl border-2 border-dashed border-[#8A1538]/20">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-[#8A1538] uppercase tracking-widest">
-                      Total Payable
-                    </span>
-
-                    <span className="text-2xl font-black text-slate-800 tracking-tighter">
-                      2,200,000{" "}
-                      <span className="text-sm font-bold text-[#8A1538]">
-                        BDT
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
+            <div className="md:col-span-2 p-6 bg-[#8A1538]/5 text-center">
+              <p className="font-bold text-sm text-slate-700">
+                Price valid only for Qatar residents. Ticket and embassy fees are
+                not included.
+              </p>
             </div>
           </div>
         </section>

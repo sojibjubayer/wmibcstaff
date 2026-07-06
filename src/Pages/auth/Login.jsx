@@ -24,10 +24,15 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       toast.success("Access Granted. Redirecting...", {
-        icon: '🛡️',
-        style: { borderRadius: '12px', background: '#0f172a', color: '#fff' }
+        icon: "🛡️",
+        style: {
+          borderRadius: "14px",
+          background: "#0f172a",
+          color: "#fff",
+          border: "1px solid rgba(59, 130, 246, 0.35)",
+        },
       });
-      
+
       setTimeout(() => navigate("/"), 1200);
     } catch (err) {
       toast.error(err.response?.data?.message || "Unauthorized access attempt.");
@@ -37,30 +42,44 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 bg-slate-50">
-      <Toaster position="top-right" /> 
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 bg-[#020617]">
+      <Toaster position="top-right" />
 
-      <div className="w-full max-w-md">
+      {/* Premium Background */}
+      <div className="absolute inset-0 bg-[radial-linear(circle_at_top,rgba(37,99,235,0.35),transparent_35%),radial-linear(circle_at_bottom_right,rgba(14,165,233,0.22),transparent_35%)]" />
+      <div className="absolute inset-0 bg-[linear-linear(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-linear(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[44px_44px] opacity-20" />
+
+      <div className="relative z-10 w-full max-w-md">
         {/* Branding Header */}
-        <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-white shadow-sm border border-slate-100 rounded-2xl mb-4">
-                <FiShield className="text-pink-400 text-2xl" />
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">WMIBC Visa Portal</h1>
-            <p className="text-slate-500 text-sm mt-1">Authorized Personnel Only</p>
+        <div className="mb-8 text-center">
+          <div className="mb-5 inline-flex h-16 w-16 items-center justify-center rounded-3xl border border-blue-400/30 bg-white/10 shadow-2xl shadow-blue-500/20 backdrop-blur-xl">
+            <FiShield className="text-3xl text-blue-300" />
+          </div>
+
+          <h1 className="text-3xl font-black tracking-tight text-white">
+            WMIBC Visa Portal
+          </h1>
+
+          <p className="mt-2 text-sm font-medium text-blue-100/70">
+            Authorized Personnel Only
+          </p>
         </div>
 
         {/* Card */}
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white">
-          <form onSubmit={handleLogin} className="space-y-4"> 
+        <div className="rounded-4xl border border-white/10 bg-white/8 p-8 shadow-2xl shadow-blue-950/60 backdrop-blur-2xl">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2">Email Address</label>
+              <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-widest text-blue-100/60">
+                Email Address
+              </label>
+
               <div className="relative">
-                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200/60" />
+
                 <input
                   type="email"
                   placeholder="Enter Your Email"
-                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-pink-100 focus:border-pink-200 transition-all outline-none text-slate-700"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/50 py-3.5 pl-12 pr-4 text-white outline-none transition-all placeholder:text-slate-500 focus:border-blue-400/70 focus:bg-slate-950/70 focus:ring-4 focus:ring-blue-500/20"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -69,13 +88,17 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2">Password</label>
+              <label className="mb-2 ml-1 block text-xs font-bold uppercase tracking-widest text-blue-100/60">
+                Password
+              </label>
+
               <div className="relative">
-                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200/60" />
+
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-pink-100 focus:border-pink-200 transition-all outline-none text-slate-700"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/50 py-3.5 pl-12 pr-4 text-white outline-none transition-all placeholder:text-slate-500 focus:border-blue-400/70 focus:bg-slate-950/70 focus:ring-4 focus:ring-blue-500/20"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -83,22 +106,25 @@ export default function Login() {
               </div>
             </div>
 
-            <button 
+            <button
               disabled={loading}
-              className={`w-full group mt-4 flex items-center justify-center gap-2 py-4 px-4 rounded-2xl text-slate-800 font-black shadow-lg shadow-pink-200/50 transform transition-all active:scale-95 ${
-                loading 
-                ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
-                : "bg-pink-200 hover:bg-pink-300 hover:shadow-pink-300/60"
+              className={`group mt-5 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-4 font-black text-white shadow-xl transition-all active:scale-95 ${
+                loading
+                  ? "cursor-not-allowed bg-slate-700 text-slate-400 shadow-none"
+                  : "bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 shadow-blue-500/30 hover:shadow-blue-400/50"
               }`}
             >
               {loading ? "Verifying..." : "Sign In to Portal"}
-              {!loading && <FiArrowRight className="group-hover:translate-x-1 transition-transform" />}
+
+              {!loading && (
+                <FiArrowRight className="transition-transform group-hover:translate-x-1" />
+              )}
             </button>
           </form>
         </div>
 
-        <p className="text-center mt-8 text-slate-400 text-xs font-medium">
-            Protected by end-to-end encryption.
+        <p className="mt-8 text-center text-xs font-medium text-blue-100/45">
+          Protected by secure encrypted access.
         </p>
       </div>
     </div>

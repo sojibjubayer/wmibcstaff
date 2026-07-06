@@ -7,7 +7,8 @@ import {
   MapPin,
   ShieldCheck,
   Globe,
-  FileText
+  FileText,
+  Sparkles
 } from "lucide-react";
 
 const countryData = [
@@ -55,31 +56,38 @@ export default function GlobalStudyVisaPortal() {
   }, [search, selectedRegion]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-[#071a3d] p-4 md:p-8 font-sans text-white relative overflow-hidden">
+      {/* --- Premium Background Ambient Glows --- */}
+      <div className="pointer-events-none absolute left-1/3 -top-40 h-120 w-120 rounded-full bg-blue-600/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 top-1/4 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+
+      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="bg-pink-600 p-3 rounded-2xl shadow-lg shadow-pink-200">
-              <GraduationCap className="text-white w-7 h-7" />
+            <div className="bg-white/10 p-3 rounded-2xl shadow-2xl border border-white/15 backdrop-blur-md">
+              <GraduationCap className="text-cyan-400 w-7 h-7" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
+              <div className="mb-1 inline-flex items-center gap-1 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-cyan-300">
+                <Sparkles size={10} /> Global Education Database
+              </div>
+              <h1 className="text-2xl font-black tracking-tight text-white uppercase">
                 Study Visa 2026
               </h1>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+              <p className="text-blue-200/50 text-[10px] font-black uppercase tracking-[0.2em]">
                 WMIBC Global Admission Database
               </p>
             </div>
           </div>
 
           <div className="relative w-full md:w-80 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pink-500 transition-colors w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200/40 group-focus-within:text-cyan-400 transition-colors w-4 h-4" />
             <input
               type="text"
               placeholder="Search destination country..."
-              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 outline-none transition-all font-bold text-xs"
+              className="w-full pl-12 pr-4 py-3 bg-white/6 border border-white/10 rounded-2xl shadow-2xl text-white placeholder-blue-200/30 focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400/50 outline-none transition-all font-bold text-xs backdrop-blur-md"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -92,10 +100,10 @@ export default function GlobalStudyVisaPortal() {
             <button
               key={r}
               onClick={() => setSelectedRegion(r)}
-              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
+              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 active:scale-95 ${
                 selectedRegion === r
-                  ? "bg-slate-900 border-slate-900 text-white shadow-lg"
-                  : "bg-white border-transparent text-slate-500 hover:text-pink-600"
+                  ? "bg-cyan-400 border-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20"
+                  : "bg-white/5 border-transparent text-blue-200/60 hover:text-cyan-400 hover:bg-white/8"
               }`}
             >
               {r}
@@ -105,47 +113,47 @@ export default function GlobalStudyVisaPortal() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Table Content */}
-          <div className="lg:col-span-2 bg-white rounded-4xl border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden">
+          <div className="lg:col-span-2 bg-white/4 rounded-4xl border border-white/10 shadow-2xl backdrop-blur-md overflow-hidden flex flex-col">
             <div className="overflow-x-auto max-h-175 overflow-y-auto custom-scrollbar">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10">
-                  <tr className="bg-slate-900">
-                    <th className="p-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Destination</th>
-                    <th className="p-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] text-center">IELTS (UG / PG)</th>
-                    <th className="p-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Annual Tuition</th>
+                  <tr className="bg-linear-to-r from-[#0d2a63] to-[#081d45] border-b border-white/5">
+                    <th className="p-5 text-[9px] font-black text-cyan-400 uppercase tracking-[0.15em]">Destination</th>
+                    <th className="p-5 text-[9px] font-black text-cyan-400 uppercase tracking-[0.15em] text-center">IELTS (UG / PG)</th>
+                    <th className="p-5 text-[9px] font-black text-cyan-400 uppercase tracking-[0.15em]">Annual Tuition</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-white/5 bg-[#091e46]/30">
                   {filteredData.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-pink-50/20 transition-colors group">
+                    <tr key={idx} className="hover:bg-white/3 transition-colors group">
                       <td className="p-5">
                         <div className="flex items-center gap-3">
-                          <div className="bg-slate-100 p-2 rounded-lg group-hover:bg-pink-100 transition-colors">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400 group-hover:text-pink-600" />
+                          <div className="bg-white/5 p-2 rounded-lg group-hover:bg-cyan-500/10 transition-colors border border-white/5">
+                            <MapPin className="w-3.5 h-3.5 text-blue-200/40 group-hover:text-cyan-400" />
                           </div>
                           <div>
-                            <p className="font-black text-slate-800 text-xs uppercase">{item.country}</p>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{item.region}</span>
+                            <p className="font-black text-white text-xs uppercase tracking-wide">{item.country}</p>
+                            <span className="text-[9px] font-bold text-blue-200/40 uppercase tracking-tighter">{item.region}</span>
                           </div>
                         </div>
                       </td>
                       <td className="p-5">
                         <div className="flex justify-center items-center gap-4">
                           <div className="text-center">
-                            <p className="text-[7px] font-black text-slate-300 uppercase mb-0.5">UG</p>
-                            <span className="text-xs font-black text-slate-700">{item.bachelorIELTS}</span>
+                            <p className="text-[7px] font-black text-blue-200/30 uppercase mb-0.5">UG</p>
+                            <span className="text-xs font-black text-blue-100">{item.bachelorIELTS}</span>
                           </div>
-                          <div className="h-6 w-px bg-slate-100" />
+                          <div className="h-6 w-px bg-white/5" />
                           <div className="text-center">
-                            <p className="text-[7px] font-black text-slate-300 uppercase mb-0.5">PG</p>
-                            <span className="text-xs font-black text-pink-600">{item.msIELTS}</span>
+                            <p className="text-[7px] font-black text-blue-200/30 uppercase mb-0.5">PG</p>
+                            <span className="text-xs font-black text-cyan-400">{item.msIELTS}</span>
                           </div>
                         </div>
                       </td>
                       <td className="p-5">
-                        <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl w-fit group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
-                          <Banknote className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-[11px] font-bold text-slate-600">{item.fee}</span>
+                        <div className="flex items-center gap-2 bg-white/3 px-3 py-2 rounded-xl w-fit group-hover:bg-white/6 transition-colors border border-white/5">
+                          <Banknote className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-[11px] font-bold text-emerald-300 tracking-wide">{item.fee}</span>
                         </div>
                       </td>
                     </tr>
@@ -157,36 +165,36 @@ export default function GlobalStudyVisaPortal() {
 
           {/* Screenshot-Ready Checklist Sidebar */}
           <div className="space-y-6">
-            <div className="bg-pink-100 p-6 rounded-4xl border border-slate-100 shadow-xl shadow-slate-200/40">
+            <div className="bg-linear-to-b from-white/6 to-white/2 p-6 rounded-4xl border border-white/10 shadow-2xl backdrop-blur-md">
               
               {/* BRANDED CAPTURE HEADER */}
-              <div className="border-b-2 border-slate-50 pb-3 mb-2 flex justify-between items-end">
+              <div className="border-b-2 border-white/5 pb-3 mb-4 flex justify-between items-end">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 leading-none">WMIBC</h2>
-                  <p className="text-[8px] font-black text-pink-600 uppercase tracking-widest mt-1">Study Visa Unit</p>
+                  <h2 className="text-xl font-black text-white leading-none tracking-tight">WMIBC</h2>
+                  <p className="text-[8px] font-black text-cyan-400 uppercase tracking-widest mt-1">Study Visa Unit</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[7px] font-black text-slate-500 uppercase">Admission Year</p>
-                  <p className="text-[10px] font-black text-slate-900">2026 SESSION</p>
+                  <p className="text-[7px] font-black text-blue-200/40 uppercase">Admission Year</p>
+                  <p className="text-[10px] font-black text-cyan-300">2026 SESSION</p>
                 </div>
               </div>
 
               {/* CHECKLIST CONTENT */}
               <div className="mb-4">
-                <h3 className="font-black text-slate-900 flex items-center gap-2 text-[11px] uppercase tracking-tight mb-4">
-                  <ListChecks className="text-pink-600 w-4 h-4" /> Required Document List
+                <h3 className="font-black text-white flex items-center gap-2 text-[11px] uppercase tracking-wider mb-4">
+                  <ListChecks className="text-cyan-400 w-4 h-4" /> Required Document List
                 </h3>
                 
                 <div className="space-y-2">
                   {checklistItems.map((doc, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-3 p-2 rounded-xl bg-white border border-slate-100"
+                      className="flex items-start gap-3 p-3 rounded-xl bg-[#091e46]/40 border border-white/5 hover:border-white/10 transition-colors"
                     >
-                      <div className="mt-0.5">
-                        <FileText size={14} className="text-pink-500" />
+                      <div className="mt-0.5 shrink-0">
+                        <FileText size={14} className="text-cyan-400" />
                       </div>
-                      <span className="text-[10px] font-bold leading-tight text-slate-700">
+                      <span className="text-[10px] font-bold leading-tight text-blue-100/90">
                         {doc}
                       </span>
                     </div>
@@ -195,14 +203,14 @@ export default function GlobalStudyVisaPortal() {
               </div>
 
               {/* VERIFICATION FOOTER */}
-              <div className="mt-2 pt-4 border-t border-white flex justify-between items-center opacity-70">
+              <div className="mt-2 pt-4 border-t border-white/5 flex justify-between items-center opacity-40">
                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck size={12} className="text-slate-500" />
-                    <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest">WMIBC Verified</span>
+                    <ShieldCheck size={12} className="text-blue-200" />
+                    <span className="text-[7px] font-black text-blue-200 uppercase tracking-widest">WMIBC Verified</span>
                  </div>
                  <div className="flex items-center gap-1.5 text-right">
-                    <Globe size={12} className="text-slate-500" />
-                    <span className="text-[7px] font-black text-slate-500 uppercase tracking-tight">www.wmibc.com</span>
+                    <Globe size={12} className="text-blue-200" />
+                    <span className="text-[7px] font-black text-blue-200 uppercase tracking-tight">www.wmibc.com</span>
                  </div>
               </div>
             </div>
@@ -210,6 +218,17 @@ export default function GlobalStudyVisaPortal() {
           </div>
         </div>
       </div>
+
+      {/* --- Dynamic Premium Custom Scrollbar Global Injector --- */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 10px; }
+      `,
+        }}
+      />
     </div>
   );
 }

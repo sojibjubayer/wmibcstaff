@@ -95,7 +95,7 @@ const WpBulgaria = () => {
               </div>
 
               <p className="text-4xl font-black text-white">
-                27,000{" "}
+                28,000{" "}
                 <span className="text-lg font-medium text-pink-200">
                   QAR
                 </span>
@@ -240,7 +240,7 @@ const WpBulgaria = () => {
                   </span>
 
                   <span className="text-4xl sm:text-5xl font-black text-slate-800">
-                    27,000{" "}
+                    28,000{" "}
                     <span className="text-base sm:text-lg font-bold text-pink-400">
                       QAR
                     </span>

@@ -13,7 +13,7 @@ const menuData = {
       { name: "Saudi ➜ Portugal", link: "/work-visa/saudi-portugal" },
       { name: "Singapore ➜ Portugal", link: "/work-visa/singapore-portugal" },
       { name: "Germany", link: "/work-visa/germany" },
-      { name: "Poland", link: "/work-visa/poland" }, 
+      { name: "Poland", link: "/work-visa/poland" },
       { name: "Croatia", link: "/work-visa/croatia" },
       { name: "Bulgaria", link: "/work-visa/bulgaria" },
       { name: "Slovakia", link: "/work-visa/slovakia" },
@@ -43,19 +43,41 @@ const menuData = {
   ],
 
   visitor: [
-    { name: "Add Visitor", link: "/add-new-visitor" },
+    { name: "Add Visitor", link: "/add-new-visitor", newTab: true },
     { name: "Visitor List", link: "/visitor-list" },
+  ],
+
+  others: [
+    { name: "Flyer", link: "/flyer" },
+    { name: "Stat", link: "/current-status" },
   ],
 };
 
 const getTodayDateString = () => {
   const today = new Date();
-
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+};
+
+const styles = {
+  desktopButton:
+    "inline-flex items-center rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-blue-50 shadow-lg shadow-blue-950/30 backdrop-blur-xl transition-all hover:border-sky-300/40 hover:bg-sky-400/15 hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-400/20",
+  desktopPrimary:
+    "inline-flex items-center rounded-xl border border-sky-300/30 bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-400/40 focus:outline-none focus:ring-4 focus:ring-sky-400/25",
+  dropdown:
+    "rounded-2xl border border-sky-300/15 bg-slate-950/95 shadow-2xl shadow-blue-950/60 backdrop-blur-2xl",
+  dropdownItem:
+    "block px-4 py-3 text-sm font-bold text-blue-50/85 transition-all hover:bg-sky-400/15 hover:text-white",
+  dropdownParent:
+    "relative flex cursor-pointer items-center justify-between border-b border-white/10 px-4 py-3 text-sm font-bold text-blue-50/85 transition-all last:border-b-0 hover:bg-sky-400/15 hover:text-white",
+  mobileButton:
+    "flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-4 py-3.5 text-left font-black text-blue-50 shadow-lg shadow-blue-950/20 backdrop-blur-xl",
+  mobilePanel: "space-y-2 rounded-2xl border border-white/10 bg-white/[0.06] p-3",
+  mobileLink:
+    "block rounded-xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm font-bold text-blue-50/85 transition-all hover:bg-sky-400/15 hover:text-white",
 };
 
 const Navbar = () => {
@@ -74,29 +96,25 @@ const Navbar = () => {
 
   const isAdmin = user?.role === "admin";
 
-  const canSeeLeads = ["adil", "saru", "sumaiya", "saiful"].includes(
-    normalizedUserName,
-  );
-
   const canSeeRefund =
     isAdmin ||
-    ["saiful", "tarikul", "nizam", "nisha", "imtiyaj","neshat"].includes(
+    ["saiful", "tarikul", "nizam", "nisha", "imtiyaj", "neshat"].includes(
       normalizedUserName,
     );
 
   const canViewAttendanceReport =
     token && user?.name?.trim().toLowerCase() === "mohammed";
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-    closeMobile();
-  };
-
   const closeMobile = () => {
     setMobileOpen(false);
     setActiveAccordion(null);
     setActiveSubAccordion(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+    closeMobile();
   };
 
   const toggleAccordion = (val) => {
@@ -125,7 +143,6 @@ const Navbar = () => {
 
       try {
         const today = getTodayDateString();
-
         const params = new URLSearchParams({
           page: "1",
           limit: "1",
@@ -162,19 +179,17 @@ const Navbar = () => {
     ? `/avatars/${user.name.trim().toLowerCase()}.webp`
     : "/avatars/default.webp";
 
-  const RefundBadge = ({ mobile = false }) => {
-    return (
-      <span
-        className={`absolute flex items-center justify-center rounded-full px-1.5 font-black leading-none text-white ring-2 ring-white ${
-          mobile
-            ? "right-3 top-2 h-6 min-w-6 text-[11px]"
-            : "-right-2 -top-2 h-5 min-w-5 text-[10px]"
-        } ${refundTodayCount > 0 ? "bg-red-600" : "bg-slate-500"}`}
-      >
-        {refundTodayCount > 99 ? "99+" : refundTodayCount}
-      </span>
-    );
-  };
+  const RefundBadge = ({ mobile = false }) => (
+    <span
+      className={`absolute flex items-center justify-center rounded-full px-1.5 font-black leading-none text-white ring-2 ring-slate-950 ${
+        mobile
+          ? "right-3 top-2.5 h-6 min-w-6 text-[11px]"
+          : "-right-2 -top-2 h-5 min-w-5 text-[10px]"
+      } ${refundTodayCount > 0 ? "bg-red-600" : "bg-slate-500"}`}
+    >
+      {refundTodayCount > 99 ? "99+" : refundTodayCount}
+    </span>
+  );
 
   const MobileAccordionButton = ({ id, title }) => {
     const isActive = activeAccordion === id;
@@ -183,11 +198,11 @@ const Navbar = () => {
       <button
         type="button"
         onClick={() => toggleAccordion(id)}
-        className="flex w-full items-center justify-between rounded-xl bg-pink-100 px-4 py-3 text-left font-bold text-slate-800"
+        className={styles.mobileButton}
       >
         <span>{title}</span>
         <FaChevronDown
-          className={`text-xs transition-transform duration-200 ${
+          className={`text-xs text-sky-200 transition-transform duration-200 ${
             isActive ? "rotate-180" : ""
           }`}
         />
@@ -202,11 +217,11 @@ const Navbar = () => {
       <button
         type="button"
         onClick={() => toggleSubAccordion(id)}
-        className="flex w-full items-center justify-between rounded-lg bg-white px-4 py-3 text-left text-sm font-bold text-slate-700"
+        className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-slate-950/45 px-4 py-3 text-left text-sm font-black text-blue-50"
       >
         <span>{title}</span>
         <FaChevronDown
-          className={`text-[10px] transition-transform duration-200 ${
+          className={`text-[10px] text-sky-200 transition-transform duration-200 ${
             isActive ? "rotate-180" : ""
           }`}
         />
@@ -215,55 +230,38 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-3" onClick={closeMobile}>
+    <nav className="sticky top-0 z-50 border-b border-sky-300/10 bg-slate-950/90 shadow-2xl shadow-blue-950/30 backdrop-blur-2xl">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-linear(circle_at_top_left,rgba(37,99,235,0.28),transparent_28%),radial-linear(circle_at_top_right,rgba(14,165,233,0.18),transparent_24%)]" />
+
+      <div className="container relative mx-auto flex items-center justify-between px-4 py-3 sm:px-6">
+        <Link to="/" className="flex min-w-0 items-center gap-3" onClick={closeMobile}>
           <img
             src={Logo}
             alt="Logo"
-            className="h-10 w-10 rounded-xl border border-pink-100 shadow-sm"
+            className="h-11 w-11 rounded-2xl border border-sky-300/25 object-cover shadow-lg shadow-blue-500/15"
           />
-          <span className="hidden text-xl font-black tracking-tighter text-slate-800 lg:block">
+          <span className="hidden text-xl font-black tracking-tight text-white lg:block">
             WMIBC
           </span>
         </Link>
 
-        {/* Desktop Menu */}
-        <ul className="hidden flex-1 items-center justify-center space-x-3 md:flex">
-          <li>
-            <Link
-              to="/"
-              className="rounded-lg bg-pink-200 px-4 py-1.5 font-bold text-slate-800 shadow-md shadow-pink-500/30 transition-all hover:bg-pink-300"
-            >
-              Home
-            </Link>
-          </li>
-
+        <ul className="hidden flex-1 items-center justify-center gap-2 px-5 md:flex">
           <li className="group relative">
-            <button
-              type="button"
-              className="flex items-center rounded-lg bg-pink-200 px-4 py-1.5 font-bold text-slate-800 shadow-md shadow-pink-500/30 transition-all hover:bg-pink-300"
-            >
+            <button type="button" className={styles.desktopButton}>
               Work Visa
-              <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+              <FaChevronDown className="ml-2 text-[10px] text-sky-200" />
             </button>
 
-            <div className="absolute left-0 top-full z-999 hidden w-56 pt-2 group-hover:block">
-              <ul className="overflow-visible rounded-xl border border-white bg-pink-200 shadow-2xl">
-                <li className="group/schengen relative flex cursor-pointer items-center justify-between border-b border-white px-4 py-3 text-sm font-medium text-slate-800 hover:bg-white">
+            <div className="absolute left-0 top-full z-999 hidden w-60 pt-2 group-hover:block">
+              <ul className={styles.dropdown}>
+                <li className={`group/schengen ${styles.dropdownParent}`}>
                   Schengen
-                  <FaChevronRight className="text-[10px] opacity-40" />
-                  <div className="absolute left-full top-0 z-999 hidden w-56 pl-2 group-hover/schengen:block">
-                    <ul className="overflow-hidden rounded-xl border border-slate-100 bg-pink-100 shadow-xl">
+                  <FaChevronRight className="text-[10px] text-sky-200/70" />
+                  <div className="absolute left-full top-0 z-999 hidden w-60 pl-2 group-hover/schengen:block">
+                    <ul className={styles.dropdown}>
                       {menuData.workVisa.schengen.map((item, idx) => (
-                        <li
-                          key={idx}
-                          className="border-b border-white last:border-b-0"
-                        >
-                          <Link
-                            to={item.link}
-                            className="block px-4 py-3 text-sm text-slate-800 hover:bg-white"
-                          >
+                        <li key={idx} className="border-b border-white/10 last:border-b-0">
+                          <Link to={item.link} className={styles.dropdownItem}>
                             {item.name}
                           </Link>
                         </li>
@@ -272,20 +270,14 @@ const Navbar = () => {
                   </div>
                 </li>
 
-                <li className="group/nonSchengen relative flex cursor-pointer items-center justify-between border-b border-white px-4 py-3 text-sm font-medium text-slate-800 hover:bg-white">
+                <li className={`group/nonSchengen ${styles.dropdownParent}`}>
                   Non Schengen
-                  <FaChevronRight className="text-[10px] opacity-40" />
-                  <div className="absolute left-full top-0 z-999 hidden w-60 pl-2 group-hover/nonSchengen:block">
-                    <ul className="overflow-hidden rounded-xl border border-slate-100 bg-pink-100 shadow-xl">
+                  <FaChevronRight className="text-[10px] text-sky-200/70" />
+                  <div className="absolute left-full top-0 z-999 hidden w-64 pl-2 group-hover/nonSchengen:block">
+                    <ul className={styles.dropdown}>
                       {menuData.workVisa.nonSchengenEurope.map((item, idx) => (
-                        <li
-                          key={idx}
-                          className="border-b border-white last:border-b-0"
-                        >
-                          <Link
-                            to={item.link}
-                            className="block px-4 py-3 text-sm text-slate-800 hover:bg-white"
-                          >
+                        <li key={idx} className="border-b border-white/10 last:border-b-0">
+                          <Link to={item.link} className={styles.dropdownItem}>
                             {item.name}
                           </Link>
                         </li>
@@ -295,14 +287,8 @@ const Navbar = () => {
                 </li>
 
                 {menuData.workVisa.direct.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="border-b border-white last:border-b-0"
-                  >
-                    <Link
-                      to={item.link}
-                      className="block px-4 py-3 text-sm font-medium text-slate-800 hover:bg-white"
-                    >
+                  <li key={idx} className="border-b border-white/10 last:border-b-0">
+                    <Link to={item.link} className={styles.dropdownItem}>
                       {item.name}
                     </Link>
                   </li>
@@ -312,24 +298,20 @@ const Navbar = () => {
           </li>
 
           <li className="group relative">
-            <button
-              type="button"
-              className="flex items-center rounded-lg bg-pink-200 px-4 py-1.5 font-bold text-slate-800 shadow-md shadow-pink-500/30 transition-all hover:bg-pink-300"
-            >
+            <button type="button" className={styles.desktopButton}>
               Client
-              <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+              <FaChevronDown className="ml-2 text-[10px] text-sky-200" />
             </button>
 
-            <div className="absolute left-0 top-full z-999 hidden w-48 pt-2 group-hover:block">
-              <ul className="overflow-hidden rounded-xl border border-slate-100 bg-pink-200 shadow-2xl">
+            <div className="absolute left-0 top-full z-999 hidden w-52 pt-2 group-hover:block">
+              <ul className={styles.dropdown}>
                 {menuData.clientInfo.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="border-t border-white first:border-0"
-                  >
+                  <li key={idx} className="border-b border-white/10 last:border-b-0">
                     <Link
                       to={item.link}
-                      className="block px-4 py-2 text-sm text-slate-800 hover:bg-white"
+                      target={item.newTab ? "_blank" : undefined}
+                      rel={item.newTab ? "noopener noreferrer" : undefined}
+                      className={styles.dropdownItem}
                     >
                       {item.name}
                     </Link>
@@ -340,24 +322,20 @@ const Navbar = () => {
           </li>
 
           <li className="group relative">
-            <button
-              type="button"
-              className="flex items-center rounded-lg bg-pink-200 px-4 py-1.5 font-bold text-slate-800 shadow-md shadow-pink-500/30 transition-all hover:bg-pink-300"
-            >
+            <button type="button" className={styles.desktopButton}>
               Visitor
-              <FaChevronDown className="ml-2 text-[10px] opacity-50" />
+              <FaChevronDown className="ml-2 text-[10px] text-sky-200" />
             </button>
 
-            <div className="absolute left-0 top-full z-999 hidden w-48 pt-2 group-hover:block">
-              <ul className="overflow-hidden rounded-xl border border-slate-100 bg-pink-200 shadow-2xl">
+            <div className="absolute left-0 top-full z-999 hidden w-52 pt-2 group-hover:block">
+              <ul className={styles.dropdown}>
                 {menuData.visitor.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="border-t border-white first:border-0"
-                  >
+                  <li key={idx} className="border-b border-white/10 last:border-b-0">
                     <Link
                       to={item.link}
-                      className="block px-4 py-2 text-sm text-slate-800 hover:bg-white"
+                      target={item.newTab ? "_blank" : undefined}
+                      rel={item.newTab ? "noopener noreferrer" : undefined}
+                      className={styles.dropdownItem}
                     >
                       {item.name}
                     </Link>
@@ -371,7 +349,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/attendance/report"
-                className="rounded-lg bg-emerald-700 px-4 py-1.5 font-bold text-white shadow-md shadow-emerald-300 transition-all hover:bg-emerald-600"
+                className="rounded-xl border border-emerald-300/25 bg-emerald-500/15 px-4 py-2 text-sm font-black text-emerald-100 shadow-lg shadow-emerald-950/25 transition-all hover:bg-emerald-500/25"
               >
                 Attendance Report
               </Link>
@@ -380,55 +358,26 @@ const Navbar = () => {
 
           {isAdmin && (
             <li className="group relative">
-              <button
-                type="button"
-                className="flex items-center rounded-lg bg-slate-900 px-4 py-1.5 font-bold text-white shadow-md shadow-blue-400/40 transition-all hover:bg-slate-800"
-              >
+              <button type="button" className={styles.desktopPrimary}>
                 Admin
-                <FaChevronDown className="ml-2 text-[10px] opacity-70" />
+                <FaChevronDown className="ml-2 text-[10px] opacity-80" />
               </button>
 
               <div className="absolute left-0 top-full z-999 hidden w-52 pt-2 group-hover:block">
-                <ul className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-2xl">
-                  <li className="border-b border-slate-100">
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-                    >
-                      Dashboard
-                    </Link>
-                  </li>
-
-                  <li className="border-b border-slate-100">
-                    <Link
-                      to="/applications"
-                      className="block px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-                    >
-                      Application
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      to="/meeting"
-                      className="block px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
-                    >
-                      Meeting
-                    </Link>
-                  </li>
+                <ul className={styles.dropdown}>
+                  {[
+                    { name: "Dashboard", link: "/dashboard" },
+                    { name: "Application", link: "/applications" },
+                    { name: "Meeting", link: "/meeting" },
+                  ].map((item) => (
+                    <li key={item.link} className="border-b border-white/10 last:border-b-0">
+                      <Link to={item.link} className={styles.dropdownItem}>
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
-            </li>
-          )}
-
-          {canSeeLeads && (
-            <li>
-              <Link
-                to="/leads"
-                className="rounded-lg bg-blue-900 px-4 py-1.5 font-bold text-white shadow-md shadow-blue-400 transition-all hover:bg-blue-700"
-              >
-                Leads
-              </Link>
             </li>
           )}
 
@@ -436,27 +385,44 @@ const Navbar = () => {
             <li>
               <Link
                 to="/refund"
-                className="relative inline-flex rounded-lg bg-orange-500 px-4 py-1.5 font-bold text-white shadow-md shadow-orange-300 transition-all hover:bg-orange-600"
+                className="relative inline-flex rounded-xl border border-orange-300/30 bg-orange-500/90 px-4 py-2 text-sm font-black text-white shadow-lg shadow-orange-500/20 transition-all hover:bg-orange-500"
               >
                 Refund
                 <RefundBadge />
               </Link>
             </li>
           )}
+
+          <li className="group relative">
+            <button type="button" className={styles.desktopButton}>
+              Others
+              <FaChevronDown className="ml-2 text-[10px] text-sky-200" />
+            </button>
+
+            <div className="absolute left-0 top-full z-999 hidden w-52 pt-2 group-hover:block">
+              <ul className={styles.dropdown}>
+                {menuData.others.map((item, idx) => (
+                  <li key={idx} className="border-b border-white/10 last:border-b-0">
+                    <Link to={item.link} className={styles.dropdownItem}>
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+
           <li>
-            <Link
-              to="/flyer"
-              className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
-            >
-              Flyer
+            <Link to="/todo" className={styles.desktopPrimary}>
+              ToDo
             </Link>
           </li>
         </ul>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {token && (
-            <div className="hidden items-center space-x-4 border-l border-slate-100 pl-4 md:flex">
-              <div className="h-10 w-10 overflow-hidden rounded-full border border-slate-200 shadow-sm">
+            <div className="hidden items-center gap-4 border-l border-white/10 pl-4 md:flex">
+              <div className="h-10 w-10 overflow-hidden rounded-full border border-sky-300/25 bg-white/10 shadow-lg shadow-blue-950/30">
                 <img
                   src={avatarSrc}
                   alt="profile"
@@ -469,10 +435,10 @@ const Navbar = () => {
               </div>
 
               <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold uppercase leading-none text-slate-400">
+                <span className="text-[10px] font-black uppercase leading-none tracking-wider text-blue-200/55">
                   Team
                 </span>
-                <span className="text-sm font-bold leading-tight text-slate-900">
+                <span className="max-w-28 truncate text-sm font-black leading-tight text-white">
                   {user?.name}
                 </span>
               </div>
@@ -480,7 +446,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-lg bg-slate-100 px-4 py-1.5 text-sm font-bold text-slate-600 transition-all hover:bg-red-50 hover:text-red-600"
+                className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-blue-50 transition-all hover:border-red-300/30 hover:bg-red-500/15 hover:text-red-100"
               >
                 Logout
               </button>
@@ -490,21 +456,22 @@ const Navbar = () => {
           <button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
-            className="rounded-lg bg-pink-100 p-2 text-pink-600 md:hidden"
+            className="rounded-xl border border-sky-300/20 bg-white/10 p-2.5 text-sky-100 shadow-lg shadow-blue-950/30 backdrop-blur-xl md:hidden"
             aria-label="Toggle mobile menu"
           >
-            {mobileOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            {mobileOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="fixed inset-x-0 top-16 z-999 h-[calc(100vh-64px)] overflow-y-auto bg-white px-4 py-5 shadow-2xl md:hidden">
-          <div className="space-y-3 pb-10">
+        <div className="fixed inset-x-0 top-17 z-999 h-[calc(100vh-68px)] overflow-y-auto border-t border-sky-300/10 bg-slate-950 px-4 py-5 shadow-2xl shadow-blue-950/60 md:hidden">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-linear(circle_at_top,rgba(37,99,235,0.26),transparent_34%)]" />
+
+          <div className="relative space-y-3 pb-10">
             {token && (
-              <div className="mb-4 flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3">
-                <div className="h-11 w-11 overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+              <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3 shadow-lg shadow-blue-950/25">
+                <div className="h-11 w-11 overflow-hidden rounded-full border border-sky-300/25 bg-white/10 shadow-sm">
                   <img
                     src={avatarSrc}
                     alt="profile"
@@ -517,75 +484,48 @@ const Navbar = () => {
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-wide text-slate-400">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-blue-200/55">
                     Team
                   </p>
-                  <p className="truncate text-sm font-black text-slate-900">
+                  <p className="truncate text-sm font-black text-white">
                     {user?.name || "User"}
                   </p>
                 </div>
               </div>
             )}
 
-            <Link
-              to="/"
-              onClick={closeMobile}
-              className="block rounded-xl bg-pink-100 px-4 py-3 font-bold text-slate-800"
-            >
-              Home
-            </Link>
-
-            {/* Work Visa Mobile Accordion */}
             <div className="space-y-2">
               <MobileAccordionButton id="workVisa" title="Work Visa" />
 
               {activeAccordion === "workVisa" && (
-                <div className="space-y-2 rounded-2xl bg-pink-50 p-3">
+                <div className={styles.mobilePanel}>
                   <MobileSubAccordionButton id="schengen" title="Schengen" />
 
                   {activeSubAccordion === "schengen" && (
-                    <div className="space-y-1 rounded-xl bg-white p-2">
+                    <div className="space-y-1 rounded-2xl bg-slate-950/40 p-2">
                       {menuData.workVisa.schengen.map((item, idx) => (
-                        <Link
-                          key={idx}
-                          to={item.link}
-                          onClick={closeMobile}
-                          className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-pink-50"
-                        >
+                        <Link key={idx} to={item.link} onClick={closeMobile} className={styles.mobileLink}>
                           {item.name}
                         </Link>
                       ))}
                     </div>
                   )}
 
-                  <MobileSubAccordionButton
-                    id="nonSchengen"
-                    title="Non Schengen"
-                  />
+                  <MobileSubAccordionButton id="nonSchengen" title="Non Schengen" />
 
                   {activeSubAccordion === "nonSchengen" && (
-                    <div className="space-y-1 rounded-xl bg-white p-2">
+                    <div className="space-y-1 rounded-2xl bg-slate-950/40 p-2">
                       {menuData.workVisa.nonSchengenEurope.map((item, idx) => (
-                        <Link
-                          key={idx}
-                          to={item.link}
-                          onClick={closeMobile}
-                          className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-pink-50"
-                        >
+                        <Link key={idx} to={item.link} onClick={closeMobile} className={styles.mobileLink}>
                           {item.name}
                         </Link>
                       ))}
                     </div>
                   )}
 
-                  <div className="space-y-1 rounded-xl bg-white p-2">
+                  <div className="space-y-1 rounded-2xl bg-slate-950/40 p-2">
                     {menuData.workVisa.direct.map((item, idx) => (
-                      <Link
-                        key={idx}
-                        to={item.link}
-                        onClick={closeMobile}
-                        className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-pink-50"
-                      >
+                      <Link key={idx} to={item.link} onClick={closeMobile} className={styles.mobileLink}>
                         {item.name}
                       </Link>
                     ))}
@@ -594,19 +534,13 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Client Mobile Accordion */}
             <div className="space-y-2">
               <MobileAccordionButton id="client" title="Client" />
 
               {activeAccordion === "client" && (
-                <div className="space-y-1 rounded-2xl bg-pink-50 p-3">
+                <div className={styles.mobilePanel}>
                   {menuData.clientInfo.map((item, idx) => (
-                    <Link
-                      key={idx}
-                      to={item.link}
-                      onClick={closeMobile}
-                      className="block rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-700"
-                    >
+                    <Link key={idx} to={item.link} onClick={closeMobile} className={styles.mobileLink}>
                       {item.name}
                     </Link>
                   ))}
@@ -614,18 +548,19 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Visitor Mobile Accordion */}
             <div className="space-y-2">
               <MobileAccordionButton id="visitor" title="Visitor" />
 
               {activeAccordion === "visitor" && (
-                <div className="space-y-1 rounded-2xl bg-pink-50 p-3">
+                <div className={styles.mobilePanel}>
                   {menuData.visitor.map((item, idx) => (
                     <Link
                       key={idx}
                       to={item.link}
+                      target={item.newTab ? "_blank" : undefined}
+                      rel={item.newTab ? "noopener noreferrer" : undefined}
                       onClick={closeMobile}
-                      className="block rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-700"
+                      className={styles.mobileLink}
                     >
                       {item.name}
                     </Link>
@@ -638,7 +573,7 @@ const Navbar = () => {
               <Link
                 to="/attendance/report"
                 onClick={closeMobile}
-                className="block rounded-xl bg-emerald-700 px-4 py-3 font-bold text-white"
+                className="block rounded-2xl border border-emerald-300/25 bg-emerald-500/15 px-4 py-3.5 font-black text-emerald-100 shadow-lg shadow-emerald-950/25"
               >
                 Attendance Report
               </Link>
@@ -649,61 +584,59 @@ const Navbar = () => {
                 <MobileAccordionButton id="admin" title="Admin" />
 
                 {activeAccordion === "admin" && (
-                  <div className="space-y-1 rounded-2xl bg-slate-100 p-3">
-                    <Link
-                      to="/dashboard"
-                      onClick={closeMobile}
-                      className="block rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-800"
-                    >
-                      Dashboard
-                    </Link>
-
-                    <Link
-                      to="/applications"
-                      onClick={closeMobile}
-                      className="block rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-800"
-                    >
-                      Application
-                    </Link>
-
-                    <Link
-                      to="/meeting"
-                      onClick={closeMobile}
-                      className="block rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-800"
-                    >
-                      Meeting
-                    </Link>
+                  <div className={styles.mobilePanel}>
+                    {[
+                      { name: "Dashboard", link: "/dashboard" },
+                      { name: "Application", link: "/applications" },
+                      { name: "Meeting", link: "/meeting" },
+                    ].map((item) => (
+                      <Link key={item.link} to={item.link} onClick={closeMobile} className={styles.mobileLink}>
+                        {item.name}
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
-            )}
-
-            {canSeeLeads && (
-              <Link
-                to="/leads"
-                onClick={closeMobile}
-                className="block rounded-xl bg-blue-900 px-4 py-3 font-bold text-white shadow-md shadow-blue-300"
-              >
-                Leads
-              </Link>
             )}
 
             {canSeeRefund && (
               <Link
                 to="/refund"
                 onClick={closeMobile}
-                className="relative block rounded-xl bg-orange-500 px-4 py-3 font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-orange-600"
+                className="relative block rounded-2xl border border-orange-300/30 bg-orange-500/90 px-4 py-3.5 font-black text-white shadow-lg shadow-orange-500/20"
               >
                 Refund
                 <RefundBadge mobile />
               </Link>
             )}
 
+            <div className="space-y-2">
+              <MobileAccordionButton id="others" title="Others" />
+
+              {activeAccordion === "others" && (
+                <div className={styles.mobilePanel}>
+                  {menuData.others.map((item, idx) => (
+                    <Link key={idx} to={item.link} onClick={closeMobile} className={styles.mobileLink}>
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/todo"
+              onClick={closeMobile}
+              className="block rounded-2xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 px-4 py-3.5 font-black text-white shadow-lg shadow-blue-500/25"
+            >
+              ToDo
+            </Link>
+
             {token && (
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full rounded-xl bg-red-50 px-4 py-3 text-left font-bold text-red-600"
+                className="w-full rounded-2xl border border-red-300/25 bg-red-500/15 px-4 py-3.5 text-left font-black text-red-100"
               >
                 Logout
               </button>

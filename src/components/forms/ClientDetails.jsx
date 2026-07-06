@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   FaUser,
-  FaPassport,
   FaGlobe,
   FaMoneyBillWave,
   FaArrowLeft,
   FaEdit,
   FaFileDownload,
   FaFileInvoice,
-  FaBriefcase,
   FaHandshake,
   FaFileAlt,
 } from "react-icons/fa";
@@ -26,17 +24,15 @@ export default function ClientDetails() {
   const [newRemark, setNewRemark] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // --- ADDED: Get user role from local storage ---
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userRole = storedUser?.role?.toLowerCase();
   const userName = storedUser?.name?.toLowerCase();
   const isAuthorized = userRole === "admin" || userRole === "accountant";
-
-  // Logic: Hide if user is BOTH an accountant AND named Neshat
   const canSeeReceipt = !(userRole === "accountant" && userName === "neshat");
 
   useEffect(() => {
-    setLoading(true); // Start loading when ID changes
+    setLoading(true);
+
     fetch(`https://wmibcstaff-server.vercel.app/api/clients/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Client not found");
@@ -44,22 +40,22 @@ export default function ClientDetails() {
       })
       .then((data) => {
         setClient(data);
-        setLoading(false); // SUCCESS: Stop loading
+        setLoading(false);
       })
       .catch((err) => {
         console.error(err);
         toast.error("Failed to load client details");
-        setLoading(false); // ERROR: Stop loading so we don't get stuck
+        setLoading(false);
       });
   }, [id]);
 
-  // --- MODERN PDF REPORT LOGIC ---
   const downloadPDF = () => {
     if (!client) return;
+
+    const currency = client.currency || "Riyal";
     const doc = new jsPDF("p", "pt", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // --- 1. HEADER SECTION ---
     if (logoImg) {
       doc.addImage(logoImg, "JPEG", 40, 40, 60, 60);
     }
@@ -76,7 +72,6 @@ export default function ClientDetails() {
     doc.text(`Report Generated: ${new Date().toLocaleString()}`, 110, 97);
     doc.line(40, 115, pageWidth - 40, 115);
 
-    // --- 2. SECTION: IDENTITY & JOURNEY ---
     const identityBody = [
       ["Full Name", client.clientName || "—"],
       ["Passport No", client.passport || "—"],
@@ -87,7 +82,7 @@ export default function ClientDetails() {
     ].filter(Boolean);
 
     autoTable(doc, {
-      startY: 130, // Hardcoded start for the first table
+      startY: 130,
       head: [
         [
           {
@@ -122,7 +117,7 @@ export default function ClientDetails() {
     ].filter(Boolean);
 
     autoTable(doc, {
-      startY: 130, // Same start as Identity (side-by-side)
+      startY: 130,
       head: [
         [
           {
@@ -139,8 +134,6 @@ export default function ClientDetails() {
       margin: { left: 305 },
     });
 
-    // --- 3. SECTION: STATUS & TERMS ---
-    // Safe Y calculation: Use 300 if lastAutoTable is somehow missing
     const statusY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 300;
 
     autoTable(doc, {
@@ -158,7 +151,7 @@ export default function ClientDetails() {
           client.agreementPaper || "—",
           client.handover || "—",
           client.refundTerms || "—",
-          client.paymentTerms || "—", // Added Payment Terms here
+          client.paymentTerms || "—",
         ],
       ],
       theme: "striped",
@@ -166,7 +159,6 @@ export default function ClientDetails() {
       styles: { fontSize: 9, halign: "center" },
     });
 
-    // --- 4. SECTION: FINANCIAL HISTORY ---
     const financialTitleY = doc.lastAutoTable
       ? doc.lastAutoTable.finalY + 30
       : 400;
@@ -176,12 +168,13 @@ export default function ClientDetails() {
     doc.setFont("helvetica", "bold");
     doc.text("FINANCIAL SUMMARY", 40, financialTitleY);
 
-    const paymentRows = client.amountReceived?.map((p) => [
-      p.paymentType || "Payment",
-      p.paymentMethod || "Cash",
-      p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : "—",
-      `${p.amount} QAR`,
-    ]) || [["No payments recorded", "", "", ""]];
+    const paymentRows =
+      client.amountReceived?.map((p) => [
+        p.paymentType || "Payment",
+        p.paymentMethod || "Cash",
+        p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : "—",
+        `${p.amount} ${currency}`,
+      ]) || [["No payments recorded", "", "", ""]];
 
     autoTable(doc, {
       startY: financialTitleY + 10,
@@ -190,17 +183,19 @@ export default function ClientDetails() {
         ...paymentRows,
         [
           {
-            content: `Total Service Charge: ${client.totalServiceCharge || 0} QAR\nPayment Terms: ${client.paymentTerms || "N/A"}`,
+            content: `Total Service Charge: ${
+              client.totalServiceCharge || 0
+            } ${currency}\nPayment Terms: ${client.paymentTerms || "N/A"}`,
             colSpan: 2,
             styles: { fontStyle: "bold" },
           },
           {
-            content: `Pending Balance:`,
+            content: "Pending Balance:",
             colSpan: 1,
             styles: { fontStyle: "bold", halign: "right" },
           },
           {
-            content: `${client.pendingBalance || 0} QAR`,
+            content: `${client.pendingBalance || 0} ${currency}`,
             styles: { fontStyle: "bold", fillColor: [254, 226, 226] },
           },
         ],
@@ -209,7 +204,6 @@ export default function ClientDetails() {
       styles: { fontSize: 9 },
     });
 
-    // --- 5. REMARKS HISTORY ---
     const remarksY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 30 : 600;
     doc.setFontSize(10);
     doc.setTextColor(0);
@@ -233,16 +227,15 @@ export default function ClientDetails() {
 
         doc.setFont("helvetica", "italic");
         doc.setTextColor(60);
+
         const wrappedText = doc.splitTextToSize(
           remark.text || "",
           pageWidth - 140,
         );
+
         doc.text(wrappedText, 110, currentRemarkY);
+        currentRemarkY += wrappedText.length * 12 + 5;
 
-        const lineHeight = 12;
-        currentRemarkY += wrappedText.length * lineHeight + 5;
-
-        // Simple Page Break check
         if (currentRemarkY > 800) {
           doc.addPage();
           currentRemarkY = 40;
@@ -255,49 +248,50 @@ export default function ClientDetails() {
     doc.save(`${client.clientName}_Detailed_Report.pdf`);
   };
 
-  //CONFIRM RECEIPT
   const handleReceiptClick = () => {
-  toast((t) => (
-    <div className="flex flex-col gap-3 min-w-50">
-      <span className="text-xs font-black text-slate-800 uppercase tracking-widest">
-        Confirm Receipt?
-      </span>
-      <p className="text-[11px] text-slate-500">
-        Generate and download the voucher for {client.clientName}?
-      </p>
-      <div className="flex gap-2 justify-end mt-2">
-        <button
-          onClick={() => toast.dismiss(t.id)}
-          className="text-[10px] font-black text-gray-400 uppercase hover:text-gray-600 px-2"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            toast.dismiss(t.id);
-            generateReceipt(); // Your original PDF function
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all"
-        >
-          Generate
-        </button>
-      </div>
-    </div>
-  ), {
-    duration: 6000,
-    position: 'top-center',
-    style: {
-      borderRadius: '20px',
-      background: '#fff',
-      border: '1px solid #f1f5f9',
-      padding: '16px',
-    },
-  });
-};
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 min-w-50">
+          <span className="text-xs font-black text-white uppercase tracking-widest">
+            Confirm Receipt?
+          </span>
+          <p className="text-[11px] text-blue-100/60">
+            Generate and download the voucher for {client.clientName}?
+          </p>
+          <div className="flex gap-2 justify-end mt-2">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="text-[10px] font-black text-blue-100/45 uppercase hover:text-blue-100 px-2"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                generateReceipt();
+              }}
+              className="rounded-xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-500/25 transition-all active:scale-95"
+            >
+              Generate
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 6000,
+        position: "top-center",
+        style: {
+          borderRadius: "20px",
+          background: "#0f172a",
+          border: "1px solid rgba(56, 189, 248, 0.28)",
+          color: "#fff",
+          padding: "16px",
+        },
+      },
+    );
+  };
 
-  // --- 3-COPY RECEIPT LOGIC ---
   const generateReceipt = () => {
-    
     if (
       !client ||
       !client.amountReceived ||
@@ -306,6 +300,10 @@ export default function ClientDetails() {
       toast.error("No payment records found");
       return;
     }
+
+    const currency = client.currency || "Riyal";
+    const currencyInWords =
+      currency === "BDT" ? "Bangladeshi Taka Only" : "Riyal Only";
 
     const toWords = (num) => {
       const a = [
@@ -342,12 +340,16 @@ export default function ClientDetails() {
         "Eighty",
         "Ninety",
       ];
-      let amount = Math.floor(num);
-      if (amount === 0) return "Zero Qatari Riyals Only";
-      let n = ("000000000" + amount)
+
+      const amount = Math.floor(num);
+      if (amount === 0) return `Zero ${currencyInWords}`;
+
+      const n = ("000000000" + amount)
         .substr(-9)
         .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+
       if (!n) return "";
+
       let str = "";
       str +=
         n[1] != 0
@@ -370,7 +372,8 @@ export default function ClientDetails() {
           ? (str != "" ? "and " : "") +
             (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]])
           : "";
-      return str.trim() + " Qatari Riyals Only";
+
+      return `${str.trim()} ${currencyInWords}`;
     };
 
     const latestPayment =
@@ -383,13 +386,14 @@ export default function ClientDetails() {
       const yOffset = index * 280;
       const pageWidth = doc.internal.pageSize.getWidth();
 
-      // --- 1. HEADERS & IMAGES ---
       doc.setFontSize(11);
       doc.setTextColor(22, 53, 118);
       doc.setFont("helvetica", "bold");
       doc.text("WORLD MULTINATIONAL", 40, yOffset + 25);
+
       doc.setFontSize(7);
       doc.text("IMMIGRATION & BUSINESS CONSULTANCY", 40, yOffset + 33);
+
       doc.setFont("helvetica", "normal");
       doc.setTextColor(60, 60, 60);
       doc.text(
@@ -399,10 +403,10 @@ export default function ClientDetails() {
       );
       doc.text("Tel: +974 40298070 | www.wmibc.com", 40, yOffset + 51);
 
-      // Center: Logo
       const logoWidth = 80;
       const logoHeight = 80;
-      if (logoImg)
+
+      if (logoImg) {
         doc.addImage(
           logoImg,
           "JPEG",
@@ -411,10 +415,11 @@ export default function ClientDetails() {
           logoWidth,
           logoHeight,
         );
+      }
 
-      // Right: Arabic Image
       const arWidth = 130;
       const arHeight = 55;
+
       if (headerArabicImg) {
         doc.addImage(
           headerArabicImg,
@@ -426,7 +431,6 @@ export default function ClientDetails() {
         );
       }
 
-      // --- 2. LABELS & TITLE ---
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(150, 150, 150);
@@ -440,57 +444,60 @@ export default function ClientDetails() {
         align: "center",
       });
 
-      // --- 3. INFO BAR ---
       doc.setFontSize(10);
       doc.setTextColor(200, 0, 0);
+
       const displayId = id ? id.slice(-4).toUpperCase() : "0000";
       doc.text(`No: ${displayId}`, 40, yOffset + 105);
 
       doc.setTextColor(0, 0, 0);
       doc.setFont("helvetica", "bold");
       doc.rect(230, yOffset + 92, 130, 20);
-      doc.text(`Amount: ${latestPayment.amount || 0} QAR`, 235, yOffset + 106);
+      doc.text(
+        `Amount: ${latestPayment.amount || 0} ${currency}`,
+        235,
+        yOffset + 106,
+      );
 
       doc.setFont("helvetica", "normal");
       doc.text(`Date: ${today}`, 460, yOffset + 105);
 
-      // --- 4. CONTENT BOX (Dynamic Height based on Pending Balance) ---
       const hasBalance = client.pendingBalance && client.pendingBalance > 0;
       const boxHeight = hasBalance ? 110 : 92;
+
       doc.setDrawColor(22, 53, 118);
       doc.rect(30, yOffset + 120, 535, boxHeight);
 
       let currentRowY = yOffset + 138;
       doc.setFontSize(9);
 
-      // Row 1: Received From
       doc.setFont("helvetica", "normal");
       doc.text("Received from Mr. or M/s.", 45, currentRowY);
+
       doc.setFont("helvetica", "bold");
       doc.text(`${client.clientName || ""}`, 155, currentRowY);
       doc.line(150, currentRowY + 2, 530, currentRowY + 2);
 
-      // Row 2: Sum in Words
       currentRowY += 18;
       doc.setFont("helvetica", "normal");
-      doc.text("The Sum of Q.Rs.", 45, currentRowY);
+      doc.text(`The Sum of ${currency}`, 45, currentRowY);
+
       doc.setFont("helvetica", "italic");
       doc.text(toWords(latestPayment.amount || 0), 125, currentRowY);
       doc.line(120, currentRowY + 2, 530, currentRowY + 2);
 
-      // OPTIONAL Row: Pending Balance (Only shows if value exists)
       if (hasBalance) {
         currentRowY += 18;
         doc.setFont("helvetica", "normal");
         doc.text("Pending Balance:", 45, currentRowY);
+
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(200, 0, 0); // Red for balance
-        doc.text(`${client.pendingBalance} QAR`, 125, currentRowY);
-        doc.setTextColor(0, 0, 0); // Reset
+        doc.setTextColor(200, 0, 0);
+        doc.text(`${client.pendingBalance} ${currency}`, 125, currentRowY);
+        doc.setTextColor(0, 0, 0);
         doc.line(120, currentRowY + 2, 530, currentRowY + 2);
       }
 
-      // Row 3: Passport & Mobile
       currentRowY += 18;
       doc.setFont("helvetica", "normal");
       doc.text("Passport No:", 45, currentRowY);
@@ -501,23 +508,24 @@ export default function ClientDetails() {
       doc.text(`${client.contactNo || "—"}`, 355, currentRowY);
       doc.line(350, currentRowY + 2, 530, currentRowY + 2);
 
-      // Row 4: Purpose
       currentRowY += 18;
       doc.text("Being for:", 45, currentRowY);
+
       doc.setFont("helvetica", "italic");
-      const purpose = `${latestPayment.paymentType || ""} ${client.visaType || ""} Service`;
+      const purpose = `${latestPayment.paymentType || ""} ${
+        client.visaType || ""
+      } Service`;
       doc.text(purpose.trim(), 95, currentRowY);
       doc.line(90, currentRowY + 2, 530, currentRowY + 2);
 
-      // Row 5: Payment Method (ALWAYS LAST)
       currentRowY += 18;
       doc.setFont("helvetica", "normal");
       doc.text("Payment Method:", 45, currentRowY);
+
       doc.setFont("helvetica", "bold");
       doc.text(`${latestPayment.paymentMethod || "Cash"}`, 125, currentRowY);
       doc.line(120, currentRowY + 2, 530, currentRowY + 2);
 
-      // --- 5. SIGNATURES ---
       doc.setFontSize(8);
       doc.text("Manager's Sign", 65, yOffset + 255);
       doc.text("Accountant's Sign", 260, yOffset + 255);
@@ -533,8 +541,6 @@ export default function ClientDetails() {
     doc.save(`Voucher_${client.clientName || "Client"}.pdf`);
   };
 
-  // EDITABLE OFFICE REMARK
-  // Update the handleSave function
   const handleAddRemark = async () => {
     if (!newRemark.trim()) return toast.error("Please enter a remark");
 
@@ -550,8 +556,8 @@ export default function ClientDetails() {
 
       if (response.ok) {
         const updatedClient = await response.json();
-        setClient(updatedClient); // Refresh UI
-        setNewRemark(""); // Clear input
+        setClient(updatedClient);
+        setNewRemark("");
         toast.success("Remark added!");
       }
     } catch (err) {
@@ -559,32 +565,45 @@ export default function ClientDetails() {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mb-4"></div>
-        <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">
+      <div className="flex h-screen flex-col items-center justify-center bg-slate-950">
+        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-2 border-sky-400/20 border-b-sky-300" />
+        <p className="animate-pulse text-xs font-black uppercase tracking-widest text-blue-100/60">
           Loading Database...
         </p>
       </div>
     );
+  }
+
+  if (!client) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-8">
+        <p className="rounded-2xl border border-white/10 bg-white/[0.07] px-5 py-4 text-sm font-black text-blue-100/60">
+          Client details not found.
+        </p>
+      </div>
+    );
+  }
+
+  const currency = client.currency || "Riyal";
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 p-4 md:p-8">
       <Toaster />
-      <div className="max-w-5xl mx-auto">
-        {/* TOP BAR */}
-        <div className="flex justify-between items-center mb-6">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-linear(circle_at_top_left,rgba(37,99,235,0.34),transparent_32%),radial-linear(circle_at_bottom_right,rgba(14,165,233,0.22),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-linear(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-linear(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[44px_44px] opacity-20" />
+
+      <div className="relative mx-auto max-w-5xl">
+        <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <button
             onClick={() => navigate(-1)}
-            className="text-xs font-bold text-gray-500 uppercase flex items-center gap-2 hover:text-emerald-600"
+            className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-100/60 transition-all hover:text-sky-300"
           >
             <FaArrowLeft /> Back
           </button>
 
-          <div className="flex gap-2">
-
-            {/* RECEIPT SECTION  */}
+          <div className="flex flex-wrap gap-2">
             {/* {isAuthorized && canSeeReceipt && (
               <button
                 onClick={handleReceiptClick}
@@ -593,17 +612,18 @@ export default function ClientDetails() {
                 <FaFileInvoice /> RECEIPT
               </button>
             )} */}
+
             <button
               onClick={downloadPDF}
-              className="bg-white border p-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm active:scale-95"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] p-2 px-4 text-xs font-black text-blue-50 shadow-lg shadow-blue-950/25 transition-all hover:border-sky-300/30 hover:bg-sky-400/10 active:scale-95"
             >
-              <FaFileDownload className="text-emerald-600" /> PDF REPORT
+              <FaFileDownload className="text-sky-300" /> PDF REPORT
             </button>
-            {/* CONDITIONAL EDIT BUTTON */}
+
             {isAuthorized && (
               <Link
                 to={`/edit-client/${id}`}
-                className="bg-pink-400 text-white p-2 px-5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-pink-500 active:scale-95"
+                className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 p-2 px-5 text-xs font-black text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-400/45 active:scale-95"
               >
                 <FaEdit /> EDIT
               </Link>
@@ -611,20 +631,18 @@ export default function ClientDetails() {
           </div>
         </div>
 
-        {/* MAIN CARD UI */}
-        <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
-          {/* HEADER */}
-          <div className="bg-slate-200 p-5 text-pink-600 flex justify-between">
+        <div className="overflow-hidden rounded-4xl border border-white/10 bg-white/[0.07] shadow-2xl shadow-blue-950/60 backdrop-blur-2xl md:rounded-[2.5rem]">
+          <div className="flex flex-col justify-between gap-4 border-b border-white/10 bg-linear-to-r from-blue-950 via-blue-900 to-sky-900 p-5 text-white sm:flex-row">
             <div>
               <h1 className="text-2xl font-black uppercase tracking-tight">
                 {client.clientName}
               </h1>
-              <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest">
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-100/60">
                 Consultant: {client.consultant}
               </p>
             </div>
 
-            <p className="mt-2 text-gray-600 text-[10px] font-black uppercase tracking-widest">
+            <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-blue-100/60">
               {client.updatedBy && client.updatedBy.length > 0 ? (
                 <>
                   Last Updated By:{" "}
@@ -648,11 +666,10 @@ export default function ClientDetails() {
             </p>
           </div>
 
-          <div className="p-6 md:p-10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {/* COLUMN 1: IDENTITY */}
+          <div className="p-5 sm:p-6 md:p-10">
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
               <div className="space-y-4">
-                <h3 className="text-pink-600 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
+                <h3 className="flex items-center gap-2 border-b border-white/10 pb-2 text-[10px] font-black uppercase tracking-widest text-sky-300">
                   <FaUser /> Identity
                 </h3>
                 <InfoBox label="Full Name" value={client.clientName} />
@@ -662,12 +679,11 @@ export default function ClientDetails() {
                   <InfoBox label="New Passport" value={client.newPassport} />
                 )}
                 <InfoBox label="Nationality" value={client.nationality} />
-                <InfoBox label="QID Number" value={client.QID} />
+                <InfoBox label="ID Number" value={client.ID} />
               </div>
 
-              {/* COLUMN 2: JOURNEY */}
               <div className="space-y-4">
-                <h3 className="text-pink-600 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
+                <h3 className="flex items-center gap-2 border-b border-white/10 pb-2 text-[10px] font-black uppercase tracking-widest text-sky-300">
                   <FaGlobe /> Journey
                 </h3>
                 <InfoBox
@@ -696,56 +712,57 @@ export default function ClientDetails() {
                 />
               </div>
 
-              {/* COLUMN 3: ACCOUNTS SIDEBAR */}
-              <div className="space-y-4 bg-slate-50 p-5 rounded-3xl border border-slate-100 shadow-inner">
-                <h3 className="text-pink-800 font-black text-[10px] uppercase border-b pb-2 flex items-center gap-2">
+              <div className="space-y-4 rounded-3xl border border-sky-300/15 bg-slate-950/35 p-5 shadow-inner shadow-blue-950/20">
+                <h3 className="flex items-center gap-2 border-b border-white/10 pb-2 text-[10px] font-black uppercase tracking-widest text-sky-300">
                   <FaMoneyBillWave /> Accounts
                 </h3>
+
                 <InfoBox
                   label="Total Service Charge"
-                  value={`${client.totalServiceCharge || 0} QAR`}
+                  value={`${client.totalServiceCharge || 0} ${currency}`}
                 />
-                {/* ADD THIS NEW BLOCK HERE */}
+
                 <InfoBox label="Payment Terms" value={client.paymentTerms} />
 
                 <div className="space-y-2 mt-4">
-                  <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+                  <p className="text-[9px] font-black text-sky-500 uppercase tracking-widest">
                     Payment Received
                   </p>
+
                   {client.amountReceived?.map((pay, i) => (
                     <div
                       key={i}
-                      className="bg-white p-3 rounded-xl border border-emerald-50 shadow-sm flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="text-[8px] text-gray-400 font-bold uppercase">
+                    className="flex items-center justify-between rounded-xl border border-sky-300/15 bg-slate-950/45 p-3 shadow-sm"
+                  >
+                    <div>
+                        <p className="text-[8px] font-bold uppercase text-blue-100/45">
                           {pay.paymentType || "Payment"}
                         </p>
-                        <span className="text-[9px] text-gray-500">
+                        <span className="text-[9px] text-blue-100/55">
                           {pay.paymentMethod} •{" "}
                           {pay.paymentDate
                             ? new Date(pay.paymentDate).toLocaleDateString()
                             : "—"}
                         </span>
                       </div>
-                      <span className="font-black text-emerald-600 text-xs">
-                        {pay.amount} QAR
+
+                      <span className="text-xs font-black text-sky-300">
+                        {pay.amount} {currency}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-4 mt-2 border-t border-slate-200">
+                <div className="mt-2 border-t border-white/10 pt-4">
                   <InfoBox
                     label="Pending Balance"
-                    value={`${client.pendingBalance || 0} QAR`}
+                    value={`${client.pendingBalance || 0} ${currency}`}
                   />
                 </div>
               </div>
             </div>
 
-            {/* BOTTOM GRID: STATUS & TERMS */}
-            <div className="mt-10 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="mt-10 grid grid-cols-1 gap-6 border-t border-white/10 pt-8 md:grid-cols-4">
               <InfoBox label="Agreement Status" value={client.agreementPaper} />
               <InfoBox label="Handover Status" value={client.handover} />
               <InfoBox label="Refund Policy" value={client.refundTerms} />
@@ -754,50 +771,48 @@ export default function ClientDetails() {
                 value={client.applicationStatus || "Pending"}
               />
 
-              <div className="md:col-span-4 mt-8 border-t pt-6">
-                <h3 className="text-slate-800 font-black text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <FaFileAlt className="text-emerald-500" /> Office Remarks
+              <div className="mt-8 border-t border-white/10 pt-6 md:col-span-4">
+                <h3 className="mb-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white">
+                  <FaFileAlt className="text-sky-300" /> Office Remarks
                   History
                 </h3>
 
-                {/* History List */}
-                <div className="space-y-3 mb-6 max-h-100 overflow-y-auto pr-2">
+                <div className="max-h-100 mb-6 space-y-3 overflow-y-auto pr-2">
                   {client.remarksHistory && client.remarksHistory.length > 0 ? (
                     [...client.remarksHistory].reverse().map((r, i) => (
                       <div
                         key={i}
-                        className="bg-slate-50 p-4 rounded-2xl border border-slate-100 relative group transition-all hover:border-emerald-200"
+                        className="group relative rounded-2xl border border-white/10 bg-slate-950/35 p-4 transition-all hover:border-sky-300/30"
                       >
-                        <span className="text-[8px] font-bold text-slate-400 absolute top-4 right-4 italic">
+                        <span className="absolute right-4 top-4 text-[8px] font-bold italic text-blue-100/45">
                           {new Date(r.date).toLocaleString("en-GB", {
                             dateStyle: "medium",
                             timeStyle: "short",
                           })}
                         </span>
-                        <p className="text-sm text-slate-600 leading-relaxed pr-24 font-medium">
+                        <p className="pr-24 text-sm font-medium leading-relaxed text-blue-50">
                           {r.text}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-400 italic bg-slate-50 p-4 rounded-xl border border-dashed">
+                    <p className="rounded-xl border border-dashed border-white/10 bg-slate-950/35 p-4 text-xs italic text-blue-100/50">
                       No history recorded yet.
                     </p>
                   )}
                 </div>
 
-                {/* Input Section */}
-                <div className="bg-white p-2 rounded-3xl border-2 border-dashed border-slate-200 focus-within:border-emerald-400 transition-all">
+                <div className="rounded-3xl border-2 border-dashed border-white/10 bg-slate-950/35 p-2 transition-all focus-within:border-sky-300/70">
                   <textarea
                     value={newRemark}
                     onChange={(e) => setNewRemark(e.target.value)}
                     placeholder="Type a new update..."
-                    className="w-full p-4 text-sm text-slate-700 outline-none min-h-20 bg-transparent"
+                    className="min-h-20 w-full bg-transparent p-4 text-sm text-white outline-none placeholder:text-blue-100/35"
                   />
                   <div className="flex justify-end p-2">
                     <button
                       onClick={handleAddRemark}
-                      className="bg-slate-900 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-slate-200 flex items-center gap-2"
+                      className="flex items-center gap-2 rounded-2xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 px-8 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-400/45"
                     >
                       <FaHandshake /> Add New Remark
                     </button>
@@ -812,13 +827,12 @@ export default function ClientDetails() {
   );
 }
 
-// Sub-component for clean rendering
 const InfoBox = ({ label, value }) => (
-  <div className="p-2 border-b border-gray-50/50">
-    <p className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">
+  <div className="border-b border-white/10 p-2">
+    <p className="text-[9px] font-black uppercase tracking-widest text-blue-100/45">
       {label}
     </p>
-    <p className="text-sm font-bold text-slate-700 leading-relaxed">
+    <p className="text-sm font-black leading-relaxed text-blue-50">
       {value || "—"}
     </p>
   </div>

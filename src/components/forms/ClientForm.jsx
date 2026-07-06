@@ -54,14 +54,14 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export default function ClientForm() {
   const inputStyle =
-    "w-full border border-slate-200 bg-slate-50 rounded-xl p-3 text-slate-700 focus:outline-none focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition duration-200 text-sm";
+    "w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-sm text-white placeholder:text-blue-100/35 shadow-inner shadow-blue-950/20 outline-none transition duration-200 focus:border-sky-300/70 focus:bg-slate-950/65 focus:ring-4 focus:ring-sky-400/20";
   const labelStyle =
-    "flex items-center gap-2 mb-2 font-bold text-[10px] uppercase tracking-widest text-slate-400";
+    "flex items-center gap-2 mb-2 font-black text-[10px] uppercase tracking-widest text-blue-100/60";
 
   const initialState = {
     clientName: "",
     contactNo: "",
-    QID: "",
+    ID: "", 
     passport: "",
     nationality: "",
     currentCountry: "",
@@ -70,6 +70,7 @@ export default function ClientForm() {
     trade: "",
     fileSubmissionDate: null,
     processingTime: "",
+    currency: "Riyal",
     totalServiceCharge: "",
     paymentTerms: "",
     amountReceived: {
@@ -255,19 +256,22 @@ export default function ClientForm() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 md:p-8 p-4">
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 p-4 md:p-8">
       <Toaster position="top-center" />
-      <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white overflow-hidden">
-        <div className="bg-slate-600 px-4 py-3 flex items-center gap-3 justify-center">
-          <div className="flex items-center justify-center w-10 h-10 bg-pink-200 rounded-lg">
-            <FaShieldAlt className="text-slate-900 text-lg" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-linear(circle_at_top_left,rgba(37,99,235,0.34),transparent_32%),radial-linear(circle_at_bottom_right,rgba(14,165,233,0.22),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-linear(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-linear(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[44px_44px] opacity-20" />
+
+      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-4xl border border-white/10 bg-white/[0.07] shadow-2xl shadow-blue-950/60 backdrop-blur-2xl md:rounded-[2.5rem]">
+        <div className="flex items-center justify-center gap-3 border-b border-white/10 bg-linear-to-r from-blue-950 via-blue-900 to-sky-900 px-4 py-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-300/30 bg-white/10 shadow-lg shadow-blue-500/20">
+            <FaShieldAlt className="text-lg text-sky-200" />
           </div>
 
           <div className="leading-tight">
-            <h1 className="text-white text-lg font-bold uppercase tracking-wide">
+            <h1 className="text-base font-black uppercase tracking-wide text-white sm:text-lg">
               Client Registration Portal
             </h1>
-            <p className="text-slate-300 text-[10px] uppercase tracking-wider">
+            <p className="text-[10px] uppercase tracking-wider text-blue-100/60">
               Authorized Personnel Entry
             </p>
           </div>
@@ -275,16 +279,16 @@ export default function ClientForm() {
 
         <form
           onSubmit={handleSubmit}
-          className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 gap-8 p-5 sm:p-6 md:grid-cols-3 md:p-8"
         >
           <div className="space-y-6">
-            <h2 className="text-slate-900 font-bold border-l-4 border-pink-200 pl-3 text-sm">
+            <h2 className="border-l-4 border-sky-300 pl-3 text-sm font-black text-white">
               Identity & Location
             </h2>
 
             <div>
               <label className={labelStyle}>
-                <FaUser className="text-pink-300" /> Client Name
+                <FaUser className="text-sky-300" /> Client Name
               </label>
               <input
                 className={inputStyle}
@@ -297,7 +301,7 @@ export default function ClientForm() {
 
             <div>
               <label className={labelStyle}>
-                <FaPhone className="text-pink-300" /> Contact No
+                <FaPhone className="text-sky-300" /> Contact No
               </label>
               <input
                 className={inputStyle}
@@ -308,10 +312,10 @@ export default function ClientForm() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaPassport className="text-pink-300" /> Passport
+                  <FaPassport className="text-sky-300" /> Passport
                 </label>
                 <input
                   className={inputStyle}
@@ -322,22 +326,21 @@ export default function ClientForm() {
               </div>
               <div>
                 <label className={labelStyle}>
-                  <FaPassport className="text-pink-300" /> QID
+                  <FaPassport className="text-sky-300" /> QID/ID
                 </label>
                 <input
                   className={inputStyle}
-                  value={formData.QID}
-                  onChange={(e) => handleChange("QID", e.target.value)}
+                  value={formData.ID}
+                  onChange={(e) => handleChange("ID", e.target.value)}
                   required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Nationality */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaGlobe className="text-pink-300" /> Nationality
+                  <FaGlobe className="text-sky-300" /> Nationality
                 </label>
 
                 <input
@@ -364,10 +367,9 @@ export default function ClientForm() {
                 </datalist>
               </div>
 
-              {/* Current Location */}
               <div>
                 <label className={labelStyle}>
-                  <FaGlobe className="text-pink-300" /> Current Loc
+                  <FaGlobe className="text-sky-300" /> Current Loc
                 </label>
 
                 <input
@@ -401,14 +403,14 @@ export default function ClientForm() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-slate-900 font-bold border-l-4 border-pink-200 pl-3 text-sm">
+            <h2 className="border-l-4 border-sky-300 pl-3 text-sm font-black text-white">
               Visa & Processing
             </h2>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaBriefcase className="text-pink-300" /> Visa Type
+                  <FaBriefcase className="text-sky-300" /> Visa Type
                 </label>
                 <select
                   className={inputStyle}
@@ -427,13 +429,13 @@ export default function ClientForm() {
               <div>
                 <div className="flex justify-between items-center">
                   <label className={labelStyle}>
-                    <FaGlobe className="text-pink-300" /> Destination
+                    <FaGlobe className="text-sky-300" /> Destination
                   </label>
                   {isManualInput && (
                     <button
                       type="button"
                       onClick={() => setIsManualInput(false)}
-                      className="text-[9px] font-bold text-pink-400 flex items-center gap-1 hover:text-pink-600 mb-1"
+                      className="mb-1 flex items-center gap-1 text-[9px] font-black text-sky-300 hover:text-cyan-200"
                     >
                       <FaUndo size={7} /> RESET
                     </button>
@@ -495,10 +497,10 @@ export default function ClientForm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaCalendarAlt className="text-pink-300" /> File Submit Date
+                  <FaCalendarAlt className="text-sky-300" /> File Submit Date
                 </label>
                 <DatePicker
                   selected={formData.fileSubmissionDate}
@@ -510,7 +512,7 @@ export default function ClientForm() {
               </div>
               <div>
                 <label className={labelStyle}>
-                  <FaCalendarAlt className="text-pink-300" /> Processing Time
+                  <FaCalendarAlt className="text-sky-300" /> Processing Time
                 </label>
                 <input
                   className={inputStyle}
@@ -526,7 +528,7 @@ export default function ClientForm() {
 
             <div>
               <label className={labelStyle}>
-                <FaFileAlt className="text-pink-300" /> Application Status
+                <FaFileAlt className="text-sky-300" /> Application Status
               </label>
               <select
                 className={inputStyle}
@@ -545,10 +547,10 @@ export default function ClientForm() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaBriefcase className="text-pink-300" /> Trade
+                  <FaBriefcase className="text-sky-300" /> Trade
                 </label>
                 <input
                   className={inputStyle}
@@ -559,7 +561,7 @@ export default function ClientForm() {
               </div>
               <div>
                 <label className={labelStyle}>
-                  <FaHandshake className="text-pink-300" /> Handover
+                  <FaHandshake className="text-sky-300" /> Handover
                 </label>
                 <input
                   className={inputStyle}
@@ -571,14 +573,14 @@ export default function ClientForm() {
             </div>
 
             <div className="mt-3">
-              <label className="flex items-center gap-2 mb-2 font-bold text-[10px] uppercase tracking-widest text-slate-400">
-                <FaFileAlt className="text-pink-300" /> Upload Client File
+              <label className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-100/60">
+                <FaFileAlt className="text-sky-300" /> Upload Client File
               </label>
 
               <input
                 type="file"
                 accept="application/pdf"
-                className={`${inputStyle} file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-pink-100 file:text-slate-700 file:font-semibold hover:file:bg-pink-200`}
+                className={`${inputStyle} file:mr-3 file:rounded-xl file:border-0 file:bg-sky-400/15 file:px-4 file:py-2 file:font-black file:text-sky-100 hover:file:bg-sky-400/25`}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
@@ -604,26 +606,26 @@ export default function ClientForm() {
                   setPdfFile(file);
                   setUploadProgress(0);
                 }}
-              /> 
+              />
 
-              <p className="mt-2 text-[11px] text-slate-400">
+              <p className="mt-2 text-[11px] text-blue-100/60">
                 Maximum file size: {MAX_FILE_SIZE_MB}MB |{" "}
                 <a
                   href="https://tools.pdf24.org/en/compress-pdf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-pink-400 font-semibold hover:text-pink-300 underline"
+                  className="font-bold text-sky-300 underline hover:text-cyan-200"
                 >
                   Compress File? Click Here
                 </a>{" "}
                 <br />
-                <p className="mt-2 text-[11px] text-slate-400">
+                <p className="mt-2 text-[11px] text-blue-100/60">
                   To compress your PDF: Set DPI to 200 for best results.
                 </p>
               </p>
 
               {pdfFile && (
-                <div className="mt-2 text-[11px] text-slate-500 space-y-1">
+                <div className="mt-2 text-[11px] text-blue-100/60 space-y-1">
                   <div>
                     Selected:{" "}
                     <span className="font-semibold">{pdfFile.name}</span>
@@ -640,17 +642,17 @@ export default function ClientForm() {
               {uploadingPdf && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-pink-500">
+                    <span className="text-[11px] font-bold text-sky-300">
                       Uploading PDF...
                     </span>
-                    <span className="text-[11px] font-bold text-slate-500">
+                    <span className="text-[11px] font-bold text-blue-100/60">
                       {uploadProgress}%
                     </span>
                   </div>
 
-                  <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-950/70 ring-1 ring-white/10">
                     <div
-                      className="h-full bg-pink-400 transition-all duration-200"
+                      className="h-full bg-linear-to-r from-blue-500 via-sky-400 to-cyan-300 transition-all duration-200"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -662,7 +664,7 @@ export default function ClientForm() {
                   href={formData.agreementFile}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block mt-2 text-[11px] font-semibold text-pink-500 hover:text-pink-700"
+                  className="mt-2 inline-block text-[11px] font-bold text-sky-300 hover:text-cyan-200"
                 >
                   View Uploaded PDF
                 </a>
@@ -671,14 +673,30 @@ export default function ClientForm() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-slate-900 font-bold border-l-4 border-pink-200 pl-3 text-sm">
+            <h2 className="border-l-4 border-sky-300 pl-3 text-sm font-black text-white">
               Finance & Agreement
             </h2>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelStyle}>
+                <FaMoneyBillWave className="text-sky-300" /> Currency
+              </label>
+              <select
+                className={inputStyle}
+                value={formData.currency}
+                onChange={(e) => handleChange("currency", e.target.value)}
+                required
+              >
+                <option value="Riyal">Riyal</option>
+                <option value="BDT">BDT</option> 
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelStyle}>
-                  <FaMoneyBillWave className="text-pink-300" /> Total Charge
+                  <FaMoneyBillWave className="text-sky-300" /> Total Charge (
+                  {formData.currency})
                 </label>
                 <input
                   type="number"
@@ -693,7 +711,9 @@ export default function ClientForm() {
               </div>
 
               <div>
-                <label className={labelStyle}>Non Refundable</label>
+                <label className={labelStyle}>
+                  Non Refundable ({formData.currency})
+                </label>
                 <input
                   className={inputStyle}
                   value={formData.refundTerms}
@@ -715,13 +735,13 @@ export default function ClientForm() {
               />
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-2xl border border-pink-50 space-y-3">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-2">
+            <div className="space-y-3 rounded-2xl border border-sky-300/15 bg-slate-950/35 p-4 shadow-inner shadow-blue-950/20">
+              <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-sky-200/65">
                 Initial Collection
               </p>
 
               <div>
-                <label className="text-[9px] font-bold text-slate-400">
+                <label className="text-[9px] font-bold uppercase tracking-wide text-blue-100/55">
                   Transaction Type
                 </label>
                 <select
@@ -741,10 +761,10 @@ export default function ClientForm() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[9px] font-bold text-slate-400">
-                    Amount
+                  <label className="text-[9px] font-bold uppercase tracking-wide text-blue-100/55">
+                    Amount ({formData.currency})
                   </label>
                   <input
                     type="number"
@@ -760,12 +780,12 @@ export default function ClientForm() {
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-bold text-pink-400">
-                    Pending
+                  <label className="text-[9px] font-bold uppercase tracking-wide text-sky-300">
+                    Pending ({formData.currency})
                   </label>
                   <input
                     type="number"
-                    className={`${inputStyle} border-pink-100 bg-pink-50/50`}
+                    className={`${inputStyle} border-sky-300/25 bg-sky-400/10`}
                     value={formData.pendingBalance}
                     onChange={(e) =>
                       handleChange("pendingBalance", e.target.value)
@@ -777,7 +797,7 @@ export default function ClientForm() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <select
                   className={inputStyle}
                   value={formData.amountReceived.paymentMethod}
@@ -806,7 +826,7 @@ export default function ClientForm() {
 
             <div>
               <label className={labelStyle}>
-                <FaFileSignature className="text-pink-300" /> Agreement
+                <FaFileSignature className="text-sky-300" /> Agreement
               </label>
 
               <select
@@ -823,10 +843,10 @@ export default function ClientForm() {
             </div>
           </div>
 
-          <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 border-t border-slate-50">
+          <div className="grid grid-cols-1 gap-8 border-t border-white/10 pt-4 md:col-span-3 md:grid-cols-3">
             <div className="md:col-span-2">
               <label className={labelStyle}>
-                <FaFileAlt className="text-pink-300" /> Internal Remarks
+                <FaFileAlt className="text-sky-300" /> Internal Remarks
               </label>
 
               <textarea
@@ -851,7 +871,7 @@ export default function ClientForm() {
               <input
                 className={
                   inputStyle +
-                  " bg-slate-100 font-bold text-slate-400 cursor-not-allowed"
+                  " cursor-not-allowed bg-slate-900/70 font-black text-blue-100/50"
                 }
                 value={formData.consultant}
                 readOnly
@@ -860,7 +880,7 @@ export default function ClientForm() {
               <button
                 type="submit"
                 disabled={loading || uploadingPdf}
-                className="w-full mt-4 bg-pink-200 text-slate-900 font-black py-4 rounded-xl shadow-lg shadow-pink-100 hover:bg-pink-300 transition-all active:scale-95 disabled:opacity-50 text-sm uppercase"
+                className="mt-4 w-full rounded-2xl bg-linear-to-r from-blue-600 via-sky-500 to-cyan-400 py-4 text-sm font-black uppercase text-white shadow-xl shadow-blue-500/25 transition-all hover:shadow-blue-400/45 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {uploadingPdf
                   ? `Uploading File... ${uploadProgress}%`
@@ -871,7 +891,7 @@ export default function ClientForm() {
             </div>
           </div>
         </form>
-      </div>
+      </div> 
     </div>
   );
 }

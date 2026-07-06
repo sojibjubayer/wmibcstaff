@@ -5,7 +5,7 @@ const JOBS = ["Construction", "Cleaner"];
 const PAYMENTS = [
   { label: "1st Payment (With Documents)", amount: "1,500" },
   { label: "2nd Payment (After Work Permit)", amount: "5,000" },
-  { label: "3rd Payment (After Visa Approval)", amount: "11,500" },
+  { label: "3rd Payment (After Visa Approval)", amount: "10,500" },
 ];
 
 const WpPoland = () => {
@@ -80,7 +80,7 @@ const WpPoland = () => {
               <p className="text-slate-400 text-sm italic">Inclusive of all administrative costs</p>
             </div>
             <div className="text-3xl font-light text-pink-300">
-              18,000 <span className="text-sm text-slate-500 font-bold">QAR</span>
+              17,000 <span className="text-sm text-slate-500 font-bold">QAR</span>
             </div>
           </div>
           

@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Clock3,
   LogIn,
   LogOut,
   UtensilsCrossed,
   Coffee,
-  CheckCircle2,
   Loader2,
   Calendar,
   Activity,
@@ -51,8 +51,8 @@ const actionConfig = [
   },
 ];
 
-// TIME SETTING ZONEWISE
 const DEFAULT_TIMEZONE = "Asia/Qatar";
+const API_BASE = "https://wmibcstaff-server.vercel.app/api";
 
 function getUserTimezone(user) {
   if (user?.country === "Bangladesh") return "Asia/Dhaka";
@@ -61,32 +61,75 @@ function getUserTimezone(user) {
 
 function getTimezoneLabel(user) {
   if (user?.country === "Bangladesh") return "Bangladesh Time";
-  return "Qatar Time"; 
+  return "Qatar Time";
 }
 
-const API_BASE = "https://wmibcstaff-server.vercel.app/api";
+function getStatusGif(statusValue) {
+  if (statusValue === "check_in") return "/checkin.gif";
+  if (statusValue === "lunch_out") return "/break.gif";
+  if (statusValue === "lunch_in") return "/break-end.webp";
+  if (statusValue === "check_out") return "/checkout.gif";
+  return "/checkin.gif";
+}
 
 export default function AttendancePage() {
+  const navigate = useNavigate();
+
   const [loadingAction, setLoadingAction] = useState(null);
   const [time, setTime] = useState(new Date());
   const [status, setStatus] = useState(null);
   const [todayActions, setTodayActions] = useState([]);
   const [todayHistory, setTodayHistory] = useState([]);
   const [loadingToday, setLoadingToday] = useState(false);
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState("");
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  });
+  const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+
   const userTimezone = getUserTimezone(user);
   const timezoneLabel = getTimezoneLabel(user);
+  const statusGif = getStatusGif(status?.value);
+
+  const logoutAndRedirect = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken("");
+    setUser(null);
+    navigate("/login", { replace: true });
+  }, [navigate]);
+
+  const handleUnauthorized = useCallback(
+    (res) => {
+      if (res.status === 401 || res.status === 403) {
+        logoutAndRedirect();
+        return true;
+      }
+
+      return false;
+    },
+    [logoutAndRedirect],
+  );
 
   useEffect(() => {
     try {
-      setToken(localStorage.getItem("token") || "");
-      setUser(JSON.parse(localStorage.getItem("user") || "null"));
+      const storedToken = localStorage.getItem("token");
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+
+      if (!storedToken) {
+        logoutAndRedirect();
+        return;
+      }
+
+      setToken(storedToken);
+      setUser(storedUser);
     } catch {
-      setToken("");
-      setUser(null);
+      logoutAndRedirect();
     }
-  }, []);
+  }, [logoutAndRedirect]);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
@@ -95,6 +138,9 @@ export default function AttendancePage() {
 
   function formatActionLabel(action) {
     if (!action) return "";
+    if (action === "lunch_out") return "Break";
+    if (action === "lunch_in") return "Break End";
+
     return action
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -107,8 +153,10 @@ export default function AttendancePage() {
 
   function formatTime(value) {
     if (!value) return "-";
+
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "-";
+
     return d.toLocaleTimeString("en-US", {
       timeZone: userTimezone,
       hour: "2-digit",
@@ -119,8 +167,10 @@ export default function AttendancePage() {
 
   function formatDate(value) {
     if (!value) return "";
+
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
+
     return d.toLocaleDateString("en-US", {
       timeZone: userTimezone,
       weekday: "short",
@@ -147,6 +197,8 @@ export default function AttendancePage() {
           },
         });
 
+        if (handleUnauthorized(res)) return;
+
         const data = await res.json();
 
         if (!res.ok) {
@@ -166,7 +218,7 @@ export default function AttendancePage() {
 
           setStatus({
             action:
-              last?.label || meta?.label || formatActionLabel(last?.action),
+              meta?.label || last?.label || formatActionLabel(last?.action),
             time: formatTime(last?.createdAt),
             value: last?.action,
           });
@@ -179,7 +231,7 @@ export default function AttendancePage() {
     };
 
     fetchTodayAttendance();
-  }, [token]);
+  }, [token, userTimezone, handleUnauthorized]);
 
   const actionState = useMemo(() => {
     const hasCheckIn = todayActions.includes("check_in");
@@ -225,7 +277,7 @@ export default function AttendancePage() {
 
   const handleAttendance = async (action) => {
     if (!token) {
-      showError("Please login again");
+      logoutAndRedirect();
       return;
     }
 
@@ -246,6 +298,8 @@ export default function AttendancePage() {
         body: JSON.stringify({ action }),
       });
 
+      if (handleUnauthorized(res)) return;
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -255,7 +309,7 @@ export default function AttendancePage() {
 
       const meta = getActionMeta(action);
       const label =
-        data?.record?.label || meta?.label || formatActionLabel(action);
+        meta?.label || data?.record?.label || formatActionLabel(action);
       const createdAt = data?.record?.createdAt || new Date().toISOString();
 
       setStatus({
@@ -277,9 +331,6 @@ export default function AttendancePage() {
       setLoadingAction(null);
     }
   };
-
-  const lastMeta = status?.value ? getActionMeta(status.value) : null;
-  const LastIcon = lastMeta?.icon || CheckCircle2;
 
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100 antialiased selection:bg-blue-500/30">
@@ -337,44 +388,40 @@ export default function AttendancePage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-yellow-400/40 bg-linear-to-br from-[#3b2a00] via-[#1c1505] to-[#0f0c05] p-6 text-center shadow-[0_0_50px_rgba(250,204,21,0.15)]">
-            <div className="absolute inset-0 bg-linear-to-r from-yellow-400/10 via-transparent to-amber-400/10" />
-            <div className="absolute -top-16 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-yellow-400/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-3xl border border-yellow-400/40">
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${statusGif})` }}
+            />
 
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-yellow-300/40 bg-yellow-400/15 text-yellow-300 shadow-[0_0_30px_rgba(250,204,21,0.25)]">
-                {loadingToday ? (
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                ) : (
-                  <LastIcon className="h-8 w-8" />
-                )}
-              </div>
-
-              <span className="text-[11px] font-black uppercase tracking-[0.35em] text-yellow-200">
-                LAST STATUS
-              </span>
-
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-white">
-                {loadingToday ? (
-                  <span className="text-2xl text-yellow-200">Updating...</span>
-                ) : status ? (
-                  status.action
-                ) : (
-                  "No Action Logged"
-                )}
-              </h2>
-
-              {status?.action && (
-                <span className="mt-3 rounded-full border border-yellow-300/20 bg-yellow-400/10 px-4 py-1 text-sm font-bold text-yellow-100">
-                  {status.action}
+            <div className="relative z-10 flex h-48 items-start justify-end p-4 sm:h-64 sm:p-6">
+              <div className="max-w-xs rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-left shadow-2xl backdrop-blur-lg sm:max-w-sm sm:px-5 sm:py-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.35em] text-yellow-300">
+                  LAST STATUS
                 </span>
-              )}
 
-              <p className="mt-4 text-sm font-medium text-yellow-100/70">
-                {status
-                  ? `Recorded at ${status.time}`
-                  : "Waiting for first attendance"}
-              </p>
+                <h2 className="mt-1 text-xl font-extrabold leading-tight text-white sm:text-2xl">
+                  {loadingToday ? (
+                    <span className="text-lg text-yellow-200">Updating...</span>
+                  ) : status ? (
+                    status.action
+                  ) : (
+                    "No Action Logged"
+                  )}
+                </h2>
+
+                {status?.action && (
+                  <span className="mt-1.5 inline-block rounded-full border border-yellow-300/30 bg-yellow-400/10 px-2.5 py-0.5 text-xs font-bold text-yellow-100">
+                    {status.action}
+                  </span>
+                )}
+
+                <p className="mt-2 text-xs font-medium text-slate-300">
+                  {status
+                    ? `Recorded at ${status.time}`
+                    : "Waiting for first attendance"}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -383,7 +430,6 @@ export default function AttendancePage() {
               const Icon = item.icon;
               const isLoading = loadingAction === item.value;
               const isCompleted = todayActions.includes(item.value);
-
               const isDisabled =
                 !!loadingAction ||
                 loadingToday ||
@@ -396,7 +442,7 @@ export default function AttendancePage() {
                   disabled={isDisabled}
                   className={`group relative flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-left outline-none transition-all duration-200 focus-visible:ring-2 active:scale-[0.99] ${
                     isCompleted
-                      ? "cursor-not-allowed opacity-45 border-slate-800 bg-slate-900/30"
+                      ? "cursor-not-allowed border-slate-800 bg-slate-900/30 opacity-45"
                       : isDisabled
                         ? "cursor-not-allowed border-slate-900 bg-slate-900/20 opacity-40"
                         : `${item.cardClass} shadow-xs hover:translate-x-0.5`
