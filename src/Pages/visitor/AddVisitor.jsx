@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   FaUndo,
@@ -14,7 +14,6 @@ const consultationStatuses = [
   "Needs Follow-up",
   "Documents Pending",
   "Not Eligible",
-  "Not Interested",
 ];
 
 const nationalities = [
@@ -79,6 +78,8 @@ const initialState = {
   interestedCountry: "",
   paymentTerms: "",
   consultationStatus: "",
+  customStatus: "",
+  nextFollowupDate: "", // Always standard YYYY-MM-DD format behind the scenes
   visitorEnquiry: "",
   remarks: "",
   visaTypeManual: "",
@@ -88,6 +89,10 @@ export default function AddVisitor() {
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [isManualCountry, setIsManualCountry] = useState(false);
+  const [isCustomStatus, setIsCustomStatus] = useState(false);
+  
+  // Reference hook to trigger the hidden picker element
+  const hiddenPickerRef = useRef(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -110,6 +115,19 @@ export default function AddVisitor() {
       setFormData((prev) => ({ ...prev, time: timeString }));
     }
   }, []);
+
+  // Format YYYY-MM-DD into a human friendly DD-MM-YYYY presentation string
+  const formatToDMY = (dateString) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}-${month}-${year}`;
+  };
+
+  const triggerCalendar = () => {
+    if (hiddenPickerRef.current && typeof hiddenPickerRef.current.showPicker === "function") {
+      hiddenPickerRef.current.showPicker();
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,6 +158,24 @@ export default function AddVisitor() {
       return;
     }
 
+    if (name === "consultationStatus") {
+      if (value === "CustomStatus") {
+        setIsCustomStatus(true);
+        setFormData((prev) => ({
+          ...prev,
+          consultationStatus: "",
+        }));
+      } else {
+        setIsCustomStatus(false);
+        setFormData((prev) => ({
+          ...prev,
+          consultationStatus: value,
+          customStatus: "",
+        }));
+      }
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -148,7 +184,6 @@ export default function AddVisitor() {
     setLoading(true);
 
     const now = new Date();
-
     const submissionTime = now.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -163,9 +198,13 @@ export default function AddVisitor() {
           formData.visaType === "Others"
             ? formData.visaTypeManual || "Others"
             : formData.visaType,
+        consultationStatus: isCustomStatus 
+            ? formData.customStatus || "Other Status" 
+            : formData.consultationStatus,
       };
 
       delete payload.visaTypeManual;
+      delete payload.customStatus;
 
       const response = await fetch(
         "https://wmibcstaff-server.vercel.app/api/visitor",
@@ -188,6 +227,7 @@ export default function AddVisitor() {
       });
 
       setIsManualCountry(false);
+      setIsCustomStatus(false);
 
       setFormData({
         ...initialState,
@@ -203,7 +243,7 @@ export default function AddVisitor() {
   };
 
   const inputStyle =
-    "w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-sm text-white placeholder:text-blue-100/35 shadow-inner shadow-blue-950/20 outline-none transition duration-200 focus:border-sky-300/70 focus:bg-slate-950/65 focus:ring-4 focus:ring-sky-400/20";
+    "w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-sm text-white placeholder:text-blue-100/35 shadow-inner shadow-blue-950/20 outline-none transition duration-200 focus:border-sky-300/70 focus:bg-slate-950/65 focus:ring-4 focus:ring-sky-400/20 [color-scheme:dark] cursor-pointer";
 
   const labelStyle =
     "mb-1.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-100/60";
@@ -243,12 +283,13 @@ export default function AddVisitor() {
 
           <div className="hidden rounded-full border border-sky-300/15 bg-slate-950/45 px-3 py-1 sm:block">
             <span className="text-[9px] font-black uppercase tracking-widest text-sky-200">
-              Lead Gen v2.3
+              Lead Gen v2.4
             </span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 p-5 sm:p-6">
+          {/* Top Row Meta Information */}
           <div className="grid grid-cols-1 gap-4 rounded-2xl border border-sky-300/15 bg-slate-950/35 p-4 shadow-inner shadow-blue-950/20 md:grid-cols-3">
             <div>
               <label className={labelStyle}>
@@ -267,8 +308,8 @@ export default function AddVisitor() {
                 <FaCalendarAlt className="text-sky-300" /> Date
               </label>
               <input
-                type="date"
-                value={formData.date}
+                type="text"
+                value={formatToDMY(formData.date)}
                 readOnly
                 className={`${inputStyle} cursor-not-allowed bg-slate-900/70 text-blue-100/70`}
               />
@@ -287,6 +328,7 @@ export default function AddVisitor() {
             </div>
           </div>
 
+          {/* Visitor Identity Section */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {sectionTitle("Visitor Identity")}
 
@@ -369,6 +411,7 @@ export default function AddVisitor() {
             />
           </div>
 
+          {/* Service Requirements Section */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {sectionTitle("Service Requirements")}
 
@@ -533,6 +576,7 @@ export default function AddVisitor() {
             </div>
           </div>
 
+          {/* Assessment & Remarks Section */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {sectionTitle("Assessment & Remarks")}
 
@@ -545,20 +589,82 @@ export default function AddVisitor() {
               className={inputStyle}
             />
 
-            <select
-              name="consultationStatus"
-              value={formData.consultationStatus}
-              onChange={handleChange}
-              required
-              className={`${inputStyle} font-black text-sky-200`}
-            >
-              <option value="">Consultation Status</option>
-              {consultationStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
+            {/* Consultation Status Input Column */}
+            <div className="relative">
+              {isCustomStatus ? (
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="customStatus"
+                    placeholder="Specify Consultant Status..."
+                    value={formData.customStatus}
+                    onChange={handleChange}
+                    autoFocus
+                    required
+                    className={`${inputStyle} border-sky-300/25 bg-sky-400/10 pr-10 font-black text-sky-100`}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomStatus(false);
+                      setFormData((p) => ({
+                        ...p,
+                        consultationStatus: "",
+                        customStatus: "",
+                        nextFollowupDate: "",
+                      }));
+                    }}
+                    className="absolute right-3 top-3 text-sky-300 hover:text-cyan-200"
+                  >
+                    <FaUndo size={11} />
+                  </button>
+                </div>
+              ) : (
+                <select
+                  name="consultationStatus"
+                  value={formData.consultationStatus}
+                  onChange={handleChange}
+                  required
+                  className={`${inputStyle} font-black text-sky-200`}
+                >
+                  <option value="">Consultation Status</option>
+                  {consultationStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                  <option value="CustomStatus">-- Others / Specify Status... --</option>
+                </select>
+              )}
+            </div>
+
+            {/* Next Follow-up Date Field Setup */}
+            {(formData.consultationStatus || isCustomStatus) && (
+              <div className="relative md:col-span-2">
+                <label className={labelStyle}>Next Follow-up Date</label>
+                
+                {/* 1. Visible Display Input showing Day-Month-Year cleanly */}
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="DD-MM-YYYY"
+                  value={formatToDMY(formData.nextFollowupDate)}
+                  onClick={triggerCalendar}
+                  className={inputStyle}
+                />
+                
+                {/* 2. Hidden core native input element handled via click mapping */}
+                <input
+                  ref={hiddenPickerRef}
+                  type="date"
+                  name="nextFollowupDate"
+                  value={formData.nextFollowupDate}
+                  onChange={handleChange}
+                  className="absolute bottom-0 left-0 -z-50 h-0 w-0 opacity-0"
+                />
+              </div>
+            )}
 
             <textarea
               name="visitorEnquiry"
@@ -581,6 +687,7 @@ export default function AddVisitor() {
             />
           </div>
 
+          {/* Submit Action Button */}
           <button
             type="submit"
             disabled={loading}

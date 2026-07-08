@@ -69,7 +69,7 @@ import Attendance from "../attendance/Attendance";
 import WpSlovakia from "../Pages/work-visa/WpSlovakia";
 import Meeting from "../Pages/meeting/Meeting";
 import MeetingDetails from "../Pages/meeting/MeetingDetails";
-import Leads from "../Pages/leads/Leads";
+
 import AttendanceEdit from "../Pages/attendance/AttendanceEdit";
 import AttendanceReport from "../Pages/attendance/AttendanceReport";
 import WpPortugalKSA from "../Pages/work-visa/WpPortugalKSA";
@@ -83,6 +83,9 @@ import WpPortugalSingapore from "../Pages/work-visa/WpPortugalSingapore";
 import EmployeeStatus from "../Pages/status/EmployeeStatus";
 import Todo from "../Pages/todo/Todo";
 import BusinessVisa from "../Pages/business-visa/BusinessVisa";
+import Followups from "../Pages/followups/Followups";
+import AddLeads from "../Pages/leads/AddLeads";
+import ConsultantLeads from "../Pages/leads/ConsultantLeads";
 
 const router = createBrowserRouter([
   { 
@@ -170,6 +173,12 @@ const router = createBrowserRouter([
 
       // BUSINESS VISA
       { path: "business-visa", element: <PrivateRoute><BusinessVisa /></PrivateRoute> },
+      { path: "followups", element: <PrivateRoute><Followups /></PrivateRoute> },
+
+      // LEADS
+      { path: "add-leads", element: <PrivateRoute><AddLeads /></PrivateRoute> },
+      { path: "leads", element: <PrivateRoute><ConsultantLeads /></PrivateRoute> },
+
 
 
       // // FORMS
@@ -192,7 +201,7 @@ const router = createBrowserRouter([
       { path: "applications", element: <AdminRoute><Applications /></AdminRoute> },
       { path: "applications/qatar/portugal", element: <AdminRoute><QatarPortugal /></AdminRoute> },
       { path: "/attendance/report", element: <PrivateRoute><AttendanceReport /></PrivateRoute> },
-      { path: "leads", element: <PrivateRoute><Leads /></PrivateRoute> },
+     
   
 
 

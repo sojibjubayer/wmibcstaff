@@ -41,92 +41,101 @@ const COMPANIES = [
 
 const WpMoldova = () => {
   return (
-    <div className="min-h-screen bg-[#fafafa] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans">
+    <div className="min-h-screen bg-[#f8fafc] py-12 px-4 sm:px-6 lg:px-8 text-slate-700 font-sans selection:bg-blue-100">
       <div className="max-w-7xl mx-auto space-y-10">
-        {/* Header */}
-        <header className="bg-linear-to-br from-[#fce4ec] to-[#f8bbd0] rounded-3xl shadow-sm border border-pink-100 p-10 text-center relative overflow-hidden">
-          <div className="absolute bottom-[-10%] right-[-5%] w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
+        
+        {/* HEADER SECTION */}
+        <header className="relative bg-linear-to-br from-[#f0f9ff] via-white to-[#e0f2fe] rounded-[2.5rem] shadow-sm border border-blue-100 p-10 text-center overflow-hidden">
+          {/* Decorative Premium Glow Elements */}
+          <div className="absolute -top-16 -right-16 w-56 h-56 bg-blue-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-indigo-500/10 rounded-full blur-3xl"></div>
 
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-800">
-            Moldova <span className="font-light italic text-slate-700">Work Visa</span>
+          <h1 className="text-3xl sm:text-5xl font-light tracking-tight text-slate-800 italic">
+            Moldova{" "}
+            <span className="font-extrabold not-italic bg-clip-text text-transparent bg-linear-to-r from-blue-600 via-indigo-600 to-slate-800">
+              Work Visa
+            </span>
           </h1>
-          <p className="mt-3 text-slate-600 text-lg font-medium tracking-wide">
+          <p className="mt-3 text-slate-500 text-lg font-medium tracking-wide uppercase">
             Two Different Company Opportunities
           </p>
         </header>
 
-        {/* Two Column Layout */}
+        {/* TWO COLUMN LAYOUT */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {COMPANIES.map((company, index) => (
             <div
               key={index}
-              className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"
+              className="bg-white rounded-3xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col justify-between"
             >
-              {/* Top */}
-              <div className="bg-slate-800 p-8 text-white">
-                <p className="text-pink-200 text-xs uppercase tracking-widest font-bold mb-2">
+              {/* Top Section */}
+              <div className="bg-slate-800 p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/10 rounded-full blur-xl pointer-events-none" />
+                <p className="text-blue-300 text-xs uppercase tracking-widest font-bold mb-2">
                   Opportunity {index + 1}
                 </p>
-                <h2 className="text-2xl font-bold leading-snug">{company.title}</h2>
-                <p className="mt-2 text-slate-300 text-sm">{company.subtitle}</p>
+                <h2 className="text-2xl font-bold leading-snug tracking-tight">{company.title}</h2>
+                <p className="mt-2 text-slate-300 text-xs font-medium uppercase tracking-wider">{company.subtitle}</p>
               </div>
 
-              {/* Body */}
-              <div className="p-8 space-y-6">
-                {/* Salary */}
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-center">
-                  <h3 className="text-pink-400 text-xs uppercase tracking-widest font-bold mb-2">
-                    Monthly Salary
-                  </h3>
-                  <p className="text-3xl font-light italic text-slate-800">{company.salary}</p>
-                  <p className="mt-3 text-xs uppercase tracking-wide text-slate-500">
-                    {company.benefits}
-                  </p>
-                </div>
-
-                {/* Process Time */}
-                <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
-                  <h3 className="font-bold text-slate-800 text-sm uppercase tracking-widest mb-3 border-b border-pink-100 pb-2">
-                    Process Time
-                  </h3>
-                  <p className="text-slate-600 font-medium">{company.processTime}</p>
-                  {company.processSub && (
-                    <p className="text-slate-400 text-sm italic mt-1">{company.processSub}</p>
-                  )}
-                </div>
-
-                {/* Payment */}
-                <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                  <div className="bg-slate-100 px-6 py-4 border-b border-slate-200">
-                    <h3 className="text-lg font-bold text-slate-800">{company.paymentTitle}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{company.paymentNote}</p>
+              {/* Body Content */}
+              <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
+                <div className="space-y-6">
+                  {/* Salary Card */}
+                  <div className="bg-blue-50/20 border border-blue-100 rounded-2xl p-6 text-center">
+                    <h3 className="text-blue-500 text-xs uppercase tracking-widest font-bold mb-2">
+                      Monthly Salary
+                    </h3>
+                    <p className="text-3xl font-black text-slate-800 tracking-tight">{company.salary}</p>
+                    <p className="mt-3 text-[11px] uppercase tracking-wider font-bold text-slate-400">
+                      {company.benefits}
+                    </p>
                   </div>
 
-                  <div className="p-6 space-y-4">
-                    {company.payments.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-xl bg-[#fafafa] border-l-4 border-pink-200"
-                      >
-                        <div className="flex justify-between items-center gap-4">
-                          <span className="text-slate-600 text-sm sm:text-base">{item.label}</span>
-                          <span className="text-slate-900 font-bold text-right">{item.amount}</span>
+                  {/* Processing Timeline */}
+                  <div className="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs">
+                    <h3 className="font-bold text-slate-800 text-xs uppercase tracking-widest mb-3 border-b border-blue-50 pb-2">
+                      Process Time
+                    </h3>
+                    <p className="text-slate-700 font-bold text-base">{company.processTime}</p>
+                    {company.processSub && (
+                      <p className="text-slate-400 text-xs italic mt-1">{company.processSub}</p>
+                    )}
+                  </div>
+
+                  {/* Payment Breakdown */}
+                  <section className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
+                    <div className="bg-slate-50 px-6 py-4 border-b border-slate-200/60">
+                      <h3 className="text-base font-bold text-slate-800">{company.paymentTitle}</h3>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">{company.paymentNote}</p>
+                    </div>
+
+                    <div className="p-5 space-y-4 bg-white">
+                      {company.payments.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="p-4 rounded-xl bg-slate-50/50 border-l-4 border-blue-400 transition-colors hover:bg-blue-50/10"
+                        >
+                          <div className="flex justify-between items-center gap-4">
+                            <span className="text-slate-600 font-semibold text-sm">{item.label}</span>
+                            <span className="text-slate-800 font-black text-sm text-right">{item.amount}</span>
+                          </div>
+                          {item.note && (
+                            <p className="text-[11px] text-slate-400 italic mt-1.5 leading-relaxed">{item.note}</p>
+                          )}
                         </div>
-                        {item.note && (
-                          <p className="text-xs text-slate-400 italic mt-2">{item.note}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
+                      ))}
+                    </div>
+                  </section>
+                </div>
 
-                {/* Extra Note */}
+                {/* Extra Notes Optional Module */}
                 {company.extraNote && (
-                  <div className="bg-pink-50 border border-pink-100 rounded-2xl p-5">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-800 mb-2">
+                  <div className="mt-6 bg-blue-50/40 border border-blue-100 rounded-2xl p-5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">
                       Important Note
                     </h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">{company.extraNote}</p>
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">{company.extraNote}</p>
                   </div>
                 )}
               </div>
@@ -134,7 +143,8 @@ const WpMoldova = () => {
           ))}
         </div>
 
-        <footer className="text-center text-slate-400 text-[10px] tracking-[0.3em] uppercase py-4">
+        {/* FOOTER */}
+        <footer className="text-center text-slate-400 text-[10px] tracking-[0.4em] uppercase py-6">
           Moldova Employment Intake • 2026
         </footer>
       </div>

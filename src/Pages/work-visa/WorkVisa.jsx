@@ -74,29 +74,29 @@ const WorkVisa = () => {
     country.toLowerCase().replace(/\s+/g, "-");
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#071a3d] px-4 py-10 text-white md:px-10 md:py-16">
-      {/* Premium blue background */}
-      <div className="pointer-events-none absolute left-1/2 -top-45 h-140 w-140 -translate-x-1/2 rounded-full bg-blue-500/25 blur-3xl" />
-      <div className="pointer-events-none absolute -right-30 top-32 h-105 w-105 rounded-full bg-cyan-400/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-30 h-105 w-105 rounded-full bg-sky-500/15 blur-3xl" />
+    <section className="relative min-h-screen overflow-hidden bg-slate-50 px-4 py-10 text-slate-800 md:px-10 md:py-16">
+      {/* Soft Light Background Gradients */}
+      <div className="pointer-events-none absolute left-1/2 -top-45 h-140 w-140 -translate-x-1/2 rounded-full bg-blue-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute -right-30 top-32 h-105 w-105 rounded-full bg-sky-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-30 h-105 w-105 rounded-full bg-indigo-100/40 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-12 text-center md:mb-16">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/15 bg-white/10 shadow-2xl shadow-blue-950/50 backdrop-blur">
-            <BriefcaseBusiness className="h-8 w-8 text-cyan-300" />
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-md">
+            <BriefcaseBusiness className="h-8 w-8 text-blue-600" />
           </div>
 
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-cyan-200">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-blue-700">
             <Sparkles className="h-3.5 w-3.5" />
              Work Visa Programs
           </div>
 
-          <h1 className="mx-auto max-w-4xl text-4xl font-black uppercase tracking-tight text-white md:text-6xl">
+          <h1 className="mx-auto max-w-4xl text-4xl font-black uppercase tracking-tight text-slate-900 md:text-6xl">
             Work Visa Destinations
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-blue-100/75 md:text-base">
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-500 md:text-base">
             Explore international employment pathways, job categories, salary
             opportunities, and documentation requirements for the 2026 work
             permit season.
@@ -109,19 +109,19 @@ const WorkVisa = () => {
             <a
               key={country}
               href={`/work-visa/${routeName(country)}`}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.07] p-5 shadow-xl shadow-black/20 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/40 hover:bg-white/12 hover:shadow-2xl hover:shadow-cyan-950/40"
+              className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-400 hover:shadow-xl hover:shadow-slate-200"
             >
-              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="mb-5 flex justify-center">
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-cyan-300/30 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-0 rounded-full bg-blue-400/10 blur-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                   {/* Flag Circle */}
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white/85 shadow-2xl shadow-black/35 transition-transform duration-300 group-hover:scale-105 md:h-28 md:w-28">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-slate-100 shadow-lg transition-transform duration-300 group-hover:scale-105 md:h-28 md:w-28">
                     <div
                       className="absolute inset-0"
-                      style={{
+                      style={{ 
                         backgroundImage:
                           countryFlagStyles[country] ||
                           "linear-gradient(#cbd5e1, #cbd5e1)",
@@ -131,10 +131,10 @@ const WorkVisa = () => {
                     />
 
                     {/* Soft premium shine */}
-                    <div className="absolute inset-0 rounded-full bg-linear-to-br from-white/25 via-transparent to-black/10" />
+                    <div className="absolute inset-0 rounded-full bg-linear-to-br from-white/30 via-transparent to-black/5" />
 
                     {/* Hover Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-950/45 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       <ArrowUpRight className="h-6 w-6 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </div>
                   </div>
@@ -142,12 +142,12 @@ const WorkVisa = () => {
               </div>
 
               <div className="text-center">
-                <h3 className="flex min-h-10 items-center justify-center text-sm font-black uppercase tracking-wide text-white">
+                <h3 className="flex min-h-10 items-center justify-center text-sm font-black uppercase tracking-wide text-slate-800 transition-colors group-hover:text-blue-600">
                   {displayName(country)}
                 </h3>
 
-                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-blue-300/15 bg-blue-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-100/80">
-                  <Globe2 className="h-3 w-3 text-cyan-300" />
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:border-blue-100 group-hover:bg-blue-50/50 group-hover:text-blue-600">
+                  <Globe2 className="h-3 w-3 text-slate-400 group-hover:text-blue-500" />
                   Work Route
                 </div>
               </div>
@@ -156,11 +156,11 @@ const WorkVisa = () => {
         </div>
 
         {/* Footer Note */}
-        <div className="mt-14 rounded-3xl border border-white/10 bg-white/[0.07] p-6 text-center shadow-xl shadow-black/20 backdrop-blur md:p-8">
-          <p className="mx-auto max-w-3xl text-sm leading-7 text-blue-100/75">
+        <div className="mt-14 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm md:p-8">
+          <p className="mx-auto max-w-3xl text-sm leading-7 text-slate-500">
             Select a destination to view available job sectors, estimated salary
             ranges, processing requirements, and documentation details for the{" "}
-            <span className="font-bold text-cyan-200">
+            <span className="font-bold text-blue-600">
               2026 Work Permit Season
             </span>
             .
