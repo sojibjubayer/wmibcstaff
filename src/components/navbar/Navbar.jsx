@@ -71,7 +71,7 @@ const styles = {
   desktopButton:
     "inline-flex items-center rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-blue-50 shadow-lg shadow-blue-950/30 backdrop-blur-xl transition-all hover:border-sky-300/40 hover:bg-sky-400/15 hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-400/20",
   desktopPrimary:
-  "inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300",
+    "inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300",
   dropdown:
     "rounded-2xl border border-sky-300/15 bg-slate-950/95 shadow-2xl shadow-blue-950/60 backdrop-blur-2xl",
   dropdownItem:
@@ -102,8 +102,10 @@ const Navbar = () => {
 
   const userName = user?.name || user?.userName || user?.fullName || "";
   const normalizedUserName = userName.toLowerCase().trim();
+  // console.log(normalizedUserName)
 
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role?.trim().toLowerCase() === "admin";
+  const canManageLeads = isAdmin || normalizedUserName === "imtiyaj";
 
   const canSeeRefund =
     isAdmin ||
@@ -340,7 +342,6 @@ const Navbar = () => {
                 <li className={`group/schengen ${styles.dropdownParent}`}>
                   Schengen
                   <FaChevronRight className="text-[10px] text-sky-200/70" />
-
                   <div className="absolute left-full top-0 z-999 hidden w-60 pl-2 group-hover/schengen:block">
                     <ul className={styles.dropdown}>
                       {menuData.workVisa.schengen.map((item, idx) => (
@@ -360,7 +361,6 @@ const Navbar = () => {
                 <li className={`group/nonSchengen ${styles.dropdownParent}`}>
                   Non Schengen
                   <FaChevronRight className="text-[10px] text-sky-200/70" />
-
                   <div className="absolute left-full top-0 z-999 hidden w-64 pl-2 group-hover/nonSchengen:block">
                     <ul className={styles.dropdown}>
                       {menuData.workVisa.nonSchengenEurope.map((item, idx) => (
@@ -571,23 +571,37 @@ const Navbar = () => {
                     </p>
                   </div>
 
-                  {isAdmin && (
+                  {(canManageLeads || isAdmin) && (
                     <div className="mt-2 border-b border-white/10 pb-2">
-                      <Link
-                        to="/dashboard"
-                        onClick={() => setProfileOpen(false)}
-                        className="block rounded-xl px-3 py-2 text-sm font-black text-blue-50 transition-all hover:bg-sky-400/15 hover:text-white"
-                      >
-                        Dashboard
-                      </Link>
+                      {canManageLeads && (
+                        <Link
+                          to="/manage-leads"
+                          onClick={() => setProfileOpen(false)}
+                          className="block rounded-xl px-3 py-2 text-sm font-black text-blue-50 transition-all hover:bg-sky-400/15 hover:text-white"
+                        >
+                          Manage Leads
+                        </Link>
+                      )}
 
-                      <Link
-                        to="/applications"
-                        onClick={() => setProfileOpen(false)}
-                        className="block rounded-xl px-3 py-2 text-sm font-black text-blue-50 transition-all hover:bg-sky-400/15 hover:text-white"
-                      >
-                        Application
-                      </Link>
+                      {isAdmin && (
+                        <>
+                          <Link
+                            to="/dashboard"
+                            onClick={() => setProfileOpen(false)}
+                            className="block rounded-xl px-3 py-2 text-sm font-black text-blue-50 transition-all hover:bg-sky-400/15 hover:text-white"
+                          >
+                            Dashboard
+                          </Link>
+
+                          <Link
+                            to="/applications"
+                            onClick={() => setProfileOpen(false)}
+                            className="block rounded-xl px-3 py-2 text-sm font-black text-blue-50 transition-all hover:bg-sky-400/15 hover:text-white"
+                          >
+                            Application
+                          </Link>
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -651,23 +665,37 @@ const Navbar = () => {
 
                 {profileOpen && (
                   <div className="mt-3 space-y-2">
-                    {isAdmin && (
+                    {(canManageLeads || isAdmin) && (
                       <div className="rounded-xl border border-white/10 bg-slate-950/45 p-2">
-                        <Link
-                          to="/dashboard"
-                          onClick={closeMobile}
-                          className={styles.mobileLink}
-                        >
-                          Dashboard
-                        </Link>
+                        {canManageLeads && (
+                          <Link
+                            to="/manage-leads"
+                            onClick={closeMobile}
+                            className={styles.mobileLink}
+                          >
+                            Manage Leads
+                          </Link>
+                        )}
 
-                        <Link
-                          to="/applications"
-                          onClick={closeMobile}
-                          className={styles.mobileLink}
-                        >
-                          Application
-                        </Link>
+                        {isAdmin && (
+                          <>
+                            <Link
+                              to="/dashboard"
+                              onClick={closeMobile}
+                              className={styles.mobileLink}
+                            >
+                              Dashboard
+                            </Link>
+
+                            <Link
+                              to="/applications"
+                              onClick={closeMobile}
+                              className={styles.mobileLink}
+                            >
+                              Application
+                            </Link>
+                          </>
+                        )}
                       </div>
                     )}
 

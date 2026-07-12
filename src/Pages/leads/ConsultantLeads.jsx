@@ -11,10 +11,11 @@ const statuses = [
   "Interested",
   "Busy",
   "No Answer",
-  "Switched Off",
-  "Wrong Number",
+  "Switched Off", 
+  "Wrong Number", 
   "Not Interested",
   "Visited",
+  "Contacted Before", 
   "Already Contacted by Another Consultant",
 ];
 
@@ -348,42 +349,91 @@ export default function ConsultantLeads() {
 }
 
 function PhoneRow({ lead, onUpdate }) {
-  const [acknowledged, setAcknowledged] = useState(lead.acknowledged || false);
-  const [status, setStatus] = useState(lead.status || "New");
-  const [note, setNote] = useState(lead.note || "");
-  const [nextFollowUpDate, setNextFollowUpDate] = useState(
-    normalizeDate(lead.nextFollowUpDate),
+  const [acknowledged, setAcknowledged] = useState(
+    lead.acknowledged || false,
   );
+
+  const [status, setStatus] = useState(
+    lead.status || "New",
+  );
+
+  const [note, setNote] = useState(
+    lead.note || "",
+  );
+
+  const [nextFollowUpDate, setNextFollowUpDate] =
+    useState(
+      normalizeDate(lead.nextFollowUpDate),
+    );
+
   const [saving, setSaving] = useState(false);
-  const [justSaved, setJustSaved] = useState(false);
+  const [justSaved, setJustSaved] =
+    useState(false);
 
   useEffect(() => {
-    setAcknowledged(lead.acknowledged || false);
-    setStatus(lead.status || "New");
-    setNote(lead.note || "");
-    setNextFollowUpDate(normalizeDate(lead.nextFollowUpDate));
+    setAcknowledged(
+      lead.acknowledged || false,
+    );
+
+    setStatus(
+      lead.status || "New",
+    );
+
+    setNote(
+      lead.note || "",
+    );
+
+    setNextFollowUpDate(
+      normalizeDate(
+        lead.nextFollowUpDate,
+      ),
+    );
   }, [lead]);
 
-  const savedDate = normalizeDate(lead.nextFollowUpDate);
+  const isVisited =
+    String(lead.status || "")
+      .trim()
+      .toLowerCase() === "visited";
+
+  const savedDate = normalizeDate(
+    lead.nextFollowUpDate,
+  );
 
   const hasChanged =
-    acknowledged !== (lead.acknowledged || false) ||
-    status !== (lead.status || "New") ||
-    note !== (lead.note || "") ||
-    nextFollowUpDate !== savedDate;
+    !isVisited &&
+    (
+      acknowledged !==
+        (lead.acknowledged || false) ||
+      status !==
+        (lead.status || "New") ||
+      note !==
+        (lead.note || "") ||
+      nextFollowUpDate !== savedDate
+    );
 
   const handleSave = async () => {
-    if (!hasChanged || saving) return;
+    if (
+      isVisited ||
+      !hasChanged ||
+      saving
+    ) {
+      return;
+    }
 
     setSaving(true);
     setJustSaved(false);
 
-    const success = await onUpdate(lead.batchId, lead.phoneIndex, {
-      acknowledged,
-      status,
-      note,
-      nextFollowUpDate: nextFollowUpDate || null,
-    });
+    const success = await onUpdate(
+      lead.batchId,
+      lead.phoneIndex,
+      {
+        acknowledged,
+        status,
+        note,
+        nextFollowUpDate:
+          nextFollowUpDate || null,
+      },
+    );
 
     setSaving(false);
 
@@ -396,22 +446,35 @@ function PhoneRow({ lead, onUpdate }) {
     }
   };
 
-  const cleanPhone = String(lead.number || "").replace(/\D/g, "");
-  const whatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}`;
-  const followUpStatus = getFollowUpStatus(nextFollowUpDate);
+  const cleanPhone = String(
+    lead.number || "",
+  ).replace(/\D/g, "");
+
+  const whatsappUrl =
+    `https://web.whatsapp.com/send?phone=${cleanPhone}`;
+
+  const followUpStatus =
+    getFollowUpStatus(
+      nextFollowUpDate,
+    );
 
   return (
     <tr
       className={`border-b border-slate-100 align-top transition ${
-        saving
-          ? "bg-blue-50/60"
-          : justSaved
-            ? "bg-green-50/70"
-            : "hover:bg-slate-50"
+        isVisited
+          ? "bg-emerald-50/40"
+          : saving
+            ? "bg-blue-50/60"
+            : justSaved
+              ? "bg-green-50/70"
+              : "hover:bg-slate-50"
       }`}
     >
+      {/* Lead */}
       <td className="px-4 py-4">
-        <p className="font-black text-slate-900">{lead.number}</p>
+        <p className="font-black text-slate-900">
+          {lead.number}
+        </p>
 
         <a
           href={whatsappUrl}
@@ -423,13 +486,26 @@ function PhoneRow({ lead, onUpdate }) {
         </a>
       </td>
 
+      {/* Acknowledgement */}
       <td className="px-4 py-4">
-        <label className="flex cursor-pointer items-center gap-2">
+        <label
+          className={`flex items-center gap-2 ${
+            isVisited
+              ? "cursor-not-allowed opacity-70"
+              : "cursor-pointer"
+          }`}
+        >
           <input
             type="checkbox"
             checked={acknowledged}
-            onChange={(e) => setAcknowledged(e.target.checked)}
-            disabled={saving}
+            onChange={(event) =>
+              setAcknowledged(
+                event.target.checked,
+              )
+            }
+            disabled={
+              saving || isVisited
+            }
             className="h-4 w-4"
           />
 
@@ -440,42 +516,66 @@ function PhoneRow({ lead, onUpdate }) {
                 : "bg-red-100 text-red-700"
             }`}
           >
-            {acknowledged ? "Acknowledged" : "Unacknowledged"}
+            {acknowledged
+              ? "Acknowledged"
+              : "Unacknowledged"}
           </span>
         </label>
       </td>
 
+      {/* Status */}
       <td className="px-4 py-4">
         <select
           value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          disabled={saving}
-          className="rounded-xl border border-slate-300 px-3 py-2 font-semibold outline-none focus:border-blue-500 disabled:bg-slate-100"
+          onChange={(event) =>
+            setStatus(
+              event.target.value,
+            )
+          }
+          disabled={
+            saving || isVisited
+          }
+          className="rounded-xl border border-slate-300 px-3 py-2 font-semibold outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100"
         >
           {statuses.map((item) => (
-            <option key={item} value={item}>
+            <option
+              key={item}
+              value={item}
+            >
               {item}
             </option>
           ))}
         </select>
       </td>
 
+      {/* Note */}
       <td className="px-4 py-4">
         <textarea
           value={note}
-          onChange={(e) => setNote(e.target.value)}
-          disabled={saving}
+          onChange={(event) =>
+            setNote(
+              event.target.value,
+            )
+          }
+          disabled={
+            saving || isVisited
+          }
           placeholder="Call note, interest, objection..."
           rows={2}
-          className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 disabled:bg-slate-100"
+          className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100"
         />
       </td>
 
+      {/* Follow-up date */}
       <td className="px-4 py-4">
         <CustomDatePicker
           value={nextFollowUpDate}
-          onChange={setNextFollowUpDate}
-          disabled={saving}
+          onChange={
+            setNextFollowUpDate
+          }
+          disabled={
+            saving || isVisited
+          }
         />
 
         {followUpStatus && (
@@ -487,32 +587,77 @@ function PhoneRow({ lead, onUpdate }) {
         )}
       </td>
 
+      {/* Action */}
       <td className="px-4 py-4 text-right">
-        {saving ? (
-          <p className="mb-2 text-xs font-black text-blue-600">Saving...</p>
-        ) : hasChanged ? (
-          <p className="mb-2 text-xs font-black text-amber-600">
-            Unsaved changes
-          </p>
-        ) : justSaved ? (
-          <p className="mb-2 text-xs font-black text-green-400">Saved</p>
-        ) : (
-          <p className="mb-2 text-xs font-black text-slate-400">No changes</p>
-        )}
+        {isVisited ? (
+          <div className="inline-flex min-w-44 flex-col items-end gap-2">
+            <span className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700">
+              Visited
+            </span>
 
-        <button
-          onClick={handleSave}
-          disabled={!hasChanged || saving}
-          className={`rounded-xl px-4 py-2 text-xs font-black text-white transition ${
-            saving
-              ? "cursor-wait bg-blue-400"
-              : hasChanged
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "cursor-not-allowed bg-green-300"
-          }`}
-        >
-          {saving ? "Saving..." : hasChanged ? "Save Changes" : "Saved"}
-        </button>
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-right">
+              <p className="text-[10px] font-semibold text-slate-500">
+                Visited to
+              </p>
+
+              <p className="text-xs font-black text-slate-800">
+                {lead.visitedTo ||
+                  "Unknown consultant"}
+              </p>
+
+              <p className="mt-2 text-[10px] font-semibold text-slate-500">
+                Visited at
+              </p>
+
+              <p className="text-xs font-bold text-slate-700">
+                {formatVisitedDateTime(
+                  lead.visitedAt,
+                )}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {saving ? (
+              <p className="mb-2 text-xs font-black text-blue-600">
+                Saving...
+              </p>
+            ) : hasChanged ? (
+              <p className="mb-2 text-xs font-black text-amber-600">
+                Unsaved changes
+              </p>
+            ) : justSaved ? (
+              <p className="mb-2 text-xs font-black text-green-500">
+                Saved
+              </p>
+            ) : (
+              <p className="mb-2 text-xs font-black text-slate-400">
+                No changes
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={
+                !hasChanged || saving
+              }
+              className={`rounded-xl px-4 py-2 text-xs font-black text-white transition ${
+                saving
+                  ? "cursor-wait bg-blue-400"
+                  : hasChanged
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "cursor-not-allowed bg-green-300"
+              }`}
+            >
+              {saving
+                ? "Saving..."
+                : hasChanged
+                  ? "Save Changes"
+                  : "Saved"}
+            </button>
+          </>
+        )}
       </td>
     </tr>
   );
@@ -784,6 +929,28 @@ function formatDateDMY(dateString) {
 
   const [year, month, day] = dateString.slice(0, 10).split("-");
   return `${day}-${month}-${year}`;
+}
+
+function formatVisitedDateTime(value) {
+  if (!value) {
+    return "Time unavailable";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Time unavailable";
+  }
+
+  return date.toLocaleString("en-GB", {
+    timeZone: "Asia/Qatar",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 
 function parseDate(dateString) {

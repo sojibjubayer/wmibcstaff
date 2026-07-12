@@ -84,8 +84,8 @@ import EmployeeStatus from "../Pages/status/EmployeeStatus";
 import Todo from "../Pages/todo/Todo";
 import BusinessVisa from "../Pages/business-visa/BusinessVisa";
 import Followups from "../Pages/followups/Followups";
-import AddLeads from "../Pages/leads/AddLeads";
 import ConsultantLeads from "../Pages/leads/ConsultantLeads";
+import ManageLeads from "../Pages/leads/ManageLeads";
 
 const router = createBrowserRouter([
   { 
@@ -176,7 +176,7 @@ const router = createBrowserRouter([
       { path: "followups", element: <PrivateRoute><Followups /></PrivateRoute> },
 
       // LEADS
-      { path: "add-leads", element: <PrivateRoute><AddLeads /></PrivateRoute> },
+      { path: "manage-leads", element: <PrivateRoute><ManageLeads /></PrivateRoute> },
       { path: "leads", element: <PrivateRoute><ConsultantLeads /></PrivateRoute> },
 
 

@@ -43,13 +43,22 @@ const CURRENCY_OPTIONS = ["Riyal", "BDT"];
 export default function EditClient() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentStaff, setCurrentStaff] = useState("Staff Member");
 
+  const [newPayment, setNewPayment] = useState({
+    paymentType: "",
+    amount: "",
+    paymentMethod: "",
+    paymentDate: new Date(),
+  });
+
   useEffect(() => {
     try {
       const userData = localStorage.getItem("user");
+
       if (userData) {
         const parsedUser = JSON.parse(userData);
         setCurrentStaff(parsedUser.name || "Staff Member");
@@ -58,13 +67,6 @@ export default function EditClient() {
       console.error("Auth parsing error:", err);
     }
   }, []);
-
-  const [newPayment, setNewPayment] = useState({
-    paymentType: "",
-    amount: "",
-    paymentMethod: "",
-    paymentDate: new Date(),
-  });
 
   useEffect(() => {
     setLoading(true);
@@ -78,6 +80,7 @@ export default function EditClient() {
         setFormData({
           ...data,
           currency: data.currency || "Riyal",
+          paymentTerms: data.paymentTerms || "",
           amountReceived: Array.isArray(data.amountReceived)
             ? data.amountReceived
             : [],
@@ -85,6 +88,7 @@ export default function EditClient() {
             ? new Date(data.fileSubmissionDate)
             : null,
         });
+
         setLoading(false);
       })
       .catch((err) => {
@@ -99,6 +103,7 @@ export default function EditClient() {
 
     try {
       const userData = localStorage.getItem("user");
+
       if (userData) {
         const parsedUser = JSON.parse(userData);
         currentStaffName = parsedUser.name || "Unknown Staff";
@@ -127,11 +132,17 @@ export default function EditClient() {
         },
       );
 
-      if (res.ok) {
-        toast.success("Client Updated Successfully!");
-        setTimeout(() => navigate(`/client-details/${id}`), 1000);
+      if (!res.ok) {
+        throw new Error("Failed to update");
       }
+
+      toast.success("Client Updated Successfully!");
+
+      setTimeout(() => {
+        navigate(`/client-details/${id}`);
+      }, 1000);
     } catch (err) {
+      console.error(err);
       toast.error("Failed to update");
     }
   };
@@ -169,11 +180,12 @@ export default function EditClient() {
     toast.success("Payment added to list");
   };
 
-  if (loading) {
+  if (loading || !formData) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mb-4"></div>
-        <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">
+      <div className="flex h-screen flex-col items-center justify-center bg-slate-50">
+        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-yellow-400"></div>
+
+        <p className="animate-pulse text-xs font-bold uppercase tracking-widest text-slate-500">
           Fetching Profile for Editing...
         </p>
       </div>
@@ -184,15 +196,16 @@ export default function EditClient() {
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <Toaster />
 
-      <div className="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-xl border border-amber-100 overflow-hidden">
-        <div className="bg-amber-200 p-8 text-gray-700 flex justify-between items-center">
+      <div className="mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] border border-amber-100 bg-white shadow-xl">
+        <div className="flex items-center justify-between bg-amber-200 p-8 text-gray-700">
           <div>
             <h1 className="text-2xl font-bold uppercase tracking-tight">
               Edit Client
             </h1>
 
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <FaUserEdit className="text-amber-600" />
+
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
                 Editing as:{" "}
                 <span className="text-slate-900">{currentStaff}</span>
@@ -202,15 +215,17 @@ export default function EditClient() {
 
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={() => navigate(-1)}
-              className="bg-white/50 p-2 px-6 rounded-xl text-xs font-black uppercase hover:bg-red-200 transition-all border border-red-100"
+              className="rounded-xl border border-red-100 bg-white/50 p-2 px-6 text-xs font-black uppercase transition-all hover:bg-red-200"
             >
               Cancel
             </button>
 
             <button
+              type="button"
               onClick={handleUpdate}
-              className="bg-slate-900 text-white p-2 px-6 rounded-xl text-xs font-black uppercase shadow-lg hover:scale-105 transition-all"
+              className="rounded-xl bg-slate-900 p-2 px-6 text-xs font-black uppercase text-white shadow-lg transition-all hover:scale-105"
             >
               Save Changes
             </button>
@@ -218,9 +233,10 @@ export default function EditClient() {
         </div>
 
         <div className="p-8 md:p-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+            {/* IDENTITY */}
             <div className="space-y-5">
-              <h3 className="text-amber-600 font-black text-[10px] uppercase border-b pb-2 tracking-widest">
+              <h3 className="border-b pb-2 text-[10px] font-black uppercase tracking-widest text-amber-600">
                 Identity
               </h3>
 
@@ -256,13 +272,20 @@ export default function EditClient() {
 
               <EditField
                 label="QID Number"
-                value={formData.QID}
-                onChange={(v) => setFormData({ ...formData, QID: v })}
+                value={formData.QID || formData.ID}
+                onChange={(v) =>
+                  setFormData({
+                    ...formData,
+                    QID: v,
+                    ID: v,
+                  })
+                }
               />
             </div>
 
+            {/* JOURNEY */}
             <div className="space-y-5">
-              <h3 className="text-amber-600 font-black text-[10px] uppercase border-b pb-2 tracking-widest">
+              <h3 className="border-b pb-2 text-[10px] font-black uppercase tracking-widest text-amber-600">
                 Journey Tracking
               </h3>
 
@@ -303,8 +326,8 @@ export default function EditClient() {
                 onChange={(v) => setFormData({ ...formData, trade: v })}
               />
 
-              <div className="p-2 border-b border-gray-100">
-                <p className="text-[9px] font-black text-gray-400 uppercase mb-1">
+              <div className="border-b border-gray-100 p-2">
+                <p className="mb-1 text-[9px] font-black uppercase text-gray-400">
                   File Submission Date
                 </p>
 
@@ -313,14 +336,15 @@ export default function EditClient() {
                   onChange={(d) =>
                     setFormData({ ...formData, fileSubmissionDate: d })
                   }
-                  className="w-full text-sm font-bold bg-amber-50 p-2 rounded-lg outline-none"
+                  className="w-full rounded-lg bg-amber-50 p-2 text-sm font-bold outline-none"
                   dateFormat="dd/MM/yyyy"
                 />
               </div>
             </div>
 
-            <div className="bg-slate-50 p-6 rounded-4xl border border-amber-100 shadow-inner">
-              <h3 className="text-slate-800 font-black text-[10px] uppercase border-b pb-3 mb-5 tracking-widest">
+            {/* ACCOUNTS */}
+            <div className="rounded-4xl border border-amber-100 bg-slate-50 p-6 shadow-inner">
+              <h3 className="mb-5 border-b pb-3 text-[10px] font-black uppercase tracking-widest text-slate-800">
                 Accounts Ledger
               </h3>
 
@@ -340,6 +364,14 @@ export default function EditClient() {
               />
 
               <EditField
+                label="Payment Terms"
+                value={formData.paymentTerms}
+                onChange={(v) =>
+                  setFormData({ ...formData, paymentTerms: v })
+                }
+              />
+
+              <EditField
                 label={`Pending Balance (${formData.currency || "Riyal"})`}
                 value={formData.pendingBalance}
                 onChange={(v) =>
@@ -347,18 +379,25 @@ export default function EditClient() {
                 }
               />
 
-              <div className="space-y-2 mt-6 max-h-40 overflow-y-auto pr-2">
-                {formData.amountReceived.map((pay, i) => (
+              <div className="mt-6 max-h-40 space-y-2 overflow-y-auto pr-2">
+                {(formData.amountReceived || []).map((pay, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center bg-white p-3 rounded-xl text-[10px] border border-amber-50 shadow-sm"
+                    className="flex items-center justify-between rounded-xl border border-amber-50 bg-white p-3 text-[10px] shadow-sm"
                   >
                     <div>
                       <p className="font-bold text-slate-700">
                         {pay.paymentType}
                       </p>
-                      <p className="text-[8px] text-gray-400 uppercase">
-                        {new Date(pay.paymentDate).toLocaleDateString()}
+
+                      <p className="text-[8px] uppercase text-gray-400">
+                        {pay.paymentDate
+                          ? new Date(pay.paymentDate).toLocaleDateString()
+                          : "No Date"}
+                      </p>
+
+                      <p className="text-[8px] uppercase text-gray-400">
+                        {pay.paymentMethod}
                       </p>
                     </div>
 
@@ -368,11 +407,16 @@ export default function EditClient() {
                       </span>
 
                       <button
+                        type="button"
                         onClick={() => {
-                          const up = formData.amountReceived.filter(
+                          const updatedPayments = formData.amountReceived.filter(
                             (_, idx) => idx !== i,
                           );
-                          setFormData({ ...formData, amountReceived: up });
+
+                          setFormData({
+                            ...formData,
+                            amountReceived: updatedPayments,
+                          });
                         }}
                         className="text-red-400 hover:text-red-600"
                       >
@@ -383,10 +427,10 @@ export default function EditClient() {
                 ))}
               </div>
 
-              <div className="mt-6 p-4 bg-white rounded-2xl border-2 border-dashed border-amber-200 space-y-3">
+              <div className="mt-6 space-y-3 rounded-2xl border-2 border-dashed border-amber-200 bg-white p-4">
                 <div className="flex gap-2">
                   <select
-                    className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50 outline-none"
+                    className="flex-1 rounded-lg border bg-slate-50 p-2 text-[10px] font-bold outline-none"
                     value={newPayment.paymentType}
                     onChange={(e) =>
                       setNewPayment({
@@ -396,6 +440,7 @@ export default function EditClient() {
                     }
                   >
                     <option value="">Type</option>
+
                     {PAYMENT_TYPES.map((t) => (
                       <option key={t} value={t}>
                         {t}
@@ -404,7 +449,7 @@ export default function EditClient() {
                   </select>
 
                   <select
-                    className="flex-1 text-[10px] font-bold p-2 border rounded-lg bg-slate-50 outline-none"
+                    className="flex-1 rounded-lg border bg-slate-50 p-2 text-[10px] font-bold outline-none"
                     value={newPayment.paymentMethod}
                     onChange={(e) =>
                       setNewPayment({
@@ -414,6 +459,7 @@ export default function EditClient() {
                     }
                   >
                     <option value="">Method</option>
+
                     {PAYMENT_METHODS.map((m) => (
                       <option key={m} value={m}>
                         {m}
@@ -422,15 +468,15 @@ export default function EditClient() {
                   </select>
                 </div>
 
-                <div className="flex items-center gap-2 bg-slate-50 border rounded-lg p-2">
-                  <FaCalendarAlt className="text-amber-500 text-xs" />
+                <div className="flex items-center gap-2 rounded-lg border bg-slate-50 p-2">
+                  <FaCalendarAlt className="text-xs text-amber-500" />
 
                   <DatePicker
                     selected={newPayment.paymentDate}
                     onChange={(date) =>
                       setNewPayment({ ...newPayment, paymentDate: date })
                     }
-                    className="bg-transparent text-[10px] font-bold outline-none w-full"
+                    className="w-full bg-transparent text-[10px] font-bold outline-none"
                     dateFormat="dd/MM/yyyy"
                   />
                 </div>
@@ -438,16 +484,18 @@ export default function EditClient() {
                 <input
                   type="number"
                   placeholder={`Amount (${formData.currency || "Riyal"})`}
-                  className="w-full text-[10px] font-bold p-2 border rounded-lg outline-none"
+                  className="w-full rounded-lg border p-2 text-[10px] font-bold outline-none"
                   value={newPayment.amount}
                   onChange={(e) =>
                     setNewPayment({ ...newPayment, amount: e.target.value })
                   }
+                  onWheel={(e) => e.target.blur()}
                 />
 
                 <button
+                  type="button"
                   onClick={addPayment}
-                  className="w-full bg-amber-500 text-white py-2 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-md"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-2 text-[10px] font-black uppercase text-white shadow-md transition-all hover:bg-amber-600"
                 >
                   <FaPlus size={10} /> Add Payment
                 </button>
@@ -455,7 +503,8 @@ export default function EditClient() {
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* BOTTOM DETAILS */}
+          <div className="mt-12 grid grid-cols-1 gap-6 border-t border-slate-100 pt-8 md:grid-cols-4">
             <EditSelect
               label="Agreement"
               value={formData.agreementPaper}
@@ -490,13 +539,14 @@ export default function EditClient() {
 }
 
 const EditField = ({ label, value, onChange }) => (
-  <div className="p-2 border-b border-gray-100">
-    <p className="text-[9px] font-black text-gray-400 uppercase mb-1">
+  <div className="border-b border-gray-100 p-2">
+    <p className="mb-1 text-[9px] font-black uppercase text-gray-400">
       {label}
     </p>
+
     <input
       type="text"
-      className="w-full text-sm font-bold bg-amber-50 p-2 rounded-lg outline-none focus:ring-1 focus:ring-amber-300"
+      className="w-full rounded-lg bg-amber-50 p-2 text-sm font-bold outline-none focus:ring-1 focus:ring-amber-300"
       value={value || ""}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -504,16 +554,18 @@ const EditField = ({ label, value, onChange }) => (
 );
 
 const EditSelect = ({ label, value, options, onChange }) => (
-  <div className="p-2 border-b border-gray-100">
-    <p className="text-[9px] font-black text-gray-400 uppercase mb-1">
+  <div className="border-b border-gray-100 p-2">
+    <p className="mb-1 text-[9px] font-black uppercase text-gray-400">
       {label}
     </p>
+
     <select
-      className="w-full text-sm font-bold bg-amber-50 p-2 rounded-lg outline-none"
+      className="w-full rounded-lg bg-amber-50 p-2 text-sm font-bold outline-none"
       value={value || ""}
       onChange={(e) => onChange(e.target.value)}
     >
       <option value="">Select</option>
+
       {options.map((opt) => (
         <option key={opt} value={opt}>
           {opt}
